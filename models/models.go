@@ -3,20 +3,35 @@ package models
 import "time"
 
 type Document struct {
-	Name       string
-	Type       string
-	UploadDate time.Time
-	Semester   string // e.g. HK1 or HK2
-	AcadYear   string // e.g. 2024-2025
-	Note       string
+	Name         string
+	Type         string
+	UploadDate   time.Time
+	Semester     string // e.g. HK1 or HK2
+	AcademicYear string // e.g. 2024-2025
+	Note         string
 }
 
 type Subject struct {
-	Name      string
-	Code      string
-	Division  string
-	Type      string
-	URL       string
-	Note      string
-	Documents []Document
+	Code            string
+	Name            string
+	Type            string
+	Management      string
+	TheoryCredits   uint8
+	PracticeCredits uint8
+	URL             string
+	Note            string
+	Documents       []Document
+}
+
+type StandardSubject struct {
+	CourseCode      string
+	VietnameseName  string
+	EnglishName     string
+	Type            string
+	Management      string
+	TheoryCredits   uint8
+	PracticeCredits uint8
+	URL             string
+	Note            string
+	Documents       []Document
 }
