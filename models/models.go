@@ -8,6 +8,7 @@ type Document struct {
 	UploadDate   time.Time
 	Semester     string // e.g. HK1 or HK2
 	AcademicYear string // e.g. 2024-2025
+	URL          string
 	Note         string
 }
 
