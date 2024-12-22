@@ -9,14 +9,15 @@ import (
 )
 
 var (
-	appwriteClient     client.Client
-	studyVaultDB       *models.Database
-	subjectsCollection *models.Collection
-	appwriteDatabases  *databases.Databases
+	appwriteClient      client.Client
+	studyVaultDB        *models.Database
+	subjectsCollection  *models.Collection
+	documentsCollection *models.Collection
+	appwriteDatabases   *databases.Databases
 )
 
 func init() {
-	prepareDatabase()
+	// prepareDatabase()
 }
 
 func prepareDatabase() {

@@ -13,6 +13,7 @@ import (
 	awclient "github.com/appwrite/sdk-for-go/client"
 	"github.com/appwrite/sdk-for-go/databases"
 	awmodels "github.com/appwrite/sdk-for-go/models"
+	"github.com/svuit/drive-search/database"
 	"github.com/svuit/drive-search/models"
 )
 
@@ -121,6 +122,10 @@ func main() {
 	var err error
 	urlString := flag.String("url", "", "URL to fetch the subjects data into a JSON file")
 	jsonPath := flag.String("json", "", "Path to the JSON file containing subjects data")
+	schemaFlag := flag.Bool("schema", false, "Run schema database")
+	csvPathURLFile := flag.String("csv1", "", "Path to the first CSV file")
+	csvPathURLFolder := flag.String("csv2", "", "Path to the second CSV file")
+	jsonPathSeed := flag.String("jsonseed", "", "Path to the JSON file containing subjects data")
 	flag.Parse()
 
 	if *urlString != "" {
@@ -142,4 +147,14 @@ func main() {
 		seedSubjectsData(tableData)
 	}
 
+	if *schemaFlag {
+		database.SchemaDatabase()
+	}
+
+	if *csvPathURLFile != "" && *csvPathURLFolder != "" && *jsonPathSeed != "" {
+		database.SeedAllData(*csvPathURLFile, *csvPathURLFolder, *jsonPath)
+		// fmt.Println(*csvPathURLFile, *csvPathURLFolder, *jsonPathSeed)
+	} else {
+		log.Fatalf("Missing required CSV or JSON file paths.")
+	}
 }
