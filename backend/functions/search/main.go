@@ -37,6 +37,12 @@ func Main(Context openruntimes.Context) openruntimes.Response {
                 })
         }
 
+		attributes, err := databases.ListAttributes(databaseID, collectionID)
+		if err != nil {
+			// Handle error
+		}
+		attributeNames := make([]string, len(attributes.Attributes))	
+
         payload := Context.Req.BodyText()
 
         var requestBody RequestBody
@@ -49,8 +55,10 @@ func Main(Context openruntimes.Context) openruntimes.Response {
                 })
         }
 
-        result, err := databases.ListDocuments(databaseID, collectionID, databases.WithListDocumentsQueries([]string{query.Equal("code", requestBody.Code)}))
+		queries := []string{query.Equal("code", requestBody.Code), query.Select(attributeNames)}
 
+		result, err := databases.ListDocuments(databaseID, collectionID, databases.WithListDocumentsQueries(queries))
+		
         if err != nil {
                 Context.Log("Error querying database: " + err.Error())
                 return Context.Res.Json(Response{
