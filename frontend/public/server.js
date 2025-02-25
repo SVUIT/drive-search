@@ -1,25 +1,23 @@
 const express = require("express");
 const path = require("path");
-const { Client, Databases, Query, Account } = require("node-appwrite");
+const { Client, Databases, Query } = require("node-appwrite");
 require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static files from the same folder
 app.use(express.static(__dirname));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 const client = new Client()
-  .setEndpoint(process.env.ENDPOINT)
-  .setProject(process.env.PROJECT_ID);
+    .setEndpoint(process.env.ENDPOINT)
+    .setProject(process.env.PROJECT_ID);
 
 const databases = new Databases(client);
 
-// /search endpoint: performs a document search on the "name" attribute using a user session.
 app.get("/search", async (req, res) => {
   const queryTerm = req.query.q;
   if (!queryTerm) {
@@ -45,5 +43,5 @@ app.get("/search", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
