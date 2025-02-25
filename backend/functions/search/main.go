@@ -49,7 +49,7 @@ func Main(Context openruntimes.Context) openruntimes.Response {
                 })
         }
 
-        result, err := databases.ListDocuments(databaseID, collectionID, databases.WithListDocumentsQueries([]string{query.Equal("Code", requestBody.Code)}))
+        result, err := databases.ListDocuments(databaseID, collectionID, databases.WithListDocumentsQueries([]string{query.Equal("code", requestBody.Code)}))
 
         if err != nil {
                 Context.Log("Error querying database: " + err.Error())
