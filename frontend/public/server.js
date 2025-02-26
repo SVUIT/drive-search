@@ -1,69 +1,57 @@
-const express = require("express");
-const path = require("path");
-const { Client, Databases, Query } = require("node-appwrite");
-require("dotenv").config();
+document.getElementById("search-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const queryInput = document.getElementById("search-query");
+  const query = queryInput.value.trim();
+  const resultsContainer = document.getElementById("results");
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+  if (!query) {
+      resultsContainer.innerHTML = "<p>Vui lòng nhập từ khóa tìm kiếm.</p>";
+      return;
+  }
 
-// Serve static files
-app.use(express.static(__dirname));
+  resultsContainer.innerHTML = "<p>Đang tìm kiếm...</p>";
 
-// Serve index.html
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
-});
+  try {
+      const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
+      if (!response.ok) {
+          throw new Error("Lỗi khi tìm kiếm dữ liệu.");
+      }
 
-// Appwrite Client Setup
-const client = new Client()
-    .setEndpoint(process.env.ENDPOINT)
-    .setProject(process.env.PROJECT_ID);
+      const data = await response.json();
 
-const databases = new Databases(client);
-
-// Search API
-app.get("/search", async (req, res) => {
-    const queryTerm = req.query.q?.trim();
-    if (!queryTerm) {
-        return res.status(400).json({ 
-            error: 'Query parameter "q" is required.', 
-            documents: [] 
-        });
-    }
-
-    try {
-        const result = await databases.listDocuments(
-            process.env.DATABASE_ID,
-            process.env.COLLECTION_ID,
-            [Query.search("name", queryTerm)]
-        );
-
-        if (!result.documents.length) {
-            return res.json({
-                message: "Không tìm thấy môn học nào phù hợp.",
-                documents: []
-            });
-        }
-
-        res.json({
-            documents: result.documents.map(doc => ({
-                name: doc.name || "Chưa có tên",
-                code: doc.code || "Chưa cập nhật",
-                theoryCredits: doc.theoryCredits || 0,
-                practiceCredits: doc.practiceCredits || 0,
-                url: doc.url || null
-            }))
-        });
-    } catch (error) {
-        console.error("Error fetching from Appwrite:", error);
-        res.status(500).json({ 
-            error: "Error fetching from Appwrite.", 
-            documents: [] 
-        });
-    }
-});
-
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+      if (data.documents && data.documents.length > 0) {
+          let html = `<div class="search-results">
+                          <h3>Đã tìm thấy ${data.documents.length} kết quả:</h3>
+                          <ul>`;
+          data.documents.forEach((doc) => {
+              const theoryCredits = parseInt(doc.theoryCredits, 10) || 0;
+              const practiceCredits = parseInt(doc.practiceCredits, 10) || 0;
+              const totalCredits = theoryCredits + practiceCredits;
+              
+              html += `
+                  <li class="result-item">
+                      <h4>${doc.name || "Chưa có tên"}</h4>
+                      <div class="subject-info">
+                          <p><strong>Mã môn:</strong> ${doc.code || "Chưa cập nhật"}</p>
+                          <p><strong>Loại:</strong> ${doc.type || "Chưa cập nhật"}</p>
+                          <p><strong>Số tín chỉ:</strong> ${totalCredits} (Lý thuyết: ${theoryCredits}, Thực hành: ${practiceCredits})</p>
+                          ${doc.url 
+                              ? `<p><strong>Tài liệu:</strong> <a href="${doc.url}" target="_blank" rel="noopener noreferrer">Xem tài liệu</a></p>`
+                              : '<p><strong>Tài liệu:</strong> Chưa có tài liệu</p>'}
+                      </div>
+                  </li>`;
+          });
+          html += '</ul></div>';
+          resultsContainer.innerHTML = html;
+      } else {
+          resultsContainer.innerHTML = `
+              <div class="no-results">
+                  <p>Không tìm thấy môn học nào phù hợp với từ khóa của bạn.</p>
+                  <p>Vui lòng thử lại với từ khóa khác.</p>
+              </div>`;
+      }
+  } catch (error) {
+      console.error("Lỗi trong quá trình tìm kiếm:", error);
+      resultsContainer.innerHTML = `<p>Lỗi xảy ra: ${error.message}</p>`;
+  }
 });
