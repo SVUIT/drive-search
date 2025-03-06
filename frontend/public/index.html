@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -6,83 +5,38 @@
     <meta name="description" content="Hiển thị danh sách môn học">
     <title>Danh sách môn học</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- Unified Search Container -->
 <div class="search-container">
-    <input type="text" id="search-input" placeholder="Search...">
-    <button id="search-button"></button>
+  <select id="search-type" style="margin-right: 10px;">
+    <option value="subjects" selected>Subjects</option>
+    <option value="documents">Documents</option>
+  </select>
+  <input type="text" id="search-input" placeholder="Search...">
+  <button id="search-button"><i class="fas fa-magnifying-glass"></i></button>
 </div>
 
-<div id="result-container"></div>
+<!-- Subjects results container -->
+<div class="card-container"></div>
 
-<div class="card-container">
-    <div class="card">
-        <h3>Môn</h3>
-        <p>Mã môn:</p>
-        <p>Tín chỉ:</p>
-        <p>Loại:</p>
-        <p>Khoa: </p>
-        <p>Tài liệu:</p>
-        <button class="detail-button">Xem chi tiết</button>
-    </div>
-    <div class="card">
-        <h3>Môn</h3>
-        <p>Mã môn:</p>
-        <p>Tín chỉ:</p>
-        <p>Loại:</p>
-        <p>Khoa: </p>
-        <p>Tài liệu:</p>
-        <button class="detail-button">Xem chi tiết</button>
-    </div>
-    <div class="card">
-        <h3>Môn</h3>
-        <p>Mã môn:</p>
-        <p>Tín chỉ:</p>
-        <p>Loại:</p>
-        <p>Khoa: </p>
-        <p>Tài liệu:</p>
-        <button class="detail-button">Xem chi tiết</button>
-    </div>
-    <div class="card">
-        <h3>Môn</h3>
-        <p>Mã môn:</p>
-        <p>Tín chỉ:</p>
-        <p>Loại:</p>
-        <p>Khoa: </p>
-        <p>Tài liệu:</p>
-        <button class="detail-button">Xem chi tiết</button>
-    </div>
-    <div class="card">
-        <h3>Môn</h3>
-        <p>Mã môn:</p>
-        <p>Tín chỉ:</p>
-        <p>Loại:</p>
-        <p>Khoa: </p>
-        <p>Tài liệu:</p>
-        <button class="detail-button">Xem chi tiết</button>
-    </div>
-    <div class="card">
-        <h3>Môn</h3>
-        <p>Mã môn:</p>
-        <p>Tín chỉ:</p>
-        <p>Loại:</p>
-        <p>Khoa: </p>
-        <p>Tài liệu:</p>
-        <button class="detail-button">Xem chi tiết</button>
-    </div>
-    <div class="card">
-        <h3>Môn</h3>
-        <p>Mã môn:</p>
-        <p>Tín chỉ:</p>
-        <p>Loại:</p>
-        <p>Khoa: </p>
-        <p>Tài liệu:</p>
-        <button class="detail-button">Xem chi tiết</button>
-    </div>
+<!-- Document results container (initially hidden) -->
+<div id="document-result-container" style="display: none;"></div>
+
+<!-- Detail modal for subject details and document list -->
+<div id="detail-modal" class="detail-modal">
+  <div class="detail-modal-content">
+    <span class="close-modal">&times;</span>
+    <div id="subject-details"></div>
+    <button id="get-documents-btn">Xem Tài liệu</button>
+    <div id="documents-container"></div>
+  </div>
 </div>
 
-
+<!-- Add script tags before closing body tag -->
+<script src="script.js" defer></script>
 </body>
 </html>
