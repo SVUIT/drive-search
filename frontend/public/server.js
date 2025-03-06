@@ -1,70 +1,96 @@
-const express = require("express");
-const path = require("path");
-const { Client, Databases, Query } = require("node-appwrite");
-require("dotenv").config();
+require('dotenv').config();
+
+const express = require('express');
+const { Client, Databases, Query } = require('node-appwrite');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static files
-app.use(express.static(__dirname));
+// Serve static files (index.html, style.css, script.js, etc.)
+app.use(express.json());
+app.use(express.static('.'));
 
-// Serve index.html
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
-});
-
-// Appwrite Client Setup
-const client = new Client()
-    .setEndpoint(process.env.ENDPOINT)
-    .setProject(process.env.PROJECT_ID);
+// Initialize Appwrite client using environment variables
+const client = new Client();
+client
+  .setEndpoint(process.env.ENDPOINT)               // updated from APPWRITE_ENDPOINT
+  .setProject(process.env.PROJECT_ID)                // updated from APPWRITE_PROJECT
+  .setKey(process.env.API_KEY || '');                // updated from APPWRITE_API_KEY
 
 const databases = new Databases(client);
+const DATABASE_ID = process.env.DATABASE_ID;         // updated from APPWRITE_DATABASE_ID
+const COLLECTION_ID = process.env.COLLECTION_ID;       // subjects collection (updated key)
+const DOCUMENTS_COLLECTION_ID = process.env.DOCUMENTS_ID; // documents collection
 
-// Search API
-app.get("/search", async (req, res) => {
-    const queryTerm = req.query.q?.trim();
-    if (!queryTerm) {
-        return res.status(400).json({ 
-            error: 'Query parameter "q" is required.', 
-            documents: [] 
-        });
-    }
-
-    try {
-        const result = await databases.listDocuments(
-            process.env.DATABASE_ID,
-            process.env.COLLECTION_ID,
-            [Query.search("name", queryTerm)]
-        );
-
-        if (!result.documents.length) {
-            return res.json({
-                message: "Không tìm thấy môn học nào phù hợp.",
-                documents: []
-            });
-        }
-
-        res.json({
-            documents: result.documents.map(doc => ({
-                name: doc.name || "Chưa có tên",
-                code: doc.code || "Chưa cập nhật",
-                theoryCredits: doc.theoryCredits || doc["theory-credits"] || 0,
-                practiceCredits: doc.practiceCredits || doc["practice-credits"] || 0,
-                url: doc.URL || null,
-                type: doc.type || null
-            }))
-        });
-    } catch (error) {
-        console.error("Error fetching from Appwrite:", error);
-        res.status(500).json({ 
-            error: "Error fetching from Appwrite.", 
-            documents: [] 
-        });
-    }
+// GET /search?query=your_search_term (subjects search)
+app.get('/search', async (req, res) => {
+  const searchQuery = req.query.query || '';
+  let searchTerms = searchQuery.split(',').map(term => term.trim()).filter(term => term !== '');
+  if (searchTerms.length === 0) {
+    searchTerms = [searchQuery];
+  }
+  try {
+    const documentMap = new Map();
+    await Promise.all(searchTerms.map(async term => {
+      const result = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTION_ID,
+        [Query.search('name', term)]
+      );
+      result.documents.forEach(doc => documentMap.set(doc.$id, doc));
+    }));
+    const subjects = Array.from(documentMap.values());
+    res.json(subjects);
+  } catch (error) {
+    console.error('Error during search:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Start server
+// GET /documents?subjectId=...
+app.get('/documents', async (req, res) => {
+  const subjectId = req.query.subjectId;
+  if (!subjectId) {
+    return res.status(400).json({ error: "subjectId parameter is required" });
+  }
+  try {
+    const result = await databases.listDocuments(
+      DATABASE_ID,
+      DOCUMENTS_COLLECTION_ID,
+      [Query.equal('subjectId', subjectId)]
+    );
+    res.json(result.documents);
+  } catch (error) {
+    console.error('Error fetching documents for subject:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// NEW: GET /documents/search?query=... (documents search by name)
+app.get('/documents/search', async (req, res) => {
+  const query = req.query.query || '';
+  let searchTerms = query.split(',').map(term => term.trim()).filter(term => term !== '');
+  if (searchTerms.length === 0) {
+    searchTerms = [query];
+  }
+  try {
+    const documentMap = new Map();
+    await Promise.all(searchTerms.map(async term => {
+      const result = await databases.listDocuments(
+        DATABASE_ID,
+        DOCUMENTS_COLLECTION_ID,
+        [Query.search('name', term)]
+      );
+      result.documents.forEach(doc => documentMap.set(doc.$id, doc));
+    }));
+    const documents = Array.from(documentMap.values());
+    res.json(documents);
+  } catch (error) {
+    console.error('Error during document search:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Express server listening on port ${PORT}`);
 });
