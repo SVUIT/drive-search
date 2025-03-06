@@ -10,17 +10,16 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static('.'));
 
-// Initialize Appwrite client using environment variables
 const client = new Client();
 client
-  .setEndpoint(process.env.ENDPOINT)               // updated from APPWRITE_ENDPOINT
-  .setProject(process.env.PROJECT_ID)                // updated from APPWRITE_PROJECT
-  .setKey(process.env.API_KEY || '');                // updated from APPWRITE_API_KEY
+  .setEndpoint(process.env.ENDPOINT)               
+  .setProject(process.env.PROJECT_ID)                
+  .setKey(process.env.API_KEY || '');                
 
 const databases = new Databases(client);
-const DATABASE_ID = process.env.DATABASE_ID;         // updated from APPWRITE_DATABASE_ID
-const COLLECTION_ID = process.env.COLLECTION_ID;       // subjects collection (updated key)
-const DOCUMENTS_COLLECTION_ID = process.env.DOCUMENTS_ID; // documents collection
+const DATABASE_ID = process.env.DATABASE_ID;         
+const COLLECTION_ID = process.env.COLLECTION_ID;       
+const DOCUMENTS_COLLECTION_ID = process.env.DOCUMENTS_ID; 
 
 // GET /search?query=your_search_term (subjects search)
 app.get('/search', async (req, res) => {
