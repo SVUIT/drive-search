@@ -13,8 +13,7 @@ app.use(express.static('.'));
 const client = new Client();
 client
   .setEndpoint(process.env.ENDPOINT)               
-  .setProject(process.env.PROJECT_ID)                
-  .setKey(process.env.API_KEY || '');                
+  .setProject(process.env.PROJECT_ID);                              
 
 const databases = new Databases(client);
 const DATABASE_ID = process.env.DATABASE_ID;         
