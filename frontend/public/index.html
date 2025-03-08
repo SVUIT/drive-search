@@ -1,0 +1,42 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hiển thị danh sách môn học">
+    <title>Danh sách môn học</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Unified Search Container -->
+<div class="search-container">
+  <select id="search-type" style="margin-right: 10px;">
+    <option value="subjects" selected>Subjects</option>
+    <option value="documents">Documents</option>
+  </select>
+  <input type="text" id="search-input" placeholder="Search...">
+  <button id="search-button"><i class="fas fa-magnifying-glass"></i></button>
+</div>
+
+<!-- Subjects results container -->
+<div class="card-container"></div>
+
+<!-- Document results container (initially hidden) -->
+<div id="document-result-container" style="display: none;"></div>
+
+<!-- Detail modal for subject details and document list -->
+<div id="detail-modal" class="detail-modal">
+  <div class="detail-modal-content">
+    <span class="close-modal">&times;</span>
+    <div id="subject-details"></div>
+    <button id="get-documents-btn">Xem Tài liệu</button>
+    <div id="documents-container"></div>
+  </div>
+</div>
+
+<!-- Add script tags before closing body tag -->
+<script src="script.js" defer></script>
+</body>
+</html>
