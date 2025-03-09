@@ -159,6 +159,7 @@ function renderDocumentSearchResults(documents) {
   documents.forEach(doc => {
     const div = document.createElement('div');
     div.className = 'document-card';
+    div.style.border = '2px solid #333';
     div.innerHTML = `
       <h3>${doc.name || 'N/A'}</h3>
       <p><strong>Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank">Link</a>` : 'N/A'}</p>
