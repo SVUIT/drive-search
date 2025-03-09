@@ -160,6 +160,12 @@ function renderDocumentSearchResults(documents) {
     const div = document.createElement('div');
     div.className = 'document-card';
     div.style.border = '2px solid #333';
+    div.style.padding = '15px';
+    div.style.margin = '10px 0';
+    div.style.borderRadius = '8px';
+    div.style.backgroundColor = '#f9f9f9';
+    div.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+    div.style.transition = 'opacity 0.3s ease-in-out';
     div.innerHTML = `
       <h3>${doc.name || 'N/A'}</h3>
       <p><strong>Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank">Link</a>` : 'N/A'}</p>
