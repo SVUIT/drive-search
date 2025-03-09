@@ -170,6 +170,7 @@ body {
   }
 .document-card{
     border: 2px solid #333;
+    border-radius: 12px;
 }
 .document-card:hover{
     scale:1.02;
