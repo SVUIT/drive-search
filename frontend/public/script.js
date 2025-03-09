@@ -1,4 +1,3 @@
-// Global storage for fetched subjects and documents
 window.subjectsData = {};
 window.documentsData = {};
 
@@ -165,5 +164,4 @@ document.getElementById('detail-modal').querySelector('.close-modal')
 document.getElementById('detail-modal').addEventListener('click', (event) => {
   if (event.target === document.getElementById('detail-modal')) {
     document.getElementById('detail-modal').classList.remove('active');
-  }
-});
+
