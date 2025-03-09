@@ -14,12 +14,12 @@ document.getElementById('search-button').addEventListener('click', async () => {
     document.getElementById('document-result-container').style.display = 'none';
     const cardContainer = document.querySelector('.card-container');
     cardContainer.style.display = 'flex';
-    
+
     try {
       const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const subjects = await response.json();
-      
+
       cardContainer.innerHTML = '';
       window.subjectsData = {};
 
@@ -47,7 +47,6 @@ document.getElementById('search-button').addEventListener('click', async () => {
     } catch (error) {
       console.error('Lỗi khi tìm kiếm:', error);
     }
-
   } else if (searchType === 'documents') {
     document.querySelector('.card-container').style.display = 'none';
     const docContainer = document.getElementById('document-result-container');
@@ -136,26 +135,6 @@ function renderDocumentsTable(documents) {
   container.appendChild(table);
 }
 
-function renderDocumentSearchResults(documents) {
-  const docContainer = document.getElementById('document-result-container');
-  docContainer.innerHTML = '';
-
-  if (!Array.isArray(documents) || documents.length === 0) {
-    docContainer.innerHTML = "<p>Không tìm thấy tài liệu.</p>";
-    return;
-  }
-
-  documents.forEach(doc => {
-    const docCard = document.createElement('div');
-    docCard.className = 'doc-card';
-    docCard.innerHTML = `
-      <h3>${doc.name || 'Tài liệu chưa có tên'}</h3>
-      <p><strong>Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank">link</a>` : 'N/A'}</p>
-    `;
-    docContainer.appendChild(docCard);
-  });
-}
-
 document.getElementById('detail-modal').querySelector('.close-modal')
   .addEventListener('click', () => {
     document.getElementById('detail-modal').classList.remove('active');
@@ -164,4 +143,27 @@ document.getElementById('detail-modal').querySelector('.close-modal')
 document.getElementById('detail-modal').addEventListener('click', (event) => {
   if (event.target === document.getElementById('detail-modal')) {
     document.getElementById('detail-modal').classList.remove('active');
+  }
+});
 
+// Added missing function
+function renderDocumentSearchResults(documents) {
+  const docContainer = document.getElementById('document-result-container');
+  docContainer.innerHTML = '';
+
+  if (!Array.isArray(documents) || documents.length === 0) {
+    docContainer.innerHTML = '<p>Không tìm thấy tài liệu.</p>';
+    return;
+  }
+
+  documents.forEach(doc => {
+    const div = document.createElement('div');
+    div.className = 'document-card';
+    div.innerHTML = `
+      <h3>${doc.name || 'N/A'}</h3>
+      <p><strong>Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank">Link</a>` : 'N/A'}</p>
+      <p><strong>Ngày tải lên:</strong> ${doc['upload-date'] || 'N/A'}</p>
+    `;
+    docContainer.appendChild(div);
+  });
+}
