@@ -2,7 +2,6 @@
     transition-duration: 500ms;
     font-family: 'Poppins', sans-serif;
 }
-
 body {
     background-color: #f0f2f5;
     margin: 0;
@@ -10,13 +9,11 @@ body {
     padding: 20px;
     color: #333;
 }
-
 .search-container {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
 }
-
 .search-container input[type="text"] {
     width: 300px;
     padding: 12px 15px;
@@ -26,11 +23,9 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     font-size: 14px;
 }
-
 .search-container input[type="text"]:focus {
     border-color: #007bff;
 }
-
 .search-container button {
     padding: 12px 20px;
     border: none;
@@ -44,15 +39,12 @@ body {
     align-items: center;
     justify-content: center;
 }
-
 .search-container button::before {
     font-size: 16px;
 }
-
 .search-container button:hover {
     background-color: #0056b3;
 }
-
 .card-container {
     display: flex;
     flex-wrap: wrap;
@@ -62,7 +54,6 @@ body {
     width: 100%;
     margin: 0 auto;
 }
-
 .card {
     background-color: white;
     border-radius: 12px;
@@ -76,34 +67,28 @@ body {
     align-items: flex-start;
     transition: transform 0.3s, box-shadow 0.3s;
 }
-
 .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
-
 .card h3 {
     margin: 0 0 10px 0;
     font-weight: 600;
     color: #007bff;
 }
-
 .card p {
     margin: 5px 0;
     color: #555;
 }
-
 .card a {
     color: #007bff;
     text-decoration: none;
     margin-top: 10px;
     transition: color 0.3s;
 }
-
 .card a:hover {
     color: #0056b3;
 }
-
 .card .detail-button {
     background-color: #007bff;
     color: white;
@@ -115,11 +100,9 @@ body {
     width: 100%;
     transition: background-color 0.3s;
 }
-
 .card .detail-button:hover {
     background-color: #0056b3;
 }
-
 .detail-modal {
     display: none;
     position: fixed;
@@ -130,7 +113,6 @@ body {
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
 }
-
 .detail-modal-content {
     position: relative;
     background-color: white;
@@ -141,13 +123,11 @@ body {
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-
 .detail-modal.active {
     display: flex;
     justify-content: center;
     align-items: flex-start;
 }
-
 .close-modal {
     position: absolute;
     top: 10px;
@@ -157,11 +137,9 @@ body {
     color: #666;
     transition: color 0.3s;
 }
-
 .close-modal:hover {
     color: #333;
 }
-
 .documents-table {
     width: 100%;
     border-collapse: collapse;
@@ -169,23 +147,19 @@ body {
     background: white;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
 .documents-table th,
 .documents-table td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
-
 .documents-table th {
     background-color: #f8f9fa;
     font-weight: 600;
 }
-
 .documents-table tr:hover {
     background-color: #f5f5f5;
 }
-
 .doc-card {
     border: 1px solid #ccc;
     padding: 10px;
@@ -193,8 +167,13 @@ body {
     border-radius: 5px;
     background: #f9f9f9;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  }
+.document-card{
+    border: 2px solid #333;
 }
-
+.document-card:hover{
+    scale:1.02;
+}
 .view-documents-btn {
     background-color: #28a745;
     color: white;
@@ -205,11 +184,9 @@ body {
     margin-top: 10px;
     transition: background-color 0.3s;
 }
-
 .view-documents-btn:hover {
     background-color: #218838;
 }
-
 #search-button {
     padding: 8px 16px;
     background-color: #4CAF50;
@@ -219,36 +196,6 @@ body {
     cursor: pointer;
     font-size: 14px;
 }
-
 #search-button:hover {
     background-color: #45a049;
-}
-
-.document-box {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    margin: 20px auto;
-    text-align: center;
-}
-
-.document-card{
-    border: 2px solid #333;
-}
-
-.document-card:last-child {
-    border-bottom: none;
-}
-
-.fade-in {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-}
-
-.fade-in.show {
-    opacity: 1;
-    transform: translateY(0);
 }

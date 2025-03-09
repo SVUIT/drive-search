@@ -1,102 +1,3 @@
-// Dummy Data
-const subjects = [
-  { id: 1, name: "Mathematics", description: "Explore numbers, equations and problem solving techniques." },
-  { id: 2, name: "Physics", description: "Understand the laws that govern our universe and practical applications." },
-  { id: 3, name: "Chemistry", description: "Discover the properties of substances and chemical reactions." }
-];
-
-const documents = [
-  { id: 1, subjectId: 1, title: "Algebra Basics", summary: "Introduction to algebraic concepts." },
-  { id: 2, subjectId: 1, title: "Calculus Overview", summary: "Understanding limits, derivatives, and integrals." },
-  { id: 3, subjectId: 2, title: "Newton's Laws", summary: "A detailed look at the laws of motion." },
-  { id: 4, subjectId: 3, title: "Periodic Table Insights", summary: "Learn about chemical elements and periodicity." }
-];
-
-let currentSubjectId = null;
-
-// Render Functions
-function renderSubjects(list) {
-  const container = document.querySelector('.card-container');
-  container.innerHTML = "";
-  list.forEach(subject => {
-    const card = document.createElement("div");
-    card.classList.add("card");
-    card.innerHTML = `<h3>${subject.name}</h3><p>${subject.description.substring(0, 50)}...</p>`;
-    card.addEventListener("click", () => openModal(subject));
-    container.appendChild(card);
-  });
-}
-
-function renderDocuments(list, container) {
-  container.innerHTML = "";
-  if (list.length === 0) {
-    container.innerHTML = "<p>No documents found.</p>";
-    return;
-  }
-  list.forEach(doc => {
-    const docDiv = document.createElement("div");
-    docDiv.classList.add("document-card");
-    docDiv.innerHTML = `<h4>${doc.title}</h4><p>${doc.summary}</p>`;
-    container.appendChild(docDiv);
-  });
-}
-
-// Modal Functions
-function openModal(subject) {
-  const modal = document.getElementById("detail-modal");
-  const details = document.getElementById("subject-details");
-  details.innerHTML = `<h2>${subject.name}</h2><p>${subject.description}</p>`;
-  document.getElementById("documents-container").innerHTML = "";
-  currentSubjectId = subject.id;
-  modal.style.display = "block";
-}
-
-function closeModal() {
-  document.getElementById("detail-modal").style.display = "none";
-}
-
-// Search Functionality
-function performSearch() {
-  const type = document.getElementById("search-type").value;
-  const searchTerm = document.getElementById("search-input").value.trim().toLowerCase();
-
-  if (type === "subjects") {
-    // Display subjects results
-    document.querySelector('.card-container').style.display = "flex";
-    document.getElementById("document-result-container").style.display = "none";
-    const filteredSubjects = subjects.filter(s => s.name.toLowerCase().includes(searchTerm));
-    renderSubjects(filteredSubjects);
-  } else {
-    // Display documents results
-    document.querySelector('.card-container').style.display = "none";
-    const docContainer = document.getElementById("document-result-container");
-    docContainer.style.display = "block";
-    const filteredDocuments = documents.filter(d => d.title.toLowerCase().includes(searchTerm));
-    renderDocuments(filteredDocuments, docContainer);
-  }
-}
-
-// Event Listeners
-document.getElementById("search-button").addEventListener("click", performSearch);
-
-document.getElementById("search-input").addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    performSearch();
-  }
-});
-
-document.querySelector(".close-modal").addEventListener("click", closeModal);
-
-document.getElementById("get-documents-btn").addEventListener("click", function() {
-  if (currentSubjectId !== null) {
-    const subjectDocs = documents.filter(d => d.subjectId === currentSubjectId);
-    renderDocuments(subjectDocs, document.getElementById("documents-container"));
-  }
-});
-
-// Optionally, load all subjects initially
-renderSubjects(subjects);
-
 window.subjectsData = {};
 window.documentsData = {};
 
@@ -245,6 +146,7 @@ document.getElementById('detail-modal').addEventListener('click', (event) => {
   }
 });
 
+// Added missing function
 function renderDocumentSearchResults(documents) {
   const docContainer = document.getElementById('document-result-container');
   docContainer.innerHTML = '';
@@ -254,33 +156,14 @@ function renderDocumentSearchResults(documents) {
     return;
   }
 
-  const box = document.createElement('div');
-  box.className = 'document-box';
-  docContainer.appendChild(box);
-
   documents.forEach(doc => {
     const div = document.createElement('div');
-    div.className = 'document-card fade-in';
-  
-    // Thêm inline style
-    div.style.border = '1px solid #ccc';
-    div.style.padding = '15px';
-    div.style.margin = '10px 0';
-    div.style.borderRadius = '8px';
-    div.style.backgroundColor = '#f9f9f9';
-    div.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-    div.style.transition = 'opacity 0.3s ease-in-out';
-    div.style.opacity = '0';  // Để tạo hiệu ứng fade-in
-  
+    div.className = 'document-card';
     div.innerHTML = `
-      <h3 style="margin-bottom: 5px; font-size: 18px;">${doc.name || 'N/A'}</h3>
-      <p style="margin: 5px 0;"><strong>Link:</strong> ${doc.driveLink ? `<a href="${doc.driveLink}" target="_blank">Google Drive</a>` : 'N/A'}</p>
-      <p style="margin: 5px 0;"><strong>Ngày tải lên:</strong> ${doc['upload-date'] || 'N/A'}</p>
+      <h3>${doc.name || 'N/A'}</h3>
+      <p><strong>Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank">Link</a>` : 'N/A'}</p>
+      <p><strong>Ngày tải lên:</strong> ${doc['upload-date'] || 'N/A'}</p>
     `;
-  
-    box.appendChild(div);
-    
-    setTimeout(() => div.style.opacity = '1', 50);
+    docContainer.appendChild(div);
   });
-  
 }
