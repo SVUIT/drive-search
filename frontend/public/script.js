@@ -160,15 +160,16 @@ function renderDocumentSearchResults(documents) {
     div.className = 'document-card';
     div.style = `
       display: flex; 
-      flex-direction: row; 
+      flex-direction: column; 
       justify-content: space-between;
       border: 1px solid rgba(0, 0, 0, 0.1); 
-      padding: 18px; 
+      padding: 12px; 
       margin: 12px 0;
       border-radius: 12px; 
       background-color: #fff; 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
       transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      width: 33.33%;
     `;
 
     div.onmouseover = () => {
