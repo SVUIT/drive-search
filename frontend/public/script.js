@@ -146,31 +146,47 @@ document.getElementById('detail-modal').addEventListener('click', (event) => {
   }
 });
 
-// Added missing function
 function renderDocumentSearchResults(documents) {
   const docContainer = document.getElementById('document-result-container');
   docContainer.innerHTML = '';
 
   if (!Array.isArray(documents) || documents.length === 0) {
-    docContainer.innerHTML = '<p>Không tìm thấy tài liệu.</p>';
+    docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu.</p>';
     return;
   }
 
   documents.forEach(doc => {
     const div = document.createElement('div');
     div.className = 'document-card';
-    div.style.border = '2px solid #333';
-    div.style.padding = '15px';
-    div.style.margin = '10px 0';
-    div.style.borderRadius = '8px';
-    div.style.backgroundColor = '#f9f9f9';
-    div.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-    div.style.transition = 'opacity 0.3s ease-in-out';
+    div.style = `
+      display: flex; 
+      flex-direction: column; 
+      justify-content: space-between;
+      border: 1px solid rgba(0, 0, 0, 0.1); 
+      padding: 18px; 
+      margin: 12px 0;
+      border-radius: 12px; 
+      background-color: #fff; 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    `;
+
+    div.onmouseover = () => {
+      div.style.transform = 'scale(1.03)';
+      div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
+    };
+    
+    div.onmouseleave = () => {
+      div.style.transform = 'scale(1)';
+      div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
+    };
+
     div.innerHTML = `
       <h3>${doc.name || 'N/A'}</h3>
-      <p><strong>Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank">Link</a>` : 'N/A'}</p>
-      <p><strong>Ngày tải lên:</strong> ${doc['upload-date'] || 'N/A'}</p>
+      <p><strong>📎 Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank">🔗 Xem tài liệu</a>` : 'N/A'}</p>
+      <p><strong>📅 Ngày tải lên:</strong> ${doc['upload-date'] || 'N/A'}</p>
     `;
+
     docContainer.appendChild(div);
   });
 }
