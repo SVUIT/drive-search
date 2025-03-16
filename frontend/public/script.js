@@ -10,11 +10,9 @@ document.getElementById('search-button').addEventListener('click', async () => {
     return;
   }
 
-  const cardContainer = document.querySelector('.card-container');
-  const docContainer = document.getElementById('document-result-container');
-
   if (searchType === 'subjects') {
-    docContainer.style.display = 'none';
+    document.getElementById('document-result-container').style.display = 'none';
+    const cardContainer = document.querySelector('.card-container');
     cardContainer.style.display = 'flex';
 
     try {
@@ -29,7 +27,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
         subjects.forEach(subject => {
           window.subjectsData[subject.$id] = subject;
           const card = document.createElement('div');
-          card.className = 'card animated-card';
+          card.className = 'card';
           card.innerHTML = `
             <h3>${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'N/A'}</p>
@@ -50,7 +48,8 @@ document.getElementById('search-button').addEventListener('click', async () => {
       console.error('Lỗi khi tìm kiếm:', error);
     }
   } else if (searchType === 'documents') {
-    cardContainer.style.display = 'none';
+    document.querySelector('.card-container').style.display = 'none';
+    const docContainer = document.getElementById('document-result-container');
     docContainer.style.display = 'block';
 
     try {
@@ -105,7 +104,6 @@ function openDetailModal(subject) {
     }
   };
 
-  modal.classList.add('fade-in');
   modal.classList.add('active');
 }
 
@@ -153,13 +151,35 @@ function renderDocumentSearchResults(documents) {
   docContainer.innerHTML = '';
 
   if (!Array.isArray(documents) || documents.length === 0) {
-    docContainer.innerHTML = '<p class="no-result">📄 Không tìm thấy tài liệu.</p>';
+    docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu.</p>';
     return;
   }
 
   documents.forEach(doc => {
     const div = document.createElement('div');
     div.className = 'document-card';
+    div.style = `
+      display: flex; 
+      flex-direction: row; 
+      justify-content: space-between;
+      border: 1px solid rgba(0, 0, 0, 0.1); 
+      padding: 18px; 
+      margin: 12px 0;
+      border-radius: 12px; 
+      background-color: #fff; 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    `;
+
+    div.onmouseover = () => {
+      div.style.transform = 'scale(1.03)';
+      div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
+    };
+    
+    div.onmouseleave = () => {
+      div.style.transform = 'scale(1)';
+      div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
+    };
 
     div.innerHTML = `
       <h3>${doc.name || 'N/A'}</h3>
