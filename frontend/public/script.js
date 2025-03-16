@@ -159,7 +159,7 @@ function renderDocumentSearchResults(documents) {
     const div = document.createElement('div');
     div.className = 'document-card';
     div.style = `
-      display: flex; 
+      display: inline-flex; 
       flex-direction: column; 
       justify-content: space-between;
       border: 1px solid rgba(0, 0, 0, 0.1); 
