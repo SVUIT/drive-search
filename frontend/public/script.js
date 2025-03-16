@@ -171,7 +171,7 @@ function renderDocumentSearchResults(documents) {
       background-color: #fff; 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
       transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-      width: 100%;
+      width: 20%;
     `;
 
     div.onmouseover = () => {
