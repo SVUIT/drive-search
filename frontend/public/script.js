@@ -162,7 +162,7 @@ function renderDocumentSearchResults(documents) {
       display: flex; 
       flex-direction: column; 
       justify-content: space-between;
-      gap: 3px;
+      gap: 5px;
       align-items: center;
       border: 1px solid rgba(0, 0, 0, 0.1); 
       padding: 3px; 
