@@ -159,7 +159,7 @@ function renderDocumentSearchResults(documents) {
     const div = document.createElement('div');
     div.className = 'document-card';
     div.style = `
-      display: inline-flex; 
+      display: flex; 
       flex-direction: column; 
       justify-content: space-between;
       gap: 3px;
@@ -171,7 +171,7 @@ function renderDocumentSearchResults(documents) {
       background-color: #fff; 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
       transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-      width: 25%;
+      width: 100%;
     `;
 
     div.onmouseover = () => {
