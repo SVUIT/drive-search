@@ -28,6 +28,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
           window.subjectsData[subject.$id] = subject;
           const card = document.createElement('div');
           card.className = 'card';
+          card.style = 'border: 1px solid #ddd; padding: 10px; margin: 10px; border-radius: 8px; background-color: #f9f9f9; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);';
           card.innerHTML = `
             <h3>${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'N/A'}</p>
@@ -37,7 +38,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
             <p><strong>Loại:</strong> ${subject.type || 'N/A'}</p>
             <p><strong>Khoa:</strong> ${subject.management || 'N/A'}</p>
             <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'N/A'}</p>
-            <button class="detail-button" data-id="${subject.$id}">Xem chi tiết</button>
+            <button class="detail-button" data-id="${subject.$id}" style="background-color: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;">Xem chi tiết</button>
           `;
           cardContainer.appendChild(card);
         });
@@ -64,12 +65,6 @@ document.getElementById('search-button').addEventListener('click', async () => {
   }
 });
 
-document.getElementById('search-input').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    document.getElementById('search-button').click();
-  }
-});
-
 document.addEventListener('click', (event) => {
   if (event.target.classList.contains('detail-button')) {
     const subjectId = event.target.dataset.id;
@@ -77,72 +72,6 @@ document.addEventListener('click', (event) => {
     if (subject) {
       openDetailModal(subject);
     }
-  }
-});
-
-function openDetailModal(subject) {
-  const modal = document.getElementById('detail-modal');
-  const detailsContainer = document.getElementById('subject-details');
-  detailsContainer.innerHTML = '';
-
-  for (const key in subject) {
-    const p = document.createElement('p');
-    p.innerHTML = `<strong>${key}:</strong> ${subject[key]}`;
-    detailsContainer.appendChild(p);
-  }
-
-  document.getElementById('documents-container').innerHTML = '';
-  const getDocsBtn = document.getElementById('get-documents-btn');
-  getDocsBtn.onclick = async () => {
-    try {
-      const response = await fetch(`/documents?subjectId=${subject.$id}`);
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-      const documents = await response.json();
-      renderDocumentsTable(documents);
-    } catch (error) {
-      console.error('Lỗi khi tìm tài liệu:', error);
-    }
-  };
-
-  modal.classList.add('active');
-}
-
-function renderDocumentsTable(documents) {
-  const container = document.getElementById('documents-container');
-  container.innerHTML = '';
-
-  if (!Array.isArray(documents) || documents.length === 0) {
-    container.innerHTML = '<p>Không tìm thấy tài liệu.</p>';
-    return;
-  }
-
-  const table = document.createElement('table');
-  table.className = 'documents-table';
-  table.innerHTML = '<thead><tr><th>Tên tài liệu</th><th>Link</th><th>Ngày tải lên</th></tr></thead>';
-
-  const tbody = document.createElement('tbody');
-  documents.forEach(doc => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${doc.name || 'N/A'}</td>
-      <td>${doc.driveLink ? `<a href="${doc.driveLink}" target="_blank">Google Drive</a>` : 'N/A'}</td>
-      <td>${doc['upload-date'] || 'N/A'}</td>
-    `;
-    tbody.appendChild(row);
-  });
-
-  table.appendChild(tbody);
-  container.appendChild(table);
-}
-
-document.getElementById('detail-modal').querySelector('.close-modal')
-  .addEventListener('click', () => {
-    document.getElementById('detail-modal').classList.remove('active');
-  });
-
-document.getElementById('detail-modal').addEventListener('click', (event) => {
-  if (event.target === document.getElementById('detail-modal')) {
-    document.getElementById('detail-modal').classList.remove('active');
   }
 });
 
@@ -158,38 +87,20 @@ function renderDocumentSearchResults(documents) {
   documents.forEach(doc => {
     const div = document.createElement('div');
     div.className = 'document-card';
-    div.style = `
-      display: flex; 
-      flex-direction: column; 
-      justify-content: space-between;
-      gap: 5px;
-      align-items: center;
-      border: 1px solid rgba(0, 0, 0, 0.1); 
-      padding: 3px; 
-      margin: 12px 0;
-      border-radius: 12px; 
-      background-color: #fff; 
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-      width: 20%;
-    `;
-
+    div.style = 'display: flex; flex-direction: column; justify-content: space-between; gap: 5px; align-items: center; border: 1px solid rgba(0, 0, 0, 0.1); padding: 10px; margin: 12px 0; border-radius: 12px; background-color: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; width: 20%;';
     div.onmouseover = () => {
       div.style.transform = 'scale(1.01)';
       div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
     };
-    
     div.onmouseleave = () => {
       div.style.transform = 'scale(1)';
       div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
     };
-
     div.innerHTML = `
       <h3>${doc.name || 'N/A'}</h3>
       <p><strong>📎 Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank">🔗 Xem tài liệu</a>` : 'N/A'}</p>
       <p><strong>📅 Ngày tải lên:</strong> ${doc['upload-date'] || 'N/A'}</p>
     `;
-
     docContainer.appendChild(div);
   });
 }
