@@ -163,17 +163,17 @@ function renderDocumentSearchResults(documents) {
       flex-direction: column; 
       justify-content: space-between;
       border: 1px solid rgba(0, 0, 0, 0.1); 
-      padding: 12px; 
+      padding: 3px; 
       margin: 12px 0;
       border-radius: 12px; 
       background-color: #fff; 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
       transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-      width: 33.33%;
+      width: 30%;
     `;
 
     div.onmouseover = () => {
-      div.style.transform = 'scale(1.03)';
+      div.style.transform = 'scale(1.01)';
       div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
     };
     
