@@ -162,6 +162,8 @@ function renderDocumentSearchResults(documents) {
       display: inline-flex; 
       flex-direction: column; 
       justify-content: space-between;
+      gap: 3px;
+      align-items: center;
       border: 1px solid rgba(0, 0, 0, 0.1); 
       padding: 3px; 
       margin: 12px 0;
@@ -169,7 +171,7 @@ function renderDocumentSearchResults(documents) {
       background-color: #fff; 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
       transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-      width: 30%;
+      width: 25%;
     `;
 
     div.onmouseover = () => {
