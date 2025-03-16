@@ -78,6 +78,11 @@ document.addEventListener('click', (event) => {
 function renderDocumentSearchResults(documents) {
   const docContainer = document.getElementById('document-result-container');
   docContainer.innerHTML = '';
+  docContainer.style = `
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  `;
 
   if (!Array.isArray(documents) || documents.length === 0) {
     docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu.</p>';
