@@ -82,6 +82,7 @@ function renderDocumentSearchResults(documents) {
     display: inline-flex;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 20px;
   `;
 
   if (!Array.isArray(documents) || documents.length === 0) {
@@ -92,7 +93,7 @@ function renderDocumentSearchResults(documents) {
   documents.forEach(doc => {
     const div = document.createElement('div');
     div.className = 'document-card';
-    div.style = 'display: flex; flex-direction: column; justify-content: space-between; gap: 5px; align-items: center; border: 1px solid rgba(0, 0, 0, 0.1); padding: 10px; margin: 12px 0; border-radius: 12px; background-color: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; width: 20%;';
+    div.style = 'display: flex; flex-direction: column; justify-content: space-between; gap: 5px; align-items: center; border: 1px solid rgba(0, 0, 0, 0.1); padding: 10px; margin: 12px 0; border-radius: 12px; background-color: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; width: 17%;';
     div.onmouseover = () => {
       div.style.transform = 'scale(1.01)';
       div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
