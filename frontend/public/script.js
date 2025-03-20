@@ -79,7 +79,7 @@ function renderDocumentSearchResults(documents) {
   const docContainer = document.getElementById('document-result-container');
   docContainer.innerHTML = '';
   docContainer.style = `
-    display: inline-flex;
+    display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
@@ -92,21 +92,56 @@ function renderDocumentSearchResults(documents) {
 
   documents.forEach(doc => {
     const div = document.createElement('div');
-    div.className = 'document-card';
-    div.style = 'display: flex; flex-direction: column; justify-content: space-between; gap: 5px; align-items: center; border: 1px solid rgba(0, 0, 0, 0.1); padding: 10px; margin: 12px 0; border-radius: 12px; background-color: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; width: 17%;';
+    div.style = `
+      padding: 16px;
+      width: 17%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      background-color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    `;
+    
     div.onmouseover = () => {
-      div.style.transform = 'scale(1.01)';
+      div.style.transform = 'scale(1.05)';
       div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
     };
+    
     div.onmouseleave = () => {
       div.style.transform = 'scale(1)';
       div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
     };
+
     div.innerHTML = `
-      <h3>${doc.name || 'N/A'}</h3>
-      <p><strong>📎 Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank">🔗 Xem tài liệu</a>` : 'N/A'}</p>
-      <p><strong>📅 Ngày tải lên:</strong> ${doc['upload-date'] || 'N/A'}</p>
+      <h3 style="font-weight: 500; font-size: 16px; margin: 0;">${doc.name || 'N/A'}</h3>
+      <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
+        <strong>📎 Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;">🔗 Xem tài liệu</a>` : 'N/A'}
+      </p>
+      <p style="font-size: 14px; color: #777; margin: 0;">
+        <strong>📅 Ngày tải lên:</strong> ${doc['upload-date'] || 'N/A'}
+      </p>
+      <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: none; background-color: transparent; cursor: pointer; transition: background 0.2s;" 
+            onmouseover="this.style.backgroundColor='#eee'" 
+            onmouseleave="this.style.backgroundColor='transparent'">
+            <i class="ri-edit-line"></i>
+          </button>
+          <button style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: none; background-color: transparent; cursor: pointer; transition: background 0.2s;" 
+            onmouseover="this.style.backgroundColor='#eee'" 
+            onmouseleave="this.style.backgroundColor='transparent'">
+            <i class="ri-download-line"></i>
+          </button>
+        </div>
+        <span style="font-size: 14px; color: #777;">#${doc.id || 'DOCXXX'}</span>
+      </div>
     `;
+
     docContainer.appendChild(div);
   });
 }
