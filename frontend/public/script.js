@@ -125,6 +125,11 @@ function renderDocumentSearchResults(documents) {
       <p style="font-size: 14px; color: #777; margin: 0;">
         <strong>📅 Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
       </p>
+      <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong>📚 Học kỳ:</strong> ${doc.semester || 'N/A'}
+      </p>
+      <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong>🏫 Năm học:</strong> ${doc['academic-year'] || 'N/A'}
       </p>
       <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
         <div style="display: flex; align-items: center; gap: 8px;">
