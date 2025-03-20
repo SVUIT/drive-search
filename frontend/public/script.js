@@ -120,10 +120,11 @@ function renderDocumentSearchResults(documents) {
     div.innerHTML = `
       <h3 style="font-weight: 500; font-size: 16px; margin: 0;">${doc.name || 'N/A'}</h3>
       <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
-        <strong>📎 Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;">🔗 Xem tài liệu</a>` : 'N/A'}
+        📎<strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;"> Xem tài liệu</a>` : 'N/A'}
       </p>
       <p style="font-size: 14px; color: #777; margin: 0;">
-        <strong>📅 Ngày tải lên:</strong> ${doc['upload-date'] || 'N/A'}
+        <strong>📅 Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
+      </p>
       </p>
       <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -138,7 +139,6 @@ function renderDocumentSearchResults(documents) {
             <i class="ri-download-line"></i>
           </button>
         </div>
-        <span style="font-size: 14px; color: #777;">#${doc.id || 'DOCXXX'}</span>
       </div>
     `;
 
