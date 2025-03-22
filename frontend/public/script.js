@@ -28,7 +28,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
           window.subjectsData[subject.$id] = subject;
           const card = document.createElement('div');
           card.className = 'card';
-          card.style = 'border: 1px solid #ddd; padding: 10px; margin: 10px; border-radius: 8px; background-color: #f9f9f9; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);';
+          card.style = 'border: 1px solid #ddd; padding: 20px; margin: 10px; border-radius: 8px; background-color: #f9f9f9; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);width:20%;';
           card.innerHTML = `
             <h3>${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'N/A'}</p>
