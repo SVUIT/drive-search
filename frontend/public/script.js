@@ -31,13 +31,13 @@ document.getElementById('search-button').addEventListener('click', async () => {
           card.style = 'border: 1px solid #ddd; padding: 20px; margin: 10px; border-radius: 8px; background-color: #f9f9f9; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);width:20%;';
           card.innerHTML = `
             <h3>${subject.name || 'Môn chưa xác định'}</h3>
-            <p><strong>Mã môn:</strong> ${subject.code || 'N/A'}</p>
-            <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || 'N/A'}</p>
-            <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || 'N/A'}</p>
-            <p><strong>Tổng số tín chỉ:</strong> ${subject['theory-credits'] + subject['practice-credits'] || 'N/A'}</p>
-            <p><strong>Loại:</strong> ${subject.type || 'N/A'}</p>
-            <p><strong>Khoa:</strong> ${subject.management || 'N/A'}</p>
-            <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'N/A'}</p>
+            <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
+            <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || 'Chưa cập nhật'}</p>
+            <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || 'Chưa cập nhật'}</p>
+            <p><strong>Tổng số tín chỉ:</strong> ${subject['theory-credits'] + subject['practice-credits'] || 'Chưa cập nhật'}</p>
+            <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
+            <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
+            <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
             <button class="detail-button" data-id="${subject.$id}" style="background-color: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;">Xem chi tiết</button>
           `;
           cardContainer.appendChild(card);
@@ -126,10 +126,10 @@ function renderDocumentSearchResults(documents) {
         <strong>📅 Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
       </p>
       <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong>📚 Học kỳ:</strong> ${doc.semester || 'N/A'}
+        <strong>📚 Học kỳ:</strong> ${doc.semester || 'Chưa cập nhật'}
       </p>
       <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong>🏫 Năm học:</strong> ${doc['academic-year'] || 'N/A'}
+        <strong>🏫 Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
       </p>
       <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
         <div style="display: flex; align-items: center; gap: 8px;">
