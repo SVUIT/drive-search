@@ -132,20 +132,6 @@ function renderDocumentSearchResults(documents) {
       <p style="font-size: 14px; color: #555; margin: 0;">
         <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
       </p>
-      <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: none; background-color: transparent; cursor: pointer; transition: background 0.2s;" 
-            onmouseover="this.style.backgroundColor='#eee'" 
-            onmouseleave="this.style.backgroundColor='transparent'">
-            <i class="ri-edit-line"></i>
-          </button>
-          <button style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: none; background-color: transparent; cursor: pointer; transition: background 0.2s;" 
-            onmouseover="this.style.backgroundColor='#eee'" 
-            onmouseleave="this.style.backgroundColor='transparent'">
-            <i class="ri-download-line"></i>
-          </button>
-        </div>
-      </div>
     `;
 
     docContainer.appendChild(div);
