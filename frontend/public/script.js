@@ -30,7 +30,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
         card.style = `
       font-family: 'Poppins', sans-serif;
       padding: 16px;
-      width: 17%;
+      width: 20%;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -46,8 +46,8 @@ document.getElementById('search-button').addEventListener('click', async () => {
           card.innerHTML = `
             <h3>${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
-            <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || 'Chưa cập nhật'}</p>
-            <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || 'Chưa cập nhật'}</p>
+            <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
+            <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
             <p><strong>Tổng số tín chỉ:</strong> ${subject['theory-credits'] + subject['practice-credits'] || 'Chưa cập nhật'}</p>
             <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
             <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
