@@ -121,16 +121,16 @@ function renderDocumentSearchResults(documents) {
     div.innerHTML = `
       <h3 style="font-weight: 500; font-size: 16px; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
       <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
-        📎<strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;"> Xem tài liệu</a>` : 'N/A'}
+        <strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;"> Xem tài liệu</a>` : 'N/A'}
       </p>
       <p style="font-size: 14px; color: #777; margin: 0;">
-        <strong>📅 Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
+        <strong> Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
       </p>
       <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong>📚 Học kỳ:</strong> ${doc.semester || 'Chưa cập nhật'}
+        <strong> Học kỳ:</strong> ${doc.semester || 'Chưa cập nhật'}
       </p>
       <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong>🏫 Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
+        <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
       </p>
       <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
         <div style="display: flex; align-items: center; gap: 8px;">
