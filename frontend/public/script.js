@@ -27,17 +27,32 @@ document.getElementById('search-button').addEventListener('click', async () => {
         subjects.forEach(subject => {
           window.subjectsData[subject.$id] = subject;
           const card = document.createElement('div');
+        card.style = `
+      font-family: 'Poppins', sans-serif;
+      padding: 16px;
+      width: 20%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      background-color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    `;
           card.className = 'card';
           card.innerHTML = `
             <h3>${subject.name || 'Môn chưa xác định'}</h3>
-            <p><strong>Mã môn:</strong> ${subject.code || 'N/A'}</p>
-            <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || 'N/A'}</p>
-            <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || 'N/A'}</p>
-            <p><strong>Tổng số tín chỉ:</strong> ${subject['theory-credits'] + subject['practice-credits'] || 'N/A'}</p>
-            <p><strong>Loại:</strong> ${subject.type || 'N/A'}</p>
-            <p><strong>Khoa:</strong> ${subject.management || 'N/A'}</p>
-            <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'N/A'}</p>
-            <button class="detail-button" data-id="${subject.$id}">Xem chi tiết</button>
+            <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
+            <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
+            <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
+            <p><strong>Tổng số tín chỉ:</strong> ${subject['theory-credits'] + subject['practice-credits'] || 'Chưa cập nhật'}</p>
+            <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
+            <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
+            <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
+            <button class="detail-button" data-id="${subject.$id}" style="background-color: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;">Xem chi tiết</button>
           `;
           cardContainer.appendChild(card);
         });
@@ -64,12 +79,6 @@ document.getElementById('search-button').addEventListener('click', async () => {
   }
 });
 
-document.getElementById('search-input').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    document.getElementById('search-button').click();
-  }
-});
-
 document.addEventListener('click', (event) => {
   if (event.target.classList.contains('detail-button')) {
     const subjectId = event.target.dataset.id;
@@ -80,97 +89,65 @@ document.addEventListener('click', (event) => {
   }
 });
 
-function openDetailModal(subject) {
-  const modal = document.getElementById('detail-modal');
-  const detailsContainer = document.getElementById('subject-details');
-  detailsContainer.innerHTML = '';
-
-  for (const key in subject) {
-    const p = document.createElement('p');
-    p.innerHTML = `<strong>${key}:</strong> ${subject[key]}`;
-    detailsContainer.appendChild(p);
-  }
-
-  document.getElementById('documents-container').innerHTML = '';
-  const getDocsBtn = document.getElementById('get-documents-btn');
-  getDocsBtn.onclick = async () => {
-    try {
-      const response = await fetch(`/documents?subjectId=${subject.$id}`);
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-      const documents = await response.json();
-      renderDocumentsTable(documents);
-    } catch (error) {
-      console.error('Lỗi khi tìm tài liệu:', error);
-    }
-  };
-
-  modal.classList.add('active');
-}
-
-function renderDocumentsTable(documents) {
-  const container = document.getElementById('documents-container');
-  container.innerHTML = '';
-
-  if (!Array.isArray(documents) || documents.length === 0) {
-    container.innerHTML = '<p>Không tìm thấy tài liệu.</p>';
-    return;
-  }
-
-  const table = document.createElement('table');
-  table.className = 'documents-table';
-  table.innerHTML = '<thead><tr><th>Tên tài liệu</th><th>Link</th><th>Ngày tải lên</th></tr></thead>';
-
-  const tbody = document.createElement('tbody');
-  documents.forEach(doc => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${doc.name || 'N/A'}</td>
-      <td>${doc.driveLink ? `<a href="${doc.driveLink}" target="_blank">Google Drive</a>` : 'N/A'}</td>
-      <td>${doc['upload-date'] || 'N/A'}</td>
-    `;
-    tbody.appendChild(row);
-  });
-
-  table.appendChild(tbody);
-  container.appendChild(table);
-}
-
-document.getElementById('detail-modal').querySelector('.close-modal')
-  .addEventListener('click', () => {
-    document.getElementById('detail-modal').classList.remove('active');
-  });
-
-document.getElementById('detail-modal').addEventListener('click', (event) => {
-  if (event.target === document.getElementById('detail-modal')) {
-    document.getElementById('detail-modal').classList.remove('active');
-  }
-});
-
-// Added missing function
 function renderDocumentSearchResults(documents) {
   const docContainer = document.getElementById('document-result-container');
   docContainer.innerHTML = '';
+  docContainer.style = `
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  `;
 
   if (!Array.isArray(documents) || documents.length === 0) {
-    docContainer.innerHTML = '<p>Không tìm thấy tài liệu.</p>';
+    docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu.</p>';
     return;
   }
 
   documents.forEach(doc => {
     const div = document.createElement('div');
-    div.className = 'document-card';
-    div.style.border = '2px solid #333';
-    div.style.padding = '15px';
-    div.style.margin = '10px 0';
-    div.style.borderRadius = '8px';
-    div.style.backgroundColor = '#f9f9f9';
-    div.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-    div.style.transition = 'opacity 0.3s ease-in-out';
-    div.innerHTML = `
-      <h3>${doc.name || 'N/A'}</h3>
-      <p><strong>Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank">Link</a>` : 'N/A'}</p>
-      <p><strong>Ngày tải lên:</strong> ${doc['upload-date'] || 'N/A'}</p>
+    div.style = `
+      font-family: 'Poppins', sans-serif;
+      padding: 16px;
+      width: 17%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      background-color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     `;
+    
+    div.onmouseover = () => {
+      div.style.transform = 'scale(1.05)';
+      div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
+    };
+    
+    div.onmouseleave = () => {
+      div.style.transform = 'scale(1)';
+      div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
+    };
+
+    div.innerHTML = `
+      <h3 style="font-weight: 500; font-size: 16px; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
+      <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
+        <strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;"> Xem tài liệu</a>` : 'N/A'}
+      </p>
+      <p style="font-size: 14px; color: #777; margin: 0;">
+        <strong> Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
+      </p>
+      <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong> Học kỳ:</strong> ${doc.semester || 'Chưa cập nhật'}
+      </p>
+      <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
+      </p>
+    `;
+
     docContainer.appendChild(div);
   });
 }

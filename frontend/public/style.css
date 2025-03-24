@@ -168,6 +168,12 @@ body {
     background: #f9f9f9;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
   }
+.document-card {
+    display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
 .document-card:hover{
     scale: 1.02;
 }
