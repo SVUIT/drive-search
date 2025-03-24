@@ -93,6 +93,7 @@ function renderDocumentSearchResults(documents) {
   documents.forEach(doc => {
     const div = document.createElement('div');
     div.style = `
+      font-family: 'Poppins', sans-serif;
       padding: 16px;
       width: 17%;
       display: flex;
@@ -105,7 +106,6 @@ function renderDocumentSearchResults(documents) {
       background-color: #fff;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
       transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-      text-align: left;
     `;
     
     div.onmouseover = () => {
