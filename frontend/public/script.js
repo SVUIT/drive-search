@@ -118,7 +118,7 @@ function renderDocumentSearchResults(documents) {
     };
 
     div.innerHTML = `
-      <h3 style="font-weight: 500; font-size: 16px; margin: 0;">${doc.name || 'N/A'}</h3>
+      <h3 style="font-weight: 500; font-size: 16px; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
       <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
         📎<strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;"> Xem tài liệu</a>` : 'N/A'}
       </p>
