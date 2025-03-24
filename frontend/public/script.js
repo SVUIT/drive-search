@@ -27,8 +27,22 @@ document.getElementById('search-button').addEventListener('click', async () => {
         subjects.forEach(subject => {
           window.subjectsData[subject.$id] = subject;
           const card = document.createElement('div');
+        card.style = `
+      font-family: 'Poppins', sans-serif;
+      padding: 16px;
+      width: 17%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      background-color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    `;
           card.className = 'card';
-          card.style = 'border: 1px solid #ddd; padding: 20px; margin: 10px; border-radius: 8px; background-color: #f9f9f9; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);width:20%;';
           card.innerHTML = `
             <h3>${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
