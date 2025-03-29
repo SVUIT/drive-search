@@ -209,6 +209,6 @@ func AddTagAttributes() {
 
 	// Kiểm tra lỗi
 	if err != nil {
-		log.Fatalf("Lỗi khi tạo attribute 'tag': %v", err)
+		log.Fatalf("Lỗi khi tạo attribute 'tags': %v", err)
 	}
 }

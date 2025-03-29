@@ -193,7 +193,7 @@ func SeedTagData(csvPathURLFile string) {
 		if len(row) < 8 {
 			continue
 		}
-		// Xử lý cột Subject và Tag
+		// Xử lý cột URL và Tag
 		url := row[6]
 		tag := row[10]
 		tag = strings.Trim(tag, "[]") // Xóa dấu []

@@ -111,7 +111,7 @@ func seedSubjectsData(tableData TableData) {
 			Note:            "",
 			Documents:       []models.Document{},
 		}
-		println((subject.Name))
+		log.Printf("Subject Name: %s", subject.Name)
 		subjects = append(subjects, subject)
 	}
 
