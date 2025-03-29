@@ -2,8 +2,12 @@
 package database
 
 import (
+	"log"
+	"os"
+
 	"github.com/appwrite/sdk-for-go/appwrite"
 	"github.com/appwrite/sdk-for-go/id"
+	"github.com/joho/godotenv"
 )
 
 func createSubjectAttributes() {
@@ -170,4 +174,41 @@ func SchemaDatabase() {
 
 	createDocumentAttributes()
 	createSubjectAttributes()
+}
+
+func AddTagAttributes() {
+
+	godotenv.Load()
+	projectKey := os.Getenv("PROJECT_KEY")
+	apiKey := os.Getenv("API_KEY")
+	databaseId := os.Getenv("DATABASE_ID")
+	documentsId := os.Getenv("DOCUMENTS_ID")
+	subjectsId := os.Getenv("SUBJECTS_ID")
+	appwriteClient = appwrite.NewClient(
+		appwrite.WithEndpoint("https://cloud.appwrite.io/v1"),
+		appwrite.WithProject(projectKey),
+		appwrite.WithKey(apiKey),
+	)
+
+	appwriteDatabases = appwrite.NewDatabases(appwriteClient)
+	studyVaultDB, _ = appwriteDatabases.Get(databaseId)
+	documentsCollection, _ = appwriteDatabases.GetCollection(studyVaultDB.Id, documentsId)
+	subjectsCollection, _ = appwriteDatabases.GetCollection(studyVaultDB.Id, subjectsId)
+
+	if studyVaultDB == nil || documentsCollection == nil {
+		log.Fatal("Lỗi: studyVaultDB hoặc documentsCollection là nil")
+	}
+	_, err := appwriteDatabases.CreateStringAttribute(
+		studyVaultDB.Id,
+		documentsCollection.Id,
+		"tags",
+		255,
+		false,
+		appwriteDatabases.WithCreateStringAttributeArray(true),
+	)
+
+	// Kiểm tra lỗi
+	if err != nil {
+		log.Fatalf("Lỗi khi tạo attribute 'tag': %v", err)
+	}
 }

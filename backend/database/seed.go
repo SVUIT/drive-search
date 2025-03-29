@@ -7,11 +7,19 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/appwrite/sdk-for-go/appwrite"
 	"github.com/appwrite/sdk-for-go/id"
+	"github.com/appwrite/sdk-for-go/query"
+	"github.com/joho/godotenv"
 )
+
+type TableData struct {
+	URL string
+	Tag []string
+}
 
 // Read data from CSV file
 func readCSV(filePath string) [][]string {
@@ -154,4 +162,86 @@ func SeedAllData(csvPathURLFile string, csvPathURLFolder string, jsonPath string
 	subjectDetails := parseSubjectDetails(jsonData)
 
 	seedSubjectsWithDocuments(subjectRecords, documentRecords, subjectDetails)
+}
+
+func SeedTagData(csvPathURLFile string) {
+
+	godotenv.Load()
+	projectKey := os.Getenv("PROJECT_KEY")
+	apiKey := os.Getenv("API_KEY")
+	databaseId := os.Getenv("DATABASE_ID")
+	documentsId := os.Getenv("DOCUMENTS_ID")
+	subjectsId := os.Getenv("SUBJECTS_ID")
+
+	appwriteClient = appwrite.NewClient(
+		appwrite.WithEndpoint("https://cloud.appwrite.io/v1"),
+		appwrite.WithProject(projectKey),
+		appwrite.WithKey(apiKey),
+	)
+	appwriteDatabases = appwrite.NewDatabases(appwriteClient)
+	studyVaultDB, _ = appwriteDatabases.Get(databaseId)
+	documentsCollection, _ = appwriteDatabases.GetCollection(studyVaultDB.Id, documentsId)
+	subjectsCollection, _ = appwriteDatabases.GetCollection(studyVaultDB.Id, subjectsId)
+
+	tagData := readCSV(csvPathURLFile)
+	var data []TableData
+	for i, row := range tagData {
+		if i == 0 {
+			continue
+		}
+		// Kiểm tra số cột để tránh lỗi index out of range
+		if len(row) < 8 {
+			continue
+		}
+		// Xử lý cột Subject và Tag
+		url := row[6]
+		tag := row[10]
+		tag = strings.Trim(tag, "[]") // Xóa dấu []
+		tag = strings.ReplaceAll(tag, "'", "")
+		tags := strings.Split(tag, ",") // Tách thành mảng các tag
+		data = append(data, TableData{URL: url, Tag: tags})
+	}
+
+	//Tạo map URL -> Tags từ TableData
+	urlToTags := make(map[string][]string)
+	for _, record := range data {
+		urlToTags[record.URL] = record.Tag
+	}
+
+	for url, newTags := range urlToTags {
+		response, err := appwriteDatabases.ListDocuments(
+			databaseId,
+			documentsId,
+			appwriteDatabases.WithListDocumentsQueries(
+				[]string{query.Equal("URL", url)}),
+		)
+
+		if err != nil {
+			log.Printf("Lỗi khi lấy document có URL %s: %v\n", url, err)
+			continue
+		}
+
+		if len(response.Documents) == 0 {
+			log.Printf("Không tìm thấy document nào có URL: %s\n", url)
+			continue
+		}
+		// var docData map[string]interface{}
+		for _, doc := range response.Documents {
+			updatedTags := newTags
+			//Cập nhật document
+			_, err := appwriteDatabases.UpdateDocument(
+				databaseId,
+				documentsId,
+				doc.Id,
+				appwriteDatabases.WithUpdateDocumentData(map[string]interface{}{
+					"tags": updatedTags,
+				}),
+			)
+			if err != nil {
+				log.Printf("Lỗi cập nhật document %s: %v", doc.Id, err)
+			} else {
+				log.Printf("Cập nhật thành công document %s với tags: %v", doc.Id, updatedTags)
+			}
+		}
+	}
 }
