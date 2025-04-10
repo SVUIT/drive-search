@@ -146,6 +146,9 @@ function renderDocumentSearchResults(documents) {
       <p style="font-size: 14px; color: #555; margin: 0;">
         <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
       </p>
+       <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong> Tags:</strong> ${doc.tags || 'Chưa cập nhật'}
+      </p>
     `;
 
     docContainer.appendChild(div);
