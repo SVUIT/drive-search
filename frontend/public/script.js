@@ -4,6 +4,7 @@ window.documentsData = {};
 document.getElementById('search-button').addEventListener('click', async () => {
   const query = document.getElementById('search-input').value.trim();
   const searchType = document.getElementById('search-type').value;
+  const selectedTag = document.getElementById('tag-filter').value;
 
   if (!query) {
     alert('Vui lòng nhập từ khóa tìm kiếm.');
@@ -16,7 +17,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
     cardContainer.style.display = 'flex';
 
     try {
-      const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const subjects = await response.json();
 
@@ -27,21 +28,21 @@ document.getElementById('search-button').addEventListener('click', async () => {
         subjects.forEach(subject => {
           window.subjectsData[subject.$id] = subject;
           const card = document.createElement('div');
-        card.style = `
-      font-family: 'Poppins', sans-serif;
-      padding: 16px;
-      width: 20%;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-      background-color: #fff;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    `;
+          card.style = `
+            font-family: 'Poppins', sans-serif;
+            padding: 16px;
+            width: 20%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+          `;
           card.className = 'card';
           card.innerHTML = `
             <h3>${subject.name || 'Môn chưa xác định'}</h3>
@@ -68,7 +69,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
     docContainer.style.display = 'block';
 
     try {
-      const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const documents = await response.json();
       renderDocumentSearchResults(documents);
@@ -154,3 +155,25 @@ function renderDocumentSearchResults(documents) {
     docContainer.appendChild(div);
   });
 }
+
+async function fetchTags() {
+  try {
+    const response = await fetch('/tags');
+    if (!response.ok) throw new Error(`Lỗi khi lấy tag: ${response.status}`);
+
+    const tags = await response.json();
+    const tagSelect = document.getElementById('tag-filter');
+    tagSelect.innerHTML = `<option value="all" selected>Tất cả tag</option>`; // Reset
+
+    tags.forEach(tag => {
+      const option = document.createElement('option');
+      option.value = tag;
+      option.textContent = tag;
+      tagSelect.appendChild(option);
+    });
+  } catch (err) {
+    console.error('Không thể lấy tag:', err);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', fetchTags);
