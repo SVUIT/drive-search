@@ -156,14 +156,14 @@ function renderDocumentSearchResults(documents) {
   });
 }
 
-async function fetchTags() {
+async function fetchTags(query = '', selectedTag = 'all') {
   try {
     const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
     if (!response.ok) throw new Error(`Lỗi khi lấy tag: ${response.status}`);
 
     const tags = await response.json();
     const tagSelect = document.getElementById('tag-filter');
-    tagSelect.innerHTML = `<option value="all" selected>Tất cả tag</option>`; // Reset
+    tagSelect.innerHTML = `<option value="all" selected>Tất cả tag</option>`;
 
     tags.forEach(tag => {
       const option = document.createElement('option');
@@ -175,5 +175,4 @@ async function fetchTags() {
     console.error('Không thể lấy tag:', err);
   }
 }
-
-window.addEventListener('DOMContentLoaded', fetchTags);
+window.addEventListener('DOMContentLoaded', () => fetchTags());
