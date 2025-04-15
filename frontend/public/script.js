@@ -156,23 +156,31 @@ function renderDocumentSearchResults(documents) {
   });
 }
 
-async function fetchTags(query = '', selectedTag = 'all') {
+async function fetchTags() {
   try {
-    const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
-    if (!response.ok) throw new Error(`Lỗi khi lấy tag: ${response.status}`);
+    const response = await fetch('/documents/search?query=');
+    if (!response.ok) throw new Error(`Lỗi khi lấy tài liệu: ${response.status}`);
 
-    const tags = await response.json();
+    const documents = await response.json();
+    const allTags = new Set();
+
+    documents.forEach(doc => {
+      if (Array.isArray(doc.tags)) {
+        doc.tags.forEach(tag => allTags.add(tag.trim()));
+      }
+    });
+
     const tagSelect = document.getElementById('tag-filter');
     tagSelect.innerHTML = `<option value="all" selected>Tất cả tag</option>`;
 
-    tags.forEach(tag => {
+    Array.from(allTags).sort().forEach(tag => {
       const option = document.createElement('option');
       option.value = tag;
       option.textContent = tag;
       tagSelect.appendChild(option);
     });
+
   } catch (err) {
     console.error('Không thể lấy tag:', err);
   }
 }
-window.addEventListener('DOMContentLoaded', () => fetchTags());
