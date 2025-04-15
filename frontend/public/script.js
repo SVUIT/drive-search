@@ -158,7 +158,7 @@ function renderDocumentSearchResults(documents) {
 
 async function fetchTags() {
   try {
-    const response = await fetch('/tags');
+    const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
     if (!response.ok) throw new Error(`Lỗi khi lấy tag: ${response.status}`);
 
     const tags = await response.json();
