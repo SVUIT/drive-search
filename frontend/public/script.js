@@ -155,10 +155,12 @@ function renderDocumentSearchResults(documents) {
     docContainer.appendChild(div);
   });
 }
+window.addEventListener('DOMContentLoaded', fetchTags);
 
 async function fetchTags() {
-  const query = document.getElementById('search-input').value.trim();
-  const selectedTag = document.getElementById('tag-filter').value;
+  const query = document.getElementById('search-input')?.value?.trim() || '';
+  const selectedTag = document.getElementById('tag-filter')?.value || 'all';
+
   try {
     const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`); 
     const data = await res.json();
@@ -169,6 +171,8 @@ async function fetchTags() {
     const uniqueTags = [...new Set(allTags)];
 
     const tagSelect = document.getElementById('tag-filter');
+    if (!tagSelect) return;
+
     tagSelect.innerHTML = '<option value="all" selected>All</option>';
 
     uniqueTags.forEach(tag => {
@@ -181,7 +185,8 @@ async function fetchTags() {
   } catch (err) {
     console.error('Error fetching tags:', err);
   }
+  console.log(data); 
+
 }
 
-window.addEventListener('DOMContentLoaded', fetchTags);
 
