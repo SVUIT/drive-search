@@ -156,31 +156,27 @@ function renderDocumentSearchResults(documents) {
   });
 }
 
-async function fetchTags() {
-  try {
-    const response = await fetch('/documents/search?query=');
-    if (!response.ok) throw new Error(`Lỗi khi lấy tài liệu: ${response.status}`);
+document.addEventListener('DOMContentLoaded', () => {
+  fetchTags();
+});
 
-    const documents = await response.json();
-    const allTags = new Set();
+function fetchTags() {
+  fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`)
+    .then(res => res.json())
+    .then(tags => {
+      const tagFilter = document.getElementById('tag-filter');
+      
+      // Remove existing options (except "All")
+      tagFilter.innerHTML = '<option value="all" selected>All</option>';
 
-    documents.forEach(doc => {
-      if (Array.isArray(doc.tags)) {
-        doc.tags.forEach(tag => allTags.add(tag.trim()));
-      }
+      tags.forEach(tag => {
+        const option = document.createElement('option');
+        option.value = tag.value || tag;  // Adjust based on your backend data
+        option.textContent = tag.label || tag;
+        tagFilter.appendChild(option);
+      });
+    })
+    .catch(err => {
+      console.error('Error fetching tags:', err);
     });
-
-    const tagSelect = document.getElementById('tag-filter');
-    tagSelect.innerHTML = `<option value="all" selected>Tất cả tag</option>`;
-
-    Array.from(allTags).sort().forEach(tag => {
-      const option = document.createElement('option');
-      option.value = tag;
-      option.textContent = tag;
-      tagSelect.appendChild(option);
-    });
-
-  } catch (err) {
-    console.error('Không thể lấy tag:', err);
-  }
 }
