@@ -158,22 +158,25 @@ function renderDocumentSearchResults(documents) {
 
 async function fetchTags() {
   try {
-    const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}`);
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const res = await fetch(`/documents`); 
+    const data = await res.json();
 
-    const tags = await response.json();
+    const allTags = data.documents.flatMap(doc => doc.tags || []);
+    const uniqueTags = [...new Set(allTags)];
+
     const tagSelect = document.getElementById('tag-filter');
-
     tagSelect.innerHTML = '<option value="all" selected>All</option>';
 
-    tags.forEach(tag => {
-      const option = document.createElement('option');
-      option.value = tag.value || tag;  
-      option.textContent = tag.label || tag;
-      tagSelect.appendChild(option);
+    uniqueTags.forEach(tag => {
+      const opt = document.createElement('option');
+      opt.value = tag;
+      opt.textContent = tag;
+      tagSelect.appendChild(opt);
     });
-  } catch (error) {
-    console.error('Lỗi khi lấy thẻ tag:', error);
+
+  } catch (err) {
+    console.error('Error fetching tags:', err);
   }
 }
+window.addEventListener('DOMContentLoaded', fetchTags);
 
