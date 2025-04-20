@@ -162,7 +162,9 @@ async function fetchTags() {
     const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}`); 
     const data = await res.json();
 
-    const allTags = data.documents.map(doc => doc.tags || []).flat();
+    const docs = Array.isArray(data.documents) ? data.documents : [];
+
+    const allTags = docs.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
 
     const tagSelect = document.getElementById('tag-filter');
@@ -179,5 +181,6 @@ async function fetchTags() {
     console.error('Error fetching tags:', err);
   }
 }
+
 window.addEventListener('DOMContentLoaded', fetchTags);
 
