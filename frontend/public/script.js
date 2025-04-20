@@ -166,8 +166,13 @@ async function fetchTags() {
     const data = await res.json();
 
     const docs = Array.isArray(data.documents) ? data.documents : [];
-    for(const doc of docs){
-      console.log(doc.tags);
+    if (docs.length === 0) {
+      console.log('No documents found');
+    } else {
+      docs.forEach(doc => {
+        console.log('Document:', doc);
+        console.log('Tags:', doc.tags);
+      });
     }
     const allTags = docs.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
