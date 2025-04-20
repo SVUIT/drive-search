@@ -158,8 +158,9 @@ function renderDocumentSearchResults(documents) {
 
 async function fetchTags() {
   const query = document.getElementById('search-input').value.trim();
+  const selectedTag = document.getElementById('tag-filter').value;
   try {
-    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}`); 
+    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`); 
     const data = await res.json();
 
     const docs = Array.isArray(data.documents) ? data.documents : [];
