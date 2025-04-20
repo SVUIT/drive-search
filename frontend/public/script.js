@@ -161,7 +161,7 @@ async function fetchTags() {
     const res = await fetch(`/documents`); 
     const data = await res.json();
 
-    const allTags = data.documents.flatMap(doc => doc.tags || []);
+    const allTags = data.documents.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
 
     const tagSelect = document.getElementById('tag-filter');
