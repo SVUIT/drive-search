@@ -157,8 +157,9 @@ function renderDocumentSearchResults(documents) {
 }
 
 async function fetchTags() {
+  const query = document.getElementById('search-input').value.trim();
   try {
-    const res = await fetch(`/documents`); 
+    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}`); 
     const data = await res.json();
 
     const allTags = data.documents.map(doc => doc.tags || []).flat();
