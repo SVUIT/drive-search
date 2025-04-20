@@ -165,8 +165,15 @@ async function fetchTags() {
     const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`); 
     const data = await res.json();
 
-    const docs = Array.isArray(data.documents) ? data.documents : [];
-    console.log('Tags from data:', data.documents.map(doc => doc.tags));
+    console.log('Full data response:', data); // <== ADD THIS LINE
+
+  if (!Array.isArray(data.documents)) {
+    console.warn('data.documents is not an array:', data.documents);
+    return;
+  }
+
+  const tags = data.documents.map(doc => doc.tags);
+  console.log('Tags from all documents:', tags);
     const allTags = docs.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
 
