@@ -181,7 +181,9 @@ async function fetchTags() {
       opt.textContent = tag;
       tagSelect.appendChild(opt);
     });
-    console.log(data); 
+    docs.forEach(doc => {
+      console.log(doc.tags);  
+    }); 
 
   } catch (err) {
     console.error('Error fetching tags:', err);
