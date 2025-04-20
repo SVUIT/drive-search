@@ -166,7 +166,9 @@ async function fetchTags() {
     const data = await res.json();
 
     const docs = Array.isArray(data.documents) ? data.documents : [];
-
+    for(const doc of docs){
+      console.log(doc.tags);
+    }
     const allTags = docs.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
 
@@ -181,9 +183,7 @@ async function fetchTags() {
       opt.textContent = tag;
       tagSelect.appendChild(opt);
     });
-    docs.forEach(doc => {
-      console.log(doc.tags);  
-    }); 
+   
 
   } catch (err) {
     console.error('Error fetching tags:', err);
