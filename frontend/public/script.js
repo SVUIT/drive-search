@@ -155,7 +155,7 @@ function renderDocumentSearchResults(documents) {
     docContainer.appendChild(div);
   });
 }
-window.addEventListener('DOMContentLoaded', fetchTags);
+
 
 async function fetchTags() {
   const query = document.getElementById('search-input')?.value?.trim() || '';
@@ -165,16 +165,14 @@ async function fetchTags() {
     const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`); 
     const data = await res.json();
 
-    console.log('Full data response:', data); // <== ADD THIS LINE
+    console.log('Full data response:', data);
 
-  if (!Array.isArray(data.documents)) {
-    console.warn('data.documents is not an array:', data.documents);
-    return;
-  }
+    if (!Array.isArray(data)) {
+      console.warn('data is not an array:', data);
+      return;
+    }
 
-  const tags = data.documents.map(doc => doc.tags);
-  console.log('Tags from all documents:', tags);
-    const allTags = docs.map(doc => doc.tags || []).flat();
+    const allTags = data.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
 
     const tagSelect = document.getElementById('tag-filter');
@@ -188,12 +186,11 @@ async function fetchTags() {
       opt.textContent = tag;
       tagSelect.appendChild(opt);
     });
-   
 
   } catch (err) {
     console.error('Error fetching tags:', err);
   }
-  
 }
+window.addEventListener('DOMContentLoaded', fetchTags);
 
 
