@@ -95,6 +95,43 @@ app.get("/documents/search", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+app.get("/documents/search", async (req, res) => {
+  const query = req.query.query || "";
+  let searchTerms = query.split(",").map((term) => term.trim()).filter((term) => term !== "");
+
+  if (searchTerms.length === 0) {
+    searchTerms = [query];
+  }
+
+  try {
+    const documentMap = new Map();
+
+    await Promise.all(searchTerms.map(async (term) => {
+      const [byName, byTags] = await Promise.all([
+        databases.listDocuments(
+          DATABASE_ID,
+          DOCUMENTS_COLLECTION_ID,
+          [Query.search("name", term)]
+        ),
+        databases.listDocuments(
+          DATABASE_ID,
+          DOCUMENTS_COLLECTION_ID,
+          [Query.search("tags", term)]
+        )
+      ]);
+
+      [...byName.documents, ...byTags.documents].forEach((doc) => {
+        documentMap.set(doc.$id, doc);
+      });
+    }));
+
+    res.json(Array.from(documentMap.values()));
+  } catch (error) {
+    console.error("Error during document search:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 // Start Server
 app.listen(PORT, () => {
