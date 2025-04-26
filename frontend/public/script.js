@@ -157,7 +157,7 @@ function renderDocumentSearchResults(documents) {
 }
 
 
-async function fetchTags() {
+async function fetchTags(event) {
   event.preventDefault();
   const query = document.getElementById('search-input')?.value?.trim() || '';
   const selectedTag = document.getElementById('tag-filter')?.value || 'all';
