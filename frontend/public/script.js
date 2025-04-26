@@ -28,8 +28,8 @@ document.getElementById('search-button').addEventListener('click', async () => {
         subjects.forEach(subject => {
           window.subjectsData[subject.$id] = subject;
           const card = document.createElement('div');
-          card.style = 
-            `font-family: 'Poppins', sans-serif;
+          card.style = `
+            font-family: 'Poppins', sans-serif;
             padding: 16px;
             width: 20%;
             display: flex;
@@ -41,10 +41,11 @@ document.getElementById('search-button').addEventListener('click', async () => {
             border-radius: 12px;
             background-color: #fff;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;`;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+          `;
           card.className = 'card';
-          card.innerHTML = 
-            `<h3>${subject.name || 'Môn chưa xác định'}</h3>
+          card.innerHTML = `
+            <h3>${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
             <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
             <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
@@ -52,7 +53,8 @@ document.getElementById('search-button').addEventListener('click', async () => {
             <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
             <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
             <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
-            <button class="detail-button" data-id="${subject.$id}" style="background-color: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;">Xem chi tiết</button>`;
+            <button class="detail-button" data-id="${subject.$id}" style="background-color: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;">Xem chi tiết</button>
+          `;
           cardContainer.appendChild(card);
         });
       } else {
@@ -91,11 +93,12 @@ document.addEventListener('click', (event) => {
 function renderDocumentSearchResults(documents) {
   const docContainer = document.getElementById('document-result-container');
   docContainer.innerHTML = '';
-  docContainer.style = 
-    `display: flex;
+  docContainer.style = `
+    display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;`;
+    gap: 20px;
+  `;
 
   if (!Array.isArray(documents) || documents.length === 0) {
     docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu.</p>';
@@ -104,8 +107,8 @@ function renderDocumentSearchResults(documents) {
 
   documents.forEach(doc => {
     const div = document.createElement('div');
-    div.style = 
-      `font-family: 'Poppins', sans-serif;
+    div.style = `
+      font-family: 'Poppins', sans-serif;
       padding: 16px;
       width: 17%;
       display: flex;
@@ -117,7 +120,8 @@ function renderDocumentSearchResults(documents) {
       border-radius: 12px;
       background-color: #fff;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;`;
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    `;
     
     div.onmouseover = () => {
       div.style.transform = 'scale(1.05)';
@@ -129,8 +133,8 @@ function renderDocumentSearchResults(documents) {
       div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
     };
 
-    div.innerHTML = 
-      `<h3 style="font-weight: 500; font-size: 16px; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
+    div.innerHTML = `
+      <h3 style="font-weight: 500; font-size: 16px; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
       <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
         <strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;"> Xem tài liệu</a>` : 'N/A'}
       </p>
@@ -143,13 +147,15 @@ function renderDocumentSearchResults(documents) {
       <p style="font-size: 14px; color: #555; margin: 0;">
         <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
       </p>
-      <p style="font-size: 14px; color: #555; margin: 0;">
+       <p style="font-size: 14px; color: #555; margin: 0;">
         <strong> Tags:</strong> ${doc.tags || 'Chưa cập nhật'}
-      </p>`;
+      </p>
+    `;
 
     docContainer.appendChild(div);
   });
 }
+
 
 async function fetchTags() {
   const query = document.getElementById('search-input')?.value?.trim() || '';
@@ -186,3 +192,4 @@ async function fetchTags() {
   }
 }
 window.addEventListener('DOMContentLoaded', fetchTags);
+
