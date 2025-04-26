@@ -19,12 +19,11 @@
     <!-- This part is the base for tags fetching     -->
     <select id="tag-filter" style="margin-right: 20px;">
       <option value="all" selected>All</option>
-      <input type="radio">
     </select>
     
     
   <input type="text" id="search-input" placeholder="Search...">
-  <button id="search-button"><i class="fas fa-magnifying-glass"></i></button>
+  <button id="search-button" onclick="fetchTags()"><i class="fas fa-magnifying-glass"></i></button>
 </div>
 
 <div class="card-container"></div>
