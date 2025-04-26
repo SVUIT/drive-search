@@ -156,12 +156,13 @@ function renderDocumentSearchResults(documents) {
   });
 }
 
+
 async function fetchTags() {
   const query = document.getElementById('search-input')?.value?.trim() || '';
-  const selectedTag = []; // Sẽ lấy từ các checkbox sau này
+  const selectedTag = document.getElementById('tag-filter')?.value || 'all';
 
   try {
-    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}`); 
+    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`); 
     const data = await res.json();
 
     console.log('Full data response:', data);
@@ -174,22 +175,16 @@ async function fetchTags() {
     const allTags = data.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
 
-    // Thay vì select, dùng div để chứa checkbox
-    const tagContainer = document.getElementById('tag-checkbox-container');
-    if (!tagContainer) return;
+    const tagSelect = document.getElementById('tag-filter');
+    if (!tagSelect) return;
 
-    tagContainer.innerHTML = ''; // Xóa cũ
+    tagSelect.innerHTML = '<option value="all" selected>All</option>';
 
     uniqueTags.forEach(tag => {
-      const label = document.createElement('label');
-      label.style.marginRight = '10px';
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.value = tag;
-      checkbox.name = 'tag-filter';
-      label.appendChild(checkbox);
-      label.appendChild(document.createTextNode(' ' + tag));
-      tagContainer.appendChild(label);
+      const opt = document.createElement('option');
+      opt.value = tag;
+      opt.textContent = tag;
+      tagSelect.appendChild(opt);
     });
 
   } catch (err) {
@@ -198,7 +193,22 @@ async function fetchTags() {
 }
 window.addEventListener('DOMContentLoaded', fetchTags);
 
-// Toggle dropdown
-document.getElementById('dropdown-btn').addEventListener('click', function() {
-  document.getElementById('tag-filter-dropdown').classList.toggle('show');
+$(document).ready(function() {
+  $('#tag-filter').select2({
+    placeholder: "Chọn tag",
+    allowClear: true
+  });
 });
+
+// Khi fetch xong tag:
+function updateTagOptions(uniqueTags) {
+  const $select = $('#tag-filter');
+  $select.empty();
+  $select.append('<option value="all">All</option>');
+  uniqueTags.forEach(tag => {
+    $select.append(`<option value="${tag}">${tag}</option>`);
+  });
+  $select.trigger('change');
+}
+
+const selectedTags = $('#tag-filter').val(); // Mảng các tag đã chọn
