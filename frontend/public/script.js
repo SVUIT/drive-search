@@ -198,19 +198,4 @@ async function fetchTags() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  fetchTags();
-
-  const selectBox = document.getElementById('select-box');
-  const optionsContainer = document.getElementById('options-container');
-
-  selectBox.addEventListener('click', () => {
-    optionsContainer.style.display = optionsContainer.style.display === 'block' ? 'none' : 'block';
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!document.getElementById('custom-dropdown').contains(e.target)) {
-      optionsContainer.style.display = 'none';
-    }
-  });
-});
+document.addEventListener('DOMContentLoaded', () => {fetchTags();});
