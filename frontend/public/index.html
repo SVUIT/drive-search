@@ -11,20 +11,25 @@
 </head>
 <body>
 
-<div class="search-container">
-  <select id="search-type" style="margin-right: 10px;">
-    <option value="subjects" selected>Subjects</option>
-    <option value="documents">Documents</option>
-  </select>
-    <!-- This part is the base for tags fetching     -->
-    <select id="tag-filter" style="margin-right: 20px;">
+  <div class="search-container">
+    <select id="search-type" style="margin-right: 10px;">
+      <option value="subjects" selected>Subjects</option>
+      <option value="documents">Documents</option>
+    </select>
+  
+    <select id="tag-filter" style="margin-right: 10px;">
       <option value="all" selected>All</option>
     </select>
-    
-    
-  <input type="text" id="search-input" placeholder="Search...">
-  <button id="search-button" onclick="fetchTags()"><i class="fas fa-magnifying-glass"></i></button>
-</div>
+  
+    <label style="display: flex; align-items: center; gap: 5px; margin-right: 20px;">
+      <input type="checkbox" id="use-tag-checkbox">
+      Use Tag
+    </label>
+  
+    <input type="text" id="search-input" placeholder="Search...">
+    <button id="search-button"><i class="fas fa-magnifying-glass"></i></button>
+  </div>
+  
 
 <div class="card-container"></div>
 

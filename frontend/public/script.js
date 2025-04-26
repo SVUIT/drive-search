@@ -1,12 +1,14 @@
 window.subjectsData = {};
 window.documentsData = {};
+window.cachedTags = [];
 
 document.getElementById('search-button').addEventListener('click', async () => {
   const query = document.getElementById('search-input').value.trim();
   const searchType = document.getElementById('search-type').value;
   const selectedTag = document.getElementById('tag-filter').value;
+  const useTag = document.getElementById('use-tag-checkbox').checked;
 
-  if (!query) {
+  if (!query && !useTag) {
     alert('Vui lòng nhập từ khóa tìm kiếm.');
     return;
   }
@@ -17,7 +19,8 @@ document.getElementById('search-button').addEventListener('click', async () => {
     cardContainer.style.display = 'flex';
 
     try {
-      const response = await fetch(`/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
+      const tagQuery = useTag && selectedTag !== 'all' ? `&tag=${encodeURIComponent(selectedTag)}` : '';
+      const response = await fetch(`/search?query=${encodeURIComponent(query)}${tagQuery}`);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const subjects = await response.json();
 
@@ -49,7 +52,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
             <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
             <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
             <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
-            <p><strong>Tổng số tín chỉ:</strong> ${subject['theory-credits'] + subject['practice-credits'] || 'Chưa cập nhật'}</p>
+            <p><strong>Tổng số tín chỉ:</strong> ${(subject['theory-credits'] || 0) + (subject['practice-credits'] || 0)}</p>
             <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
             <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
             <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
@@ -69,7 +72,8 @@ document.getElementById('search-button').addEventListener('click', async () => {
     docContainer.style.display = 'block';
 
     try {
-      const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
+      const tagQuery = useTag && selectedTag !== 'all' ? `&tag=${encodeURIComponent(selectedTag)}` : '';
+      const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}${tagQuery}`);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const documents = await response.json();
       renderDocumentSearchResults(documents);
@@ -156,30 +160,30 @@ function renderDocumentSearchResults(documents) {
   });
 }
 
-
 async function fetchTags() {
-  const query = document.getElementById('search-input')?.value?.trim() || '';
-  const selectedTag = document.getElementById('tag-filter')?.value || 'all';
+  if (window.cachedTags.length > 0) {
+    console.log('Tags already fetched, skipping re-fetch.');
+    return;
+  }
 
   try {
-    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`); 
+    const res = await fetch(`/documents/search?query=&tag=all`);
     const data = await res.json();
 
-    console.log('Full data response:', data);
-
     if (!Array.isArray(data)) {
-      console.warn('data is not an array:', data);
+      console.warn('Data is not an array:', data);
       return;
     }
 
     const allTags = data.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
 
+    window.cachedTags = uniqueTags;
+
     const tagSelect = document.getElementById('tag-filter');
     if (!tagSelect) return;
 
     tagSelect.innerHTML = '<option value="all" selected>All</option>';
-
     uniqueTags.forEach(tag => {
       const opt = document.createElement('option');
       opt.value = tag;
@@ -191,6 +195,5 @@ async function fetchTags() {
     console.error('Error fetching tags:', err);
   }
 }
+
 window.addEventListener('DOMContentLoaded', fetchTags);
-
-
