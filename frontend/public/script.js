@@ -156,13 +156,12 @@ function renderDocumentSearchResults(documents) {
   });
 }
 
-
 async function fetchTags() {
   const query = document.getElementById('search-input')?.value?.trim() || '';
-  const selectedTag = document.getElementById('tag-filter')?.value || 'all';
+  const selectedTag = []; // Sẽ lấy từ các checkbox sau này
 
   try {
-    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`); 
+    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}`); 
     const data = await res.json();
 
     console.log('Full data response:', data);
@@ -175,16 +174,22 @@ async function fetchTags() {
     const allTags = data.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
 
-    const tagSelect = document.getElementById('tag-filter');
-    if (!tagSelect) return;
+    // Thay vì select, dùng div để chứa checkbox
+    const tagContainer = document.getElementById('tag-checkbox-container');
+    if (!tagContainer) return;
 
-    tagSelect.innerHTML = '<option value="all" selected>All</option>';
+    tagContainer.innerHTML = ''; // Xóa cũ
 
     uniqueTags.forEach(tag => {
-      const opt = document.createElement('option');
-      opt.value = tag;
-      opt.textContent = tag;
-      tagSelect.appendChild(opt);
+      const label = document.createElement('label');
+      label.style.marginRight = '10px';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = tag;
+      checkbox.name = 'tag-filter';
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(' ' + tag));
+      tagContainer.appendChild(label);
     });
 
   } catch (err) {
@@ -192,3 +197,8 @@ async function fetchTags() {
   }
 }
 window.addEventListener('DOMContentLoaded', fetchTags);
+
+// Toggle dropdown
+document.getElementById('dropdown-btn').addEventListener('click', function() {
+  document.getElementById('tag-filter-dropdown').classList.toggle('show');
+});
