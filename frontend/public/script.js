@@ -159,10 +159,13 @@ function renderDocumentSearchResults(documents) {
 
 async function fetchTags() {
   const query = document.getElementById('search-input')?.value?.trim() || '';
-  
+  const selectedTag = document.getElementById('tag-filter')?.value || 'all';
+
   try {
-    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=all`);
+    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`); 
     const data = await res.json();
+
+    console.log('Full data response:', data);
 
     if (!Array.isArray(data)) {
       console.warn('data is not an array:', data);
@@ -172,24 +175,18 @@ async function fetchTags() {
     const allTags = data.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
 
-    const tagContainer = document.getElementById('tag-filter-container');
-    if (!tagContainer) return;
+    const tagSelect = document.getElementById('tag-filter');
+    if (!tagSelect) return;
 
-    tagContainer.innerHTML = '';
+    tagSelect.innerHTML = '<option value="all" selected>All</option>';
 
     uniqueTags.forEach(tag => {
-      const label = document.createElement('label');
-      label.style = 'margin-right: 12px; font-family: Poppins, sans-serif; font-size: 14px; color: #333;';
-      
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.value = tag;
-      checkbox.name = 'tags';
-
-      label.appendChild(checkbox);
-      label.append(` ${tag}`);
-      tagContainer.appendChild(label);
+      const opt = document.createElement('option');
+      opt.value = tag;
+      opt.textContent = tag;
+      tagSelect.appendChild(opt);
     });
+
   } catch (err) {
     console.error('Error fetching tags:', err);
   }
