@@ -179,20 +179,26 @@ async function fetchTags() {
     if (!tagSelect) return;
 
     tagSelect.innerHTML = '<option value="all" selected>All</option>';
-
+    const container = document.createElement('div');
+    document.body.appendChild(container);
     uniqueTags.forEach(tag => {
       const opt = document.createElement('option');
       opt.value = tag;
       opt.textContent = tag;
       tagSelect.appendChild(opt);
     
+      const label = document.createElement('label');
+      label.style.display = 'block';
+    
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.value = tag;
       checkbox.name = 'tags';
       checkbox.id = `checkbox-${tag}`;
-        
-      document.body.appendChild(checkbox);
+    
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(tag));
+      container.appendChild(label);
     });
     
 
