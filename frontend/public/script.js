@@ -185,7 +185,16 @@ async function fetchTags() {
       opt.value = tag;
       opt.textContent = tag;
       tagSelect.appendChild(opt);
+    
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = tag;
+      checkbox.name = 'tags';
+      checkbox.id = `checkbox-${tag}`;
+        
+      document.body.appendChild(checkbox);
     });
+    
 
   } catch (err) {
     console.error('Error fetching tags:', err);
