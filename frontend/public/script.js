@@ -159,10 +159,10 @@ function renderDocumentSearchResults(documents) {
 
 async function fetchTags() {
   const query = document.getElementById('search-input')?.value?.trim() || '';
-  const selectedTag = document.getElementById('tag-filter')?.value || 'all';
+  const selectedTag = 'all';
 
   try {
-    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`); 
+    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
     const data = await res.json();
 
     console.log('Full data response:', data);
@@ -175,35 +175,42 @@ async function fetchTags() {
     const allTags = data.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
 
-    const tagSelect = document.getElementById('tag-filter');
-    if (!tagSelect) return;
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = '';
 
-    tagSelect.innerHTML = '<option value="all" selected>All</option>';
-    const container = document.createElement('div');
-    document.body.appendChild(container);
     uniqueTags.forEach(tag => {
-      const opt = document.createElement('option');
-      opt.value = tag;
-      opt.textContent = tag;
-      tagSelect.appendChild(opt);
-    
       const label = document.createElement('label');
-      label.style.display = 'block';
-    
+      label.className = 'option-item';
+
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.value = tag;
       checkbox.name = 'tags';
       checkbox.id = `checkbox-${tag}`;
-    
+
       label.appendChild(checkbox);
-      label.appendChild(document.createTextNode(tag));
-      container.appendChild(label);
+      label.appendChild(document.createTextNode(' ' + tag));
+      optionsContainer.appendChild(label);
     });
-    
 
   } catch (err) {
     console.error('Error fetching tags:', err);
   }
 }
-window.addEventListener('DOMContentLoaded', fetchTags);
+
+document.addEventListener('DOMContentLoaded', () => {
+  fetchTags();
+
+  const selectBox = document.getElementById('select-box');
+  const optionsContainer = document.getElementById('options-container');
+
+  selectBox.addEventListener('click', () => {
+    optionsContainer.style.display = optionsContainer.style.display === 'block' ? 'none' : 'block';
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('custom-dropdown').contains(e.target)) {
+      optionsContainer.style.display = 'none';
+    }
+  });
+});
