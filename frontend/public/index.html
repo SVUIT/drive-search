@@ -12,19 +12,22 @@
 <body>
 
 <div class="search-container">
-  <select id="search-type" style="margin-right: 10px;">
-    <option value="subjects" selected>Subjects</option>
-    <option value="documents">Documents</option>
-  </select>
-    <!-- This part is the base for tags fetching     -->
-    <select id="tag-filter" style="margin-right: 20px;">
-      <option value="all" selected>All</option>
+    <select id="search-type">
+      <option value="subjects" selected>Subjects</option>
+      <option value="documents">Documents</option>
     </select>
-    
-    
-  <input type="text" id="search-input" placeholder="Search...">
-  <button id="search-button" onclick="fetchTags()"><i class="fas fa-magnifying-glass"></i></button>
-</div>
+
+    <!-- Checkbox tag filter -->
+    <div id="tag-checkboxes">
+      <label><input type="checkbox" value="all" checked /> All</label>
+    </div>
+
+    <input type="text" id="search-input" placeholder="Search..." />
+    <button id="search-button"><i class="fas fa-magnifying-glass"></i></button>
+  </div>
+
+  <div class="card-container"></div>
+  <div id="document-result-container" class="card-container" style="display: none;"></div>
 
 <div class="card-container"></div>
 
