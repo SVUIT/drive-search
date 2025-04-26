@@ -1,127 +1,194 @@
 window.subjectsData = {};
 window.documentsData = {};
 
-document.addEventListener('DOMContentLoaded', () => {
-  renderTagCheckboxes();
-  document.getElementById('search-button')
-          .addEventListener('click', onSearch);
-  document.addEventListener('click', handleDetailClick);
+document.getElementById('search-button').addEventListener('click', async () => {
+  const query = document.getElementById('search-input').value.trim();
+  const searchType = document.getElementById('search-type').value;
+  const selectedTag = document.getElementById('tag-filter').value;
+
+  if (!query) {
+    alert('Vui lòng nhập từ khóa tìm kiếm.');
+    return;
+  }
+
+  if (searchType === 'subjects') {
+    document.getElementById('document-result-container').style.display = 'none';
+    const cardContainer = document.querySelector('.card-container');
+    cardContainer.style.display = 'flex';
+
+    try {
+      const response = await fetch(`/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const subjects = await response.json();
+
+      cardContainer.innerHTML = '';
+      window.subjectsData = {};
+
+      if (Array.isArray(subjects) && subjects.length > 0) {
+        subjects.forEach(subject => {
+          window.subjectsData[subject.$id] = subject;
+          const card = document.createElement('div');
+          card.style = `
+            font-family: 'Poppins', sans-serif;
+            padding: 16px;
+            width: 20%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+          `;
+          card.className = 'card';
+          card.innerHTML = `
+            <h3>${subject.name || 'Môn chưa xác định'}</h3>
+            <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
+            <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
+            <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
+            <p><strong>Tổng số tín chỉ:</strong> ${subject['theory-credits'] + subject['practice-credits'] || 'Chưa cập nhật'}</p>
+            <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
+            <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
+            <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
+            <button class="detail-button" data-id="${subject.$id}" style="background-color: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;">Xem chi tiết</button>
+          `;
+          cardContainer.appendChild(card);
+        });
+      } else {
+        cardContainer.innerHTML = "<p>Không tìm thấy kết quả.</p>";
+      }
+    } catch (error) {
+      console.error('Lỗi khi tìm kiếm:', error);
+    }
+  } else if (searchType === 'documents') {
+    document.querySelector('.card-container').style.display = 'none';
+    const docContainer = document.getElementById('document-result-container');
+    docContainer.style.display = 'block';
+
+    try {
+      const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const documents = await response.json();
+      renderDocumentSearchResults(documents);
+    } catch (error) {
+      console.error('Lỗi khi tìm tài liệu:', error);
+      docContainer.innerHTML = '<p>Có lỗi xảy ra khi tìm kiếm tài liệu.</p>';
+    }
+  }
 });
 
-// Lấy và render checkbox tag động từ API tài liệu
-async function renderTagCheckboxes() {
-  try {
-    const res = await fetch('/documents/search?query=&tag=all');
-    const data = await res.json();
-    const tags = [...new Set(data.flatMap(d => d.tags || []))];
-    const container = document.getElementById('tag-checkboxes');
-    container.innerHTML = '<label><input type="checkbox" value="all" checked /> All</label>';
-    tags.forEach(tag => {
-      const lbl = document.createElement('label');
-      lbl.style.marginRight = '8px';
-      lbl.innerHTML = `<input type="checkbox" value="${tag}" /> ${tag}`;
-      container.appendChild(lbl);
-    });
-  } catch (e) {
-    console.error('Không thể load tags:', e);
+document.addEventListener('click', (event) => {
+  if (event.target.classList.contains('detail-button')) {
+    const subjectId = event.target.dataset.id;
+    const subject = window.subjectsData[subjectId];
+    if (subject) {
+      openDetailModal(subject);
+    }
   }
-}
+});
 
-// Trả mảng tags được chọn
-function getSelectedTags() {
-  const boxes = Array.from(document.querySelectorAll('#tag-checkboxes input[type=checkbox]'));
-  const allBox = boxes.find(b => b.value==='all');
-  if (allBox.checked) return ['all'];
-  return boxes.filter(b=>b.checked && b.value!=='all').map(b=>b.value);
-}
+function renderDocumentSearchResults(documents) {
+  const docContainer = document.getElementById('document-result-container');
+  docContainer.innerHTML = '';
+  docContainer.style = `
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  `;
 
-// Xử lý khi nhấn Search
-function onSearch() {
-  const query = document.getElementById('search-input').value.trim();
-  if (!query) { alert('Vui lòng nhập từ khóa.'); return; }
-  const type = document.getElementById('search-type').value;
-  const tags = getSelectedTags().join(',');
-  if (type === 'subjects') showSubjects(query, tags);
-  else showDocuments(query, tags);
-}
-
-// Hiển thị subjects
-async function showSubjects(q, tags) {
-  document.getElementById('document-result-container').style.display = 'none';
-  const container = document.querySelector('.card-container');
-  container.style.display = 'flex';
-  try {
-    const res = await fetch(`/search?query=${encodeURIComponent(q)}&tags=${encodeURIComponent(tags)}`);
-    const subs = await res.json();
-    container.innerHTML = '';
-    subs.forEach(s => {
-      window.subjectsData[s.$id] = s;
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <h3>${s.name||'N/A'}</h3>
-        <p><strong>Mã:</strong> ${s.code||'–'}</p>
-        <p><strong>LT:</strong> ${s['theory-credits']||0}, TH: ${s['practice-credits']||0}</p>
-        <p><strong>Khoa:</strong> ${s.management||'–'}</p>
-        <button class="detail-button" data-id="${s.$id}">Xem chi tiết</button>
-      `;
-      container.appendChild(card);
-    });
-    if (subs.length===0) container.innerHTML='<p>Không tìm thấy môn học.</p>';
-  } catch(e) {
-    console.error('Lỗi tìm môn học:', e);
+  if (!Array.isArray(documents) || documents.length === 0) {
+    docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu.</p>';
+    return;
   }
-}
 
-// Hiển thị documents
-async function showDocuments(q, tags) {
-  document.querySelector('.card-container').style.display = 'none';
-  const docC = document.getElementById('document-result-container');
-  docC.style.display = 'flex';
-  try {
-    const res = await fetch(`/documents/search?query=${encodeURIComponent(q)}&tags=${encodeURIComponent(tags)}`);
-    const docs = await res.json();
-    renderDocumentSearchResults(docs);
-  } catch(e) {
-    console.error('Lỗi tìm tài liệu:', e);
-    docC.innerHTML = '<p>Có lỗi xảy ra.</p>';
-  }
-}
-
-// Render kết quả tài liệu
-function renderDocumentSearchResults(docs) {
-  const docC = document.getElementById('document-result-container');
-  docC.innerHTML = '';
-  if (!docs.length) { docC.innerHTML = '<p>Không tìm thấy tài liệu.</p>'; return; }
-  docs.forEach(d => {
+  documents.forEach(doc => {
     const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `
-      <h3>${d.name||'N/A'}</h3>
-      <p><a href="${d.URL}" target="_blank">Xem tài liệu</a></p>
-      <p>Upload: ${d['upload-date']?.split('T')[0]||'–'}</p>
-      <p>Học kỳ: ${d.semester||'–'}</p>
-      <p>Năm: ${d['academic-year']||'–'}</p>
-      <p>Tags: ${(d.tags||[]).join(', ')||'–'}</p>
+    div.style = `
+      font-family: 'Poppins', sans-serif;
+      padding: 16px;
+      width: 17%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      background-color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     `;
-    docC.appendChild(div);
+    
+    div.onmouseover = () => {
+      div.style.transform = 'scale(1.05)';
+      div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
+    };
+    
+    div.onmouseleave = () => {
+      div.style.transform = 'scale(1)';
+      div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
+    };
+
+    div.innerHTML = `
+      <h3 style="font-weight: 500; font-size: 16px; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
+      <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
+        <strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;"> Xem tài liệu</a>` : 'N/A'}
+      </p>
+      <p style="font-size: 14px; color: #777; margin: 0;">
+        <strong> Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
+      </p>
+      <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong> Học kỳ:</strong> ${doc.semester || 'Chưa cập nhật'}
+      </p>
+      <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
+      </p>
+       <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong> Tags:</strong> ${doc.tags || 'Chưa cập nhật'}
+      </p>
+    `;
+
+    docContainer.appendChild(div);
   });
 }
 
-// Mở modal & show detail
-function handleDetailClick(evt) {
-  if (!evt.target.classList.contains('detail-button')) return;
-  const id = evt.target.dataset.id;
-  const subj = window.subjectsData[id];
-  if (!subj) return;
-  const modal = document.getElementById('detail-modal');
-  document.getElementById('subject-details').innerHTML = `
-    <h2>${subj.name}</h2>
-    <p><strong>Code:</strong> ${subj.code}</p>
-    <p><strong>Credits:</strong> ${subj['theory-credits']+subj['practice-credits']}</p>
-    <p><strong>Type:</strong> ${subj.type}</p>
-    <p><strong>Dept:</strong> ${subj.management}</p>
-  `;
-  modal.classList.add('active');
-  modal.querySelector('.close-modal').onclick = () => modal.classList.remove('active');
+
+async function fetchTags() {
+  const query = document.getElementById('search-input')?.value?.trim() || '';
+  const selectedTag = document.getElementById('tag-filter')?.value || 'all';
+
+  try {
+    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`); 
+    const data = await res.json();
+
+    console.log('Full data response:', data);
+
+    if (!Array.isArray(data)) {
+      console.warn('data is not an array:', data);
+      return;
+    }
+
+    const allTags = data.map(doc => doc.tags || []).flat();
+    const uniqueTags = [...new Set(allTags)];
+
+    const tagSelect = document.getElementById('tag-filter');
+    if (!tagSelect) return;
+
+    tagSelect.innerHTML = '<option value="all" selected>All</option>';
+
+    uniqueTags.forEach(tag => {
+      const opt = document.createElement('option');
+      opt.value = tag;
+      opt.textContent = tag;
+      tagSelect.appendChild(opt);
+    });
+
+  } catch (err) {
+    console.error('Error fetching tags:', err);
+  }
 }
+window.addEventListener('DOMContentLoaded', fetchTags);
