@@ -1,26 +1,22 @@
 window.subjectsData = {};
 window.documentsData = {};
-window.cachedTags = [];
 
 document.getElementById('search-button').addEventListener('click', async () => {
   const query = document.getElementById('search-input').value.trim();
   const searchType = document.getElementById('search-type').value;
   const selectedTag = document.getElementById('tag-filter').value;
-  const useTag = document.getElementById('use-tag-checkbox').checked;
 
-  if (!query && !useTag) {
-    alert('Vui lòng nhập từ khóa tìm kiếm.');
-    return;
-  }
+  if (!query) return alert('Vui lòng nhập từ khóa tìm kiếm.');
+
+  const cardContainer = document.querySelector('.card-container');
+  const docContainer = document.getElementById('document-result-container');
 
   if (searchType === 'subjects') {
-    document.getElementById('document-result-container').style.display = 'none';
-    const cardContainer = document.querySelector('.card-container');
+    docContainer.style.display = 'none';
     cardContainer.style.display = 'flex';
 
     try {
-      const tagQuery = useTag && selectedTag !== 'all' ? `&tag=${encodeURIComponent(selectedTag)}` : '';
-      const response = await fetch(`/search?query=${encodeURIComponent(query)}${tagQuery}`);
+      const response = await fetch(`/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const subjects = await response.json();
 
@@ -31,7 +27,8 @@ document.getElementById('search-button').addEventListener('click', async () => {
         subjects.forEach(subject => {
           window.subjectsData[subject.$id] = subject;
           const card = document.createElement('div');
-          card.style = `
+          card.className = 'card';
+          card.style.cssText = `
             font-family: 'Poppins', sans-serif;
             padding: 16px;
             width: 20%;
@@ -46,7 +43,6 @@ document.getElementById('search-button').addEventListener('click', async () => {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
           `;
-          card.className = 'card';
           card.innerHTML = `
             <h3>${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
@@ -67,13 +63,11 @@ document.getElementById('search-button').addEventListener('click', async () => {
       console.error('Lỗi khi tìm kiếm:', error);
     }
   } else if (searchType === 'documents') {
-    document.querySelector('.card-container').style.display = 'none';
-    const docContainer = document.getElementById('document-result-container');
+    cardContainer.style.display = 'none';
     docContainer.style.display = 'block';
 
     try {
-      const tagQuery = useTag && selectedTag !== 'all' ? `&tag=${encodeURIComponent(selectedTag)}` : '';
-      const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}${tagQuery}`);
+      const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const documents = await response.json();
       renderDocumentSearchResults(documents);
@@ -88,16 +82,14 @@ document.addEventListener('click', (event) => {
   if (event.target.classList.contains('detail-button')) {
     const subjectId = event.target.dataset.id;
     const subject = window.subjectsData[subjectId];
-    if (subject) {
-      openDetailModal(subject);
-    }
+    if (subject) openDetailModal(subject);
   }
 });
 
 function renderDocumentSearchResults(documents) {
   const docContainer = document.getElementById('document-result-container');
   docContainer.innerHTML = '';
-  docContainer.style = `
+  docContainer.style.cssText = `
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -111,7 +103,7 @@ function renderDocumentSearchResults(documents) {
 
   documents.forEach(doc => {
     const div = document.createElement('div');
-    div.style = `
+    div.style.cssText = `
       font-family: 'Poppins', sans-serif;
       padding: 16px;
       width: 17%;
@@ -126,64 +118,60 @@ function renderDocumentSearchResults(documents) {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
       transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     `;
-    
-    div.onmouseover = () => {
+
+    div.addEventListener('mouseover', () => {
       div.style.transform = 'scale(1.05)';
       div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
-    };
-    
-    div.onmouseleave = () => {
+    });
+    div.addEventListener('mouseleave', () => {
       div.style.transform = 'scale(1)';
       div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
-    };
+    });
 
     div.innerHTML = `
-      <h3 style="font-weight: 500; font-size: 16px; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
+      <h3 style="font-weight: 500; font-size: 16px; margin: 0; color: #007bff;">${doc.name || 'N/A'}</h3>
       <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
-        <strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;"> Xem tài liệu</a>` : 'N/A'}
+        <strong>Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;">Xem tài liệu</a>` : 'N/A'}
       </p>
       <p style="font-size: 14px; color: #777; margin: 0;">
-        <strong> Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
+        <strong>Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
       </p>
       <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong> Học kỳ:</strong> ${doc.semester || 'Chưa cập nhật'}
+        <strong>Học kỳ:</strong> ${doc.semester || 'Chưa cập nhật'}
       </p>
       <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
+        <strong>Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
       </p>
-       <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong> Tags:</strong> ${doc.tags || 'Chưa cập nhật'}
+      <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong>Tags:</strong> ${doc.tags || 'Chưa cập nhật'}
       </p>
     `;
-
     docContainer.appendChild(div);
   });
 }
 
 async function fetchTags() {
-  if (window.cachedTags.length > 0) {
-    console.log('Tags already fetched, skipping re-fetch.');
-    return;
-  }
+  const query = document.getElementById('search-input')?.value?.trim() || '';
+  const selectedTag = document.getElementById('tag-filter')?.value || 'all';
 
   try {
-    const res = await fetch(`/documents/search?query=&tag=all`);
+    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
     const data = await res.json();
+
+    console.log('Full data response:', data);
 
     if (!Array.isArray(data)) {
       console.warn('Data is not an array:', data);
       return;
     }
 
-    const allTags = data.map(doc => doc.tags || []).flat();
+    const allTags = data.flatMap(doc => doc.tags || []);
     const uniqueTags = [...new Set(allTags)];
-
-    window.cachedTags = uniqueTags;
-
     const tagSelect = document.getElementById('tag-filter');
-    if (!tagSelect) return;
 
+    if (!tagSelect) return;
     tagSelect.innerHTML = '<option value="all" selected>All</option>';
+
     uniqueTags.forEach(tag => {
       const opt = document.createElement('option');
       opt.value = tag;
