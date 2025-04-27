@@ -90,7 +90,7 @@ document.addEventListener('click', (event) => {
   }
 });
 
-function renderDocumentSearchResults(documents) {
+function renderDocumentSearchResults(documents, selectedTags = []) {
   const docContainer = document.getElementById('document-result-container');
   docContainer.innerHTML = '';
   docContainer.style = `
@@ -105,7 +105,22 @@ function renderDocumentSearchResults(documents) {
     return;
   }
 
-  documents.forEach(doc => {
+  // Filter documents based on selected tags if any tags are selected
+  let filteredDocuments = documents;
+  if (Array.isArray(selectedTags) && selectedTags.length > 0) {
+    filteredDocuments = documents.filter(doc => {
+      if (!doc.tags) return false;
+      const docTags = doc.tags.split(',').map(tag => tag.trim().toLowerCase());
+      return selectedTags.every(tag => docTags.includes(tag.toLowerCase()));
+    });
+  }
+
+  if (filteredDocuments.length === 0) {
+    docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu phù hợp với bộ lọc tag.</p>';
+    return;
+  }
+
+  filteredDocuments.forEach(doc => {
     const div = document.createElement('div');
     div.style = `
       font-family: 'Poppins', sans-serif;
@@ -136,7 +151,7 @@ function renderDocumentSearchResults(documents) {
     div.innerHTML = `
       <h3 style="font-weight: 500; font-size: 16px; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
       <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
-        <strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;"> Xem tài liệu</a>` : 'N/A'}
+        <strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;">Xem tài liệu</a>` : 'N/A'}
       </p>
       <p style="font-size: 14px; color: #777; margin: 0;">
         <strong> Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
@@ -147,7 +162,7 @@ function renderDocumentSearchResults(documents) {
       <p style="font-size: 14px; color: #555; margin: 0;">
         <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
       </p>
-       <p style="font-size: 14px; color: #555; margin: 0;">
+      <p style="font-size: 14px; color: #555; margin: 0;">
         <strong> Tags:</strong> ${doc.tags || 'Chưa cập nhật'}
       </p>
     `;
