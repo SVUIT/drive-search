@@ -158,18 +158,17 @@ function renderDocumentSearchResults(documents) {
 
 
 async function fetchTags(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
+  
   const query = document.getElementById('search-input')?.value?.trim() || '';
-  const selectedTag = document.getElementById('tag-filter')?.value || 'all';
+  const selectedTagBeforeFetch = document.getElementById('tag-filter')?.value || 'all';
 
   try {
-    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`); 
+    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTagBeforeFetch)}`);
     const data = await res.json();
 
-    console.log('Full data response:', data);
-
     if (!Array.isArray(data)) {
-      console.warn('data is not an array:', data);
+      console.warn('Data is not array:', data);
       return;
     }
 
@@ -179,7 +178,7 @@ async function fetchTags(event) {
     const tagSelect = document.getElementById('tag-filter');
     if (!tagSelect) return;
 
-    tagSelect.innerHTML = '<option value="all" selected>All</option>';
+    tagSelect.innerHTML = '<option value="all">All</option>';
 
     uniqueTags.forEach(tag => {
       const opt = document.createElement('option');
@@ -188,10 +187,21 @@ async function fetchTags(event) {
       tagSelect.appendChild(opt);
     });
 
+    // Sau khi load xong, set lại tag đã chọn trước đó
+    if ([...tagSelect.options].some(opt => opt.value === selectedTagBeforeFetch)) {
+      tagSelect.value = selectedTagBeforeFetch;
+    } else {
+      tagSelect.value = 'all'; // fallback nếu tag cũ không còn
+    }
+
+    // Nếu dùng select2 thì trigger cập nhật lại
+    $('#tag-filter').trigger('change');
+
   } catch (err) {
     console.error('Error fetching tags:', err);
   }
 }
+
 window.addEventListener('DOMContentLoaded', fetchTags);
 
 $(document).ready(function() {
