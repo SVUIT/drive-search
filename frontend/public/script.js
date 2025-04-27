@@ -90,86 +90,8 @@ document.addEventListener('click', (event) => {
   }
 });
 
-function renderDocumentSearchResults(documents, selectedTags = []) {
-  const docContainer = document.getElementById('document-result-container');
-  docContainer.innerHTML = '';
-  docContainer.style = `
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-  `;
 
-  if (!Array.isArray(documents) || documents.length === 0) {
-    docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu.</p>';
-    return;
-  }
 
-  // Filter documents based on selected tags if any tags are selected
-  let filteredDocuments = documents;
-  if (Array.isArray(selectedTags) && selectedTags.length > 0) {
-    filteredDocuments = documents.filter(doc => {
-      if (!doc.tags) return false;
-      const docTags = doc.tags.split(',').map(tag => tag.trim().toLowerCase());
-      return selectedTags.every(tag => docTags.includes(tag.toLowerCase()));
-    });
-  }
-
-  if (filteredDocuments.length === 0) {
-    docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu phù hợp với bộ lọc tag.</p>';
-    return;
-  }
-
-  filteredDocuments.forEach(doc => {
-    const div = document.createElement('div');
-    div.style = `
-      font-family: 'Poppins', sans-serif;
-      padding: 16px;
-      width: 17%;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: center;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-      background-color: #fff;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    `;
-    
-    div.onmouseover = () => {
-      div.style.transform = 'scale(1.05)';
-      div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
-    };
-    
-    div.onmouseleave = () => {
-      div.style.transform = 'scale(1)';
-      div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
-    };
-
-    div.innerHTML = `
-      <h3 style="font-weight: 500; font-size: 16px; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
-      <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
-        <strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;">Xem tài liệu</a>` : 'N/A'}
-      </p>
-      <p style="font-size: 14px; color: #777; margin: 0;">
-        <strong> Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
-      </p>
-      <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong> Học kỳ:</strong> ${doc.semester || 'Chưa cập nhật'}
-      </p>
-      <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
-      </p>
-      <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong> Tags:</strong> ${doc.tags || 'Chưa cập nhật'}
-      </p>
-    `;
-
-    docContainer.appendChild(div);
-  });
-}
 
 
 async function fetchTags(event) {
@@ -239,3 +161,93 @@ function updateTagOptions(uniqueTags) {
 }
 
 const selectedTags = $('#tag-filter').val(); // Mảng các tag đã chọn
+
+async function renderDocumentSearchResults(documents) {
+  const docContainer = document.getElementById('document-result-container');
+  docContainer.innerHTML = '';
+  docContainer.style = `
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  `;
+
+  if (!Array.isArray(documents) || documents.length === 0) {
+    docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu.</p>';
+    return;
+  }
+
+  // Fetch selected tags
+  let selectedTags = [];
+  try {
+    const tags = await fetchTags();
+    selectedTags = tags.filter(tag => tag.selected).map(tag => tag.name.toLowerCase());
+  } catch (error) {
+    console.error('Error fetching tags:', error);
+  }
+
+  // Filter documents if there are selected tags
+  let filteredDocuments = documents;
+  if (selectedTags.length > 0) {
+    filteredDocuments = documents.filter(doc => {
+      if (!doc.tags) return false;
+      const docTags = doc.tags.split(',').map(tag => tag.trim().toLowerCase());
+      return selectedTags.every(tag => docTags.includes(tag));
+    });
+  }
+
+  if (filteredDocuments.length === 0) {
+    docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu phù hợp với bộ lọc tag.</p>';
+    return;
+  }
+
+  filteredDocuments.forEach(doc => {
+    const div = document.createElement('div');
+    div.style = `
+      font-family: 'Poppins', sans-serif;
+      padding: 16px;
+      width: 17%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      background-color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    `;
+
+    div.onmouseover = () => {
+      div.style.transform = 'scale(1.05)';
+      div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
+    };
+
+    div.onmouseleave = () => {
+      div.style.transform = 'scale(1)';
+      div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
+    };
+
+    div.innerHTML = `
+      <h3 style="font-weight: 500; font-size: 16px; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
+      <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
+        <strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;">Xem tài liệu</a>` : 'N/A'}
+      </p>
+      <p style="font-size: 14px; color: #777; margin: 0;">
+        <strong> Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
+      </p>
+      <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong> Học kỳ:</strong> ${doc.semester || 'Chưa cập nhật'}
+      </p>
+      <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
+      </p>
+      <p style="font-size: 14px; color: #555; margin: 0;">
+        <strong> Tags:</strong> ${doc.tags || 'Chưa cập nhật'}
+      </p>
+    `;
+
+    docContainer.appendChild(div);
+  });
+}
