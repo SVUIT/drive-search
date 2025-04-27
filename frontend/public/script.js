@@ -172,11 +172,6 @@ async function renderDocumentSearchResults(documents) {
     gap: 20px;
   `;
 
-  if (!Array.isArray(documents) || documents.length === 0) {
-    docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu.</p>';
-    return;
-  }
-
   // Fetch selected tags
   let selectedTags = [];
   try {
@@ -186,8 +181,9 @@ async function renderDocumentSearchResults(documents) {
     console.error('Error fetching tags:', error);
   }
 
-  // Filter documents if there are selected tags
   let filteredDocuments = documents;
+
+  // If there are selected tags, strictly filter
   if (selectedTags.length > 0) {
     filteredDocuments = documents.filter(doc => {
       if (!doc.tags) return false;
@@ -196,7 +192,8 @@ async function renderDocumentSearchResults(documents) {
     });
   }
 
-  if (filteredDocuments.length === 0) {
+  // Now if no documents after filtering, show "not found"
+  if (!Array.isArray(filteredDocuments) || filteredDocuments.length === 0) {
     docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu phù hợp với bộ lọc tag.</p>';
     return;
   }
