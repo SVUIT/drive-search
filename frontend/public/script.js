@@ -6,8 +6,39 @@ document.getElementById('search-button').addEventListener('click', async () => {
   const searchType = document.getElementById('search-type').value;
   const selectedTag = document.getElementById('tag-filter').value;
 
-  if (!query) {
-    alert('Vui lòng nhập từ khóa tìm kiếm.');
+  if (searchType === 'subjects' && !query) {
+    const cardContainer = document.querySelector('.card-container');
+    cardContainer.style.display = 'flex';
+    document.getElementById('document-result-container').style.display = 'none';
+
+    try {
+      const res = await fetch('/subjects');
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      const subjects = await res.json();
+
+      cardContainer.innerHTML = '';
+      window.subjectsData = {};
+
+      subjects.forEach(subject => {
+        window.subjectsData[subject.$id] = subject;
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.cssText = `background: white; border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin: 8px; width: 300px;`;
+        card.innerHTML = `
+          <h3>${subject.name || 'Môn chưa xác định'}</h3>
+          <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
+          <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
+          <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
+          <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
+          <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
+          <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
+        `;
+        cardContainer.appendChild(card);
+      });
+    } catch (err) {
+      console.error('Error fetching all subjects:', err);
+      cardContainer.innerHTML = '<p>Không thể tải danh sách môn.</p>';
+    }
     return;
   }
 
