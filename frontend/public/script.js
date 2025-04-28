@@ -31,7 +31,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
           card.style.cssText = `
                 font-family:'Poppins',sans-serif;
                 padding:32px;
-                width:100%;max-width:400px;
+                width:100%;max-width:380px;
                 aspect-ratio:4/3;
                 display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
                 line-height:0.6;
