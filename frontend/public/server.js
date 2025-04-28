@@ -156,6 +156,24 @@ app.get("/documents/tags", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+app.get("/subjects", async (req, res) => {
+  const allSubjects = [];
+  const limit = 61;   
+  let offset = 0;
+
+  while (true) {
+    const page = await databases.listDocuments(
+      DATABASE_ID,
+      COLLECTION_ID,
+      [ Query.limit(limit), Query.offset(offset) ]
+    );
+    allSubjects.push(...page.documents);
+    if (page.documents.length < limit) break;  
+    offset += limit;
+  }
+
+  res.json(allSubjects);
+});
 
 app.use(express.static(__dirname));
 // Start Server
