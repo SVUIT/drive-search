@@ -154,7 +154,7 @@ async function fetchTags(event) {
 }
 
 
-window.addEventListener('DOMContentLoaded', fetchTags);
+window.addEventListener('DOMContentLoaded', fetchTags(Event));
 
 $(document).ready(function() {
   $('#tag-filter').select2({
