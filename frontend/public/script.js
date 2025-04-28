@@ -219,22 +219,21 @@ async function renderDocumentSearchResults(documents) {
     const div = document.createElement('div');
     div.style = `
       font-family:'Poppins',sans-serif;
-                padding:32px;
-                width:100%;max-width:400px;
-                aspect-ratio:4/3;
-                display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
-                line-height:0.6;
-                background:rgba(255,255,255,0.2);
-                backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-                border:1px solid transparent;border-radius:20px;
-                border-image:linear-gradient(to right,#6a11cb,#2575fc) 1;
-                box-shadow:0 8px 32px rgba(0,0,0,0.1);
-                filter:drop-shadow(0 4px 8px rgba(0,0,0,0.05));
-                transition:transform 0.4s ease,box-shadow 0.4s ease,filter 0.4s ease;
-                will-change:transform,box-shadow;
-                cursor:pointer;
-                overflow:hidden;
-                backface-visibility:hidden;
+    padding:32px;
+    width:100%; max-width:400px;
+    display:flex; flex-direction:column; justify-content:space-between; align-items:flex-start; gap:8px;
+    line-height:1.2;
+    background:rgba(255,255,255,0.2);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:1px solid transparent; border-radius:20px;
+    border-image:linear-gradient(to right,#6a11cb,#2575fc) 1;
+    box-shadow:0 8px 32px rgba(0,0,0,0.1);
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,0.05));
+    transition:transform 0.4s ease, box-shadow 0.4s ease, filter 0.4s ease;
+    will-change:transform, box-shadow;
+    cursor:pointer;
+    overflow:visible;
+    backface-visibility:hidden;
     `;
 
     div.onmouseover = () => {
