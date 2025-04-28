@@ -65,7 +65,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
     display: block;
     width: 100%;
     min-width: 0;
-    font-size: 10px;
+    font-size: 16px;
     ">${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
             <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
