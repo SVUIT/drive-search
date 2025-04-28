@@ -23,7 +23,25 @@ document.getElementById('search-button').addEventListener('click', async () => {
         window.subjectsData[subject.$id] = subject;
         const card = document.createElement('div');
         card.className = 'card';
-        card.style.cssText = `background: white; border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin: 8px; width: 300px;`;
+        card.style.cssText = `
+                font-family:'Poppins',sans-serif;
+                padding:32px;
+                width:100%;max-width:400px;
+                aspect-ratio:4/3;
+                display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
+                line-height:0.6;
+                background:rgba(255,255,255,0.2);
+                backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+                border:1px solid transparent;border-radius:20px;
+                border-image:linear-gradient(to right,#6a11cb,#2575fc) 1;
+                box-shadow:0 8px 32px rgba(0,0,0,0.1);
+                filter:drop-shadow(0 4px 8px rgba(0,0,0,0.05));
+                transition:transform 0.4s ease,box-shadow 0.4s ease,filter 0.4s ease;
+                will-change:transform,box-shadow;
+                cursor:pointer;
+                overflow:hidden;
+                backface-visibility:hidden;
+              `;
         card.innerHTML = `
           <h3>${subject.name || 'Môn chưa xác định'}</h3>
           <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
@@ -59,25 +77,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
         subjects.forEach(subject => {
           window.subjectsData[subject.$id] = subject;
           const card = document.createElement('div');
-          card.style.cssText = `
-                font-family:'Poppins',sans-serif;
-                padding:32px;
-                width:100%;max-width:400px;
-                aspect-ratio:4/3;
-                display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
-                line-height:0.6;
-                background:rgba(255,255,255,0.2);
-                backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-                border:1px solid transparent;border-radius:20px;
-                border-image:linear-gradient(to right,#6a11cb,#2575fc) 1;
-                box-shadow:0 8px 32px rgba(0,0,0,0.1);
-                filter:drop-shadow(0 4px 8px rgba(0,0,0,0.05));
-                transition:transform 0.4s ease,box-shadow 0.4s ease,filter 0.4s ease;
-                will-change:transform,box-shadow;
-                cursor:pointer;
-                overflow:hidden;
-                backface-visibility:hidden;
-              `;
+          
             card.addEventListener('mouseenter',()=>{
             card.style.transform='translateY(-8px) scale(1.02)';
             card.style.boxShadow='0 16px 48px rgba(0,0,0,0.15)';
