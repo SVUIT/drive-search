@@ -114,27 +114,25 @@ document.addEventListener('click', (event) => {
 
 
 async function fetchTags() {
-  
-  const query = document.getElementById('search-input')?.value?.trim() || '';
   const tagSelect = document.getElementById('tag-filter');
   if (!tagSelect) return;
 
-  const selectedTagsBeforeFetch = [...tagSelect.selectedOptions].map(opt => opt.value);
+  // remember what was selected before we reload the options
+  const previouslySelected = [...tagSelect.selectedOptions].map(o => o.value);
 
   try {
-    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTagsBeforeFetch.join(','))}`);
-    const data = await res.json();
+    // 1) fetch all tags (no query, no filtering)
+    const res = await fetch('/documents/tags');
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+    const uniqueTags = await res.json();       // e.g. ["tag1","tag2",...]
 
-    if (!Array.isArray(data)) {
-      console.warn('Data is not array:', data);
+    if (!Array.isArray(uniqueTags)) {
+      console.warn('Expected array of tags, got:', uniqueTags);
       return;
     }
 
-    const allTags = data.map(doc => doc.tags || []).flat();
-    const uniqueTags = [...new Set(allTags)];
-
+    // 2) rebuild <select>
     tagSelect.innerHTML = '<option value="all">All</option>';
-    
     uniqueTags.forEach(tag => {
       const opt = document.createElement('option');
       opt.value = tag;
@@ -142,22 +140,22 @@ async function fetchTags() {
       tagSelect.appendChild(opt);
     });
 
-    // Sau khi load xong, set lại nhiều tag đã chọn
+    // 3) restore any previous selections
     [...tagSelect.options].forEach(opt => {
-      if (selectedTagsBeforeFetch.includes(opt.value)) {
+      if (previouslySelected.includes(opt.value)) {
         opt.selected = true;
       }
     });
 
-    // Nếu dùng select2 hoặc thư viện nào đó, nhớ trigger update
+    // 4) notify Select2 (or any other plugin) that options changed
     $('#tag-filter').trigger('change');
-
-  } catch (err) {
-    console.error('Error fetching tags:', err);
+  }
+  catch (err) {
+    console.error('Error fetching all tags:', err);
   }
 }
-app.use(express.static(__dirname));
 
+// wire it up on page-load
 window.addEventListener('DOMContentLoaded', fetchTags);
 
 $(document).ready(function() {

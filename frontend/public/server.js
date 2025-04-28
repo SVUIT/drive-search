@@ -157,7 +157,7 @@ app.get("/documents/tags", async (req, res) => {
   }
 });
 
-
+app.use(express.static(__dirname));
 // Start Server
 app.listen(PORT, () => {
   console.log(`Express server listening on port ${PORT}`);
