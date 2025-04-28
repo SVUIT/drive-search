@@ -60,7 +60,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
 
           card.className = 'card';
           card.innerHTML = `
-            <h3 style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;display: block;width: 100%;">${subject.name || 'Môn chưa xác định'}</h3>
+            <h3 style="white-space: nowrap;text-overflow: ellipsis;display: block;width: 100%;">${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
             <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
             <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
