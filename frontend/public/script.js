@@ -267,7 +267,7 @@ async function renderDocumentSearchResults(documents) {
     padding:32px;
     width:100%; max-width:400px;
     display:flex; flex-direction:column; justify-content:space-between; align-items:flex-start; gap:8px;
-    line-height:1.2;
+    line-height:1.3;
     background:rgba(255,255,255,0.2);
     backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
     border:1px solid transparent; border-radius:20px;
