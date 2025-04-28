@@ -31,7 +31,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
           card.style.cssText = `
                 font-family:'Poppins',sans-serif;
                 padding:32px;
-                width:100%;max-width:390px;
+                width:100%;max-width:400px;
                 aspect-ratio:4/3;
                 display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
                 line-height:0.6;
@@ -60,11 +60,10 @@ document.getElementById('search-button').addEventListener('click', async () => {
 
           card.className = 'card';
           card.innerHTML = `
-            <h3 style="white-space: nowrap;text-overflow: ellipsis;display: block;width: 100%;">${subject.name || 'Môn chưa xác định'}</h3>
+            <h3 style="white-space: nowrap;text-overflow: ellipsis;display: block;width: 100%;line-clamp:1;box-orient:horozontal;overflow:hidden;">${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
             <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
             <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
-            <p><strong>Tổng số tín chỉ:</strong> ${subject['theory-credits'] + subject['practice-credits'] || 'Chưa cập nhật'}</p>
             <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
             <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
             <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
