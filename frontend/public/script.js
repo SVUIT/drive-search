@@ -115,7 +115,6 @@ async function fetchTags(event) {
     const allTags = data.map(doc => doc.tags || []).flat();
     const uniqueTags = [...new Set(allTags)];
 
-    tagSelect.innerHTML = '<option value="all">All</option>';
 
     uniqueTags.forEach(tag => {
       const opt = document.createElement('option');
