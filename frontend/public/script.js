@@ -73,7 +73,6 @@ document.getElementById('search-button').addEventListener('click', async () => {
             <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
             <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
             <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
-            <button class="detail-button" data-id="${subject.$id}" style="background-color: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;">Xem chi tiết</button>
           `;
           cardContainer.appendChild(card);
         });
