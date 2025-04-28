@@ -63,8 +63,66 @@ document.getElementById('search-button').addEventListener('click', async () => {
   if (!query && searchType === 'documents') {
     const cardContainer = document.querySelector('.card-container');
     cardContainer.style.display = 'none';
-    document.getElementById('document-result-container').style.display = 'none';
-    alert('Vui lòng nhập từ khóa tìm kiếm.');
+    const documentResultContainer = document.getElementById('document-result-container');
+    documentResultContainer.style.display = 'flex';
+    const selectedTag = document.getElementById('tag-filter').value;
+  
+    if (!selectedTag) {
+      documentResultContainer.style.display = 'none';
+      alert('Vui lòng nhập từ khóa tìm kiếm.');
+      return;
+    }
+  
+    try {
+      const res = await fetch(`/documents?tag=${encodeURIComponent(selectedTag)}`);
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      const documents = await res.json();
+  
+      documentResultContainer.innerHTML = '';
+  
+      documents.forEach(doc => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.cssText = `
+          font-family: 'Poppins', sans-serif;
+          padding: 32px;
+          width: 100%;
+          max-width: 400px;
+          aspect-ratio: 4/3;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 8px;
+          line-height: 0.6;
+          background: rgba(255,255,255,0.2);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid transparent;
+          border-radius: 20px;
+          border-image: linear-gradient(to right, #6a11cb, #2575fc) 1;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+          filter: drop-shadow(0 4px 8px rgba(0,0,0,0.05));
+          transition: transform 0.4s ease, box-shadow 0.4s ease, filter 0.4s ease;
+          will-change: transform, box-shadow;
+          cursor: pointer;
+          overflow: hidden;
+          backface-visibility: hidden;
+        `;
+        card.innerHTML = `
+          <h3>${doc.name || 'Tài liệu chưa xác định'}</h3>
+          <p><strong>Môn học:</strong> ${doc.subject || 'Không rõ'}</p>
+          <p><strong>Tags:</strong> ${(doc.tags || []).join(', ') || 'Không có'}</p>
+          <p><strong>Link:</strong> ${doc.link ? `<a href="${doc.link}" target="_blank">Xem</a>` : 'Không có'}</p>
+        `;
+        documentResultContainer.appendChild(card);
+      });
+  
+    } catch (err) {
+      console.error('Error fetching documents by tag:', err);
+      documentResultContainer.innerHTML = '<p>Không thể tải tài liệu.</p>';
+    }
+  
     return;
   }
 
