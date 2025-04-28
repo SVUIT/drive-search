@@ -27,7 +27,6 @@ document.getElementById('search-button').addEventListener('click', async () => {
       if (Array.isArray(subjects) && subjects.length > 0) {
         subjects.forEach(subject => {
           window.subjectsData[subject.$id] = subject;
-          const totalCredits = (parseInt(subject['theory-credits'] || 0) + parseInt(subject['practice-credits'] || 0));
           const card = document.createElement('div');
           card.style = `
             font-family: 'Poppins', sans-serif;
@@ -50,7 +49,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
             <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
             <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
             <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
-            <p><strong>Tổng số tín chỉ:</strong> ${totalCredits}</p>
+            <p><strong>Tổng số tín chỉ:</strong> ${subject['theory-credits'] + subject['practice-credits'] || 'Chưa cập nhật'}</p>
             <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
             <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
             <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
@@ -91,14 +90,21 @@ document.addEventListener('click', (event) => {
   }
 });
 
+
+
+
+
 async function fetchTags(event) {
   if (event) event.preventDefault();
-
+  
+  const query = document.getElementById('search-input')?.value?.trim() || '';
   const tagSelect = document.getElementById('tag-filter');
   if (!tagSelect) return;
 
+  const selectedTagsBeforeFetch = [...tagSelect.selectedOptions].map(opt => opt.value);
+
   try {
-    const res = await fetch(`/documents/search?query=`);
+    const res = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTagsBeforeFetch.join(','))}`);
     const data = await res.json();
 
     if (!Array.isArray(data)) {
@@ -118,11 +124,21 @@ async function fetchTags(event) {
       tagSelect.appendChild(opt);
     });
 
+    // Sau khi load xong, set lại nhiều tag đã chọn
+    [...tagSelect.options].forEach(opt => {
+      if (selectedTagsBeforeFetch.includes(opt.value)) {
+        opt.selected = true;
+      }
+    });
+
+    // Nếu dùng select2 hoặc thư viện nào đó, nhớ trigger update
     $('#tag-filter').trigger('change');
+
   } catch (err) {
     console.error('Error fetching tags:', err);
   }
 }
+
 
 window.addEventListener('DOMContentLoaded', fetchTags);
 
@@ -132,6 +148,19 @@ $(document).ready(function() {
     allowClear: true
   });
 });
+
+// Khi fetch xong tag:
+function updateTagOptions(uniqueTags) {
+  const $select = $('#tag-filter');
+  $select.empty();
+  $select.append('<option value="all">All</option>');
+  uniqueTags.forEach(tag => {
+    $select.append(`<option value="${tag}">${tag}</option>`);
+  });
+  $select.trigger('change');
+}
+
+const selectedTags = $('#tag-filter').val(); // Mảng các tag đã chọn
 
 async function renderDocumentSearchResults(documents) {
   const docContainer = document.getElementById('document-result-container');
@@ -143,18 +172,27 @@ async function renderDocumentSearchResults(documents) {
     gap: 20px;
   `;
 
-  const selectedTags = $('#tag-filter').val().filter(tag => tag !== 'all');
+  // Fetch selected tags
+  let selectedTags = [];
+  try {
+    const tags = await fetchTags();
+    selectedTags = tags.filter(tag => tag.selected).map(tag => tag.name.toLowerCase());
+  } catch (error) {
+    console.error('Error fetching tags:', error);
+  }
 
   let filteredDocuments = documents;
 
+  // If there are selected tags, strictly filter
   if (selectedTags.length > 0) {
     filteredDocuments = documents.filter(doc => {
       if (!doc.tags) return false;
-      const docTags = doc.tags.map(t => t.toLowerCase());
-      return selectedTags.every(tag => docTags.includes(tag.toLowerCase()));
+      const docTags = doc.tags.split(',').map(tag => tag.trim().toLowerCase());
+      return selectedTags.every(tag => docTags.includes(tag));
     });
   }
 
+  // Now if no documents after filtering, show "not found"
   if (!Array.isArray(filteredDocuments) || filteredDocuments.length === 0) {
     docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu phù hợp với bộ lọc tag.</p>';
     return;
@@ -203,9 +241,10 @@ async function renderDocumentSearchResults(documents) {
         <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
       </p>
       <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong> Tags:</strong> ${doc.tags ? doc.tags.join(', ') : 'Chưa cập nhật'}
+        <strong> Tags:</strong> ${doc.tags || 'Chưa cập nhật'}
       </p>
     `;
+
     docContainer.appendChild(div);
   });
 }
