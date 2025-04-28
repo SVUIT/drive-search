@@ -74,7 +74,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
     }
   
     try {
-      const res = await fetch(`/documents?tag=${encodeURIComponent(selectedTag)}`);
+      const res = await fetch(`/documents?tags=${encodeURIComponent(selectedTag)}`);
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const documents = await res.json();
   
