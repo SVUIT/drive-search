@@ -181,9 +181,10 @@ async function renderDocumentSearchResults(documents) {
     filteredDocuments = documents.filter(doc => {
       if (!doc.tags) return false;
       const docTags = doc.tags.map(t => t.toLowerCase());
-      return selectedTags.every(tag => docTags.includes(tag));
+      return selectedTags.some(tag => docTags.includes(tag));
     });
   }
+  
 
   if (!Array.isArray(filteredDocuments) || filteredDocuments.length === 0) {
     docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu phù hợp với bộ lọc tag.</p>';
