@@ -1,3 +1,87 @@
+// 1) Inject modern CSS styles dynamically
+const style = document.createElement('style');
+style.textContent = `
+  /* Load Poppins from Google Fonts */
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+  /* ========== Container ========== */
+  .card-container {
+    display: grid; /* CSS Grid for equal-height rows & auto-wrapping */  /* turn0search0, turn0search16 */
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;    /* consistent gap between cards */                   /* turn0search7 */
+    padding: 1rem;
+  }
+
+  /* ========== Base Card ========== */
+  .card {
+    font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* turn0search2 */
+    background: #ffffff;
+    border-radius: 1rem;   /* soft corners */                             /* turn0search7 */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);  /* subtle depth */         /* turn0search3 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;               /* smooth micro-interaction */ /* turn0search4 */
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    color: #333;
+  }
+
+  /* Lift on hover */
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+  }
+
+  /* Card heading & text */
+  .card h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.25rem;
+    color: #007bff;
+  }
+  .card p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  /* ========== Detail Button ========== */
+  .card__button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background-color 0.3s ease;
+    font-size: 0.9rem;
+  }
+  .card__button:hover {
+    background-color: #0056b3;
+  }
+
+  /* ========== Document Card Variant ========== */
+  .doc-card {
+    font-family: 'Poppins', system-ui, sans-serif;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    color: #333;
+  }
+  .doc-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+  }
+`;
+document.head.appendChild(style);
+
+// 2) No changes below—your existing JS logic remains exactly the same.
+// Just remove all `element.style = ...` blocks and replace class assignments:
+
 window.subjectsData = {};
 window.documentsData = {};
 
@@ -14,7 +98,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
   if (searchType === 'subjects') {
     document.getElementById('document-result-container').style.display = 'none';
     const cardContainer = document.querySelector('.card-container');
-    cardContainer.style.display = 'flex';
+    cardContainer.classList.add('card-container');
 
     try {
       const response = await fetch(`/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
@@ -28,22 +112,8 @@ document.getElementById('search-button').addEventListener('click', async () => {
         subjects.forEach(subject => {
           window.subjectsData[subject.$id] = subject;
           const card = document.createElement('div');
-          card.style = `
-            font-family: 'Poppins', sans-serif;
-            padding: 16px;
-            width: 20%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 8px;
-            align-items: center;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            background-color: #fff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-          `;
           card.className = 'card';
+
           card.innerHTML = `
             <h3>${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
@@ -53,7 +123,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
             <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
             <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
             <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
-            <button class="detail-button" data-id="${subject.$id}" style="background-color: #007bff; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;">Xem chi tiết</button>
+            <button class="card__button" data-id="${subject.$id}">Xem chi tiết</button>
           `;
           cardContainer.appendChild(card);
         });
@@ -81,16 +151,12 @@ document.getElementById('search-button').addEventListener('click', async () => {
 });
 
 document.addEventListener('click', (event) => {
-  if (event.target.classList.contains('detail-button')) {
+  if (event.target.classList.contains('card__button')) {
     const subjectId = event.target.dataset.id;
     const subject = window.subjectsData[subjectId];
-    if (subject) {
-      openDetailModal(subject);
-    }
+    if (subject) openDetailModal(subject);
   }
 });
-
-
 
 
 
