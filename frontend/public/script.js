@@ -162,7 +162,7 @@ function updateTagOptions(uniqueTags) {
 
 const selectedTags = ($('#tag-filter').val() || []).filter(tag => tag !== 'all');
 
-async function renderDocumentSearchResults(documents,event) {
+async function renderDocumentSearchResults(documents) {
   const docContainer = document.getElementById('document-result-container');
   docContainer.innerHTML = '';
   docContainer.style = `
@@ -172,27 +172,19 @@ async function renderDocumentSearchResults(documents,event) {
     gap: 20px;
   `;
 
-  // Fetch selected tags
-  let selectedTags = [];
-  try {
-    const tags = await fetchTags(event);
-    selectedTags = tags.filter(tag => tag.selected).map(tag => tag.name.toLowerCase());
-  } catch (error) {
-    console.error('Error fetching tags:', error);
-  }
+  const tags = $('#tag-filter').select2('data') || [];
+  const selectedTags = tags.filter(tag => tag.selected).map(tag => tag.text.toLowerCase());
 
   let filteredDocuments = documents;
 
-  // If there are selected tags, strictly filter
   if (selectedTags.length > 0) {
     filteredDocuments = documents.filter(doc => {
       if (!doc.tags) return false;
-      const docTags = doc.tags.split(',').map(tag => tag.trim().toLowerCase());
+      const docTags = doc.tags.map(t => t.toLowerCase());
       return selectedTags.every(tag => docTags.includes(tag));
     });
   }
 
-  // Now if no documents after filtering, show "not found"
   if (!Array.isArray(filteredDocuments) || filteredDocuments.length === 0) {
     docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu phù hợp với bộ lọc tag.</p>';
     return;
@@ -241,10 +233,9 @@ async function renderDocumentSearchResults(documents,event) {
         <strong> Năm học:</strong> ${doc['academic-year'] || 'Chưa cập nhật'}
       </p>
       <p style="font-size: 14px; color: #555; margin: 0;">
-        <strong> Tags:</strong> ${doc.tags || 'Chưa cập nhật'}
+        <strong> Tags:</strong> ${doc.tags ? doc.tags.join(', ') : 'Chưa cập nhật'}
       </p>
     `;
-
     docContainer.appendChild(div);
   });
 }
