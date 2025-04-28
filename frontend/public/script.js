@@ -177,8 +177,10 @@ async function renderDocumentSearchResults(documents) {
 
   let filteredDocuments = documents;
 
-  // Only filter documents if there are selected tags
-  if (selectedTags.length > 0) {
+  // Check if "All" tag is selected
+  if (selectedTags.includes('all')) {
+    filteredDocuments = documents; // No filtering, show all documents
+  } else if (selectedTags.length > 0) {
     filteredDocuments = documents.filter(doc => {
       if (!doc.tags) return false;
       const docTags = doc.tags.map(t => t.toLowerCase());
@@ -242,4 +244,5 @@ async function renderDocumentSearchResults(documents) {
     docContainer.appendChild(div);
   });
 }
+
 
