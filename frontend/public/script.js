@@ -34,7 +34,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
                 width:100%;max-width:390px;
                 aspect-ratio:4/3;
                 display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
-                line-height:0.55;
+                line-height:0.6;
                 background:rgba(255,255,255,0.2);
                 backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
                 border:1px solid transparent;border-radius:20px;
@@ -60,7 +60,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
 
           card.className = 'card';
           card.innerHTML = `
-            <h3>${subject.name || 'Môn chưa xác định'}</h3>
+            <h3 style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;display: block;width: 100%;">${subject.name || 'Môn chưa xác định'}</h3>
             <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
             <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
             <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
