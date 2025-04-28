@@ -160,7 +160,7 @@ function updateTagOptions(uniqueTags) {
   $select.trigger('change');
 }
 
-const selectedTags = $('#tag-filter').val(); // Mảng các tag đã chọn
+const selectedTags = ($('#tag-filter').val() || []).filter(tag => tag !== 'all');
 
 async function renderDocumentSearchResults(documents,event) {
   const docContainer = document.getElementById('document-result-container');
