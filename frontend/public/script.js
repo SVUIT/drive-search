@@ -251,9 +251,17 @@ async function renderDocumentSearchResults(documents) {
       <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
         <strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;">Xem tài liệu</a>` : 'N/A'}
       </p>
-      <p style="font-size: 14px; color: #777; margin: 0;">
-        <strong> Ngày tải lên:</strong> ${doc['upload-date'] ? doc['upload-date'].split('T')[0] : 'N/A'}
-      </p>
+     <p style="font-size: 14px; color: #777; margin: 0;">
+  <strong>Ngày tải lên:</strong> 
+  ${
+    doc['upload-date'] 
+    ? (() => { 
+        const [y, m, d] = doc['upload-date'].split('T')[0].split('-'); 
+        return `${d}-${m}-${y}`; 
+      })() 
+    : 'N/A'
+  }
+</p>
       <p style="font-size: 14px; color: #555; margin: 0;">
         <strong> Học kỳ:</strong> ${doc.semester || 'Chưa cập nhật'}
       </p>
