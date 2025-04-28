@@ -140,7 +140,7 @@ app.get("/documents/tags", async (req, res) => {
     while (true) {
       const page = await databases.listDocuments(
         DATABASE_ID,
-        DOCUMENTS_ID,
+        DOCUMENTS_COLLECTION_ID,
         [ Query.limit(limit), Query.offset(offset) ]
       );
       page.documents.forEach(doc => {
