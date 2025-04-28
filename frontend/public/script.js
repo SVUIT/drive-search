@@ -61,7 +61,6 @@ document.getElementById('search-button').addEventListener('click', async () => {
           card.className = 'card';
           card.innerHTML = `
             <h3 style="white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
     display: block;
     width: 100%;
