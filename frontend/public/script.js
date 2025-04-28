@@ -177,6 +177,7 @@ async function renderDocumentSearchResults(documents) {
 
   let filteredDocuments = documents;
 
+  // Only filter documents if there are selected tags
   if (selectedTags.length > 0) {
     filteredDocuments = documents.filter(doc => {
       if (!doc.tags) return false;
@@ -184,13 +185,14 @@ async function renderDocumentSearchResults(documents) {
       return selectedTags.some(tag => docTags.includes(tag));
     });
   }
-  
 
+  // If no documents are found, show a message
   if (!Array.isArray(filteredDocuments) || filteredDocuments.length === 0) {
     docContainer.innerHTML = '<p style="text-align: center; font-size: 16px; color: #777; font-weight: 500;">📄 Không tìm thấy tài liệu phù hợp với bộ lọc tag.</p>';
     return;
   }
 
+  // Render filtered documents
   filteredDocuments.forEach(doc => {
     const div = document.createElement('div');
     div.style = `
@@ -240,3 +242,4 @@ async function renderDocumentSearchResults(documents) {
     docContainer.appendChild(div);
   });
 }
+
