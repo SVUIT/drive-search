@@ -113,7 +113,7 @@ document.addEventListener('click', (event) => {
 
 
 
-async function fetchTags(event) {
+async function fetchTags() {
   
   const query = document.getElementById('search-input')?.value?.trim() || '';
   const tagSelect = document.getElementById('tag-filter');
@@ -156,9 +156,9 @@ async function fetchTags(event) {
     console.error('Error fetching tags:', err);
   }
 }
+app.use(express.static(__dirname));
 
-
-window.addEventListener('DOMContentLoaded', fetchTags(Event));
+window.addEventListener('DOMContentLoaded', fetchTags);
 
 $(document).ready(function() {
   $('#tag-filter').select2({
@@ -178,7 +178,6 @@ function updateTagOptions(uniqueTags) {
   $select.trigger('change');
 }
 
-const selectedTags = ($('#tag-filter').val() || []).filter(tag => tag !== 'all');
 
 async function renderDocumentSearchResults(documents) {
   const docContainer = document.getElementById('document-result-container');

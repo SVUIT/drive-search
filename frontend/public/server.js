@@ -131,6 +131,31 @@ app.get("/documents/search", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+app.get("/documents/tags", async (req, res) => {
+  try {
+    const allTags = new Set();
+    const limit = 1311;
+    let offset = 0;
+
+    while (true) {
+      const page = await databases.listDocuments(
+        DATABASE_ID,
+        DOCUMENTS_ID,
+        [ Query.limit(limit), Query.offset(offset) ]
+      );
+      page.documents.forEach(doc => {
+        (doc.tags || []).forEach(tag => allTags.add(tag));
+      });
+      if (page.documents.length < limit) break;
+      offset += limit;
+    }
+
+    res.json(Array.from(allTags));
+  } catch (error) {
+    console.error("Error fetching all tags:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 
 // Start Server
