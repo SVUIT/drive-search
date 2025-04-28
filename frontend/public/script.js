@@ -115,7 +115,6 @@ document.addEventListener('click', (event) => {
 
 
 async function fetchTags(event) {
-  if (event) event.preventDefault();
   
   const query = document.getElementById('search-input')?.value?.trim() || '';
   const tagSelect = document.getElementById('tag-filter');
