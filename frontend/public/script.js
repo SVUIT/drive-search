@@ -31,10 +31,10 @@ document.getElementById('search-button').addEventListener('click', async () => {
           card.style.cssText = `
                 font-family:'Poppins',sans-serif;
                 padding:32px;
-                width:100%;max-width:380px;
+                width:100%;max-width:390px;
                 aspect-ratio:4/3;
                 display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
-                line-height:0.9;
+                line-height:0.55;
                 background:rgba(255,255,255,0.2);
                 backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
                 border:1px solid transparent;border-radius:20px;
