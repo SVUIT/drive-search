@@ -162,7 +162,7 @@ function updateTagOptions(uniqueTags) {
 
 const selectedTags = $('#tag-filter').val(); // Mảng các tag đã chọn
 
-async function renderDocumentSearchResults(documents) {
+async function renderDocumentSearchResults(documents,event) {
   const docContainer = document.getElementById('document-result-container');
   docContainer.innerHTML = '';
   docContainer.style = `
@@ -175,7 +175,7 @@ async function renderDocumentSearchResults(documents) {
   // Fetch selected tags
   let selectedTags = [];
   try {
-    const tags = await fetchTags();
+    const tags = await fetchTags(event);
     selectedTags = tags.filter(tag => tag.selected).map(tag => tag.name.toLowerCase());
   } catch (error) {
     console.error('Error fetching tags:', error);
