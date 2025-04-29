@@ -273,9 +273,9 @@ body {
   white-space: nowrap !important;
 
   /* ↓ enforce a fixed, shorter height ↓ */
-  max-height: 1.8em !important;
-  height: 1.8em !important;
-  line-height: 1.8em !important;
+  max-height: 1em !important;
+  height: 1em !important;
+  line-height: 1em !important;
 }
 .close-modal {
   position: absolute;
