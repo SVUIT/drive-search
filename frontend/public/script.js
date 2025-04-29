@@ -142,7 +142,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
 
       // NEW: If no text query but a tag selected (not 'all'), fetch docs by tag
       if (!query && selectedTag && selectedTag !== 'all') {
-        const res = await fetch(`/documents?tag=${encodeURIComponent(selectedTag)}`);
+        const res = await fetch(`/subjects?tag=${encodeURIComponent(selectedTag)}`);
         if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
         documents = await res.json();
       } else {
