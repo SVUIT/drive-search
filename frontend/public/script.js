@@ -138,19 +138,9 @@ document.getElementById('search-button').addEventListener('click', async () => {
     docContainer.style.display = 'block';
 
     try {
-      let documents;
-
-      // NEW: If no text query but a tag selected (not 'all'), fetch docs by tag
-      if (!query && selectedTag && selectedTag !== 'all') {
-        const res = await fetch(`/subjects?tag=${encodeURIComponent(selectedTag)}`);
-        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-        documents = await res.json();
-      } else {
-        const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        documents = await response.json();
-      }
-
+      const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const documents = await response.json();
       renderDocumentSearchResults(documents);
     } catch (error) {
       console.error('Lỗi khi tìm tài liệu:', error);
@@ -319,7 +309,7 @@ async function renderDocumentSearchResults(documents) {
     };
 
     div.innerHTML = `
-      <h3 style="font-weight: 500; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
+      <h3 style="font-weight: 500; font-size: 16px; margin: 0;color: #007bff;">${doc.name || 'N/A'}</h3>
       <p style="font-size: 14px; color: #777; margin: 4px 0 0;">
         <strong> Link:</strong> ${doc.URL ? `<a href="${doc.URL}" target="_blank" style="color: #007bff; text-decoration: underline;">Xem tài liệu</a>` : 'N/A'}
       </p>
