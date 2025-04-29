@@ -101,7 +101,7 @@ select.sleek-select:focus {
 }
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #ffffff;
+  background-color: #50505025;
   margin: 0;
   outline: 0;
   padding: 20px;
@@ -136,7 +136,7 @@ body {
 
 .search-container button {
   position: relative;
-  left: 100px;
+  left:100px;
   background-color: var(--clr-accent);
   color: white;
   border: none;
