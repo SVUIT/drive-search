@@ -245,28 +245,23 @@ body {
   align-items: flex-start;
 }
 .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-  display: flex;            /* use flexbox */
-  flex-wrap: nowrap;        /* never wrap onto a second line */
-  overflow-x: auto;         /* allow horizontal scroll */
-  overflow-y: hidden;       /* no vertical scroll */
-  padding-bottom: 2px;      /* room for the scrollbar */
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  white-space: nowrap !important;
 }
 
-/* 2) Make each pill shrink-to-fit */
-.select2-container--default .select2-selection--multiple .select2-selection__choice {
-  flex: 0 0 auto;           /* don’t stretch, don’t wrap */
-  margin: 2px 4px 2px 0;
-}
-
-/* 3) Keep the search input aligned in that row */
+/* ensure the search input stays in that same row */
 .select2-container--default .select2-selection--multiple .select2-search--inline {
-  flex: 0 0 auto;           /* stay in the same flex line */
-  margin-top: 0;            /* reset any odd offset */
+  flex: 0 0 auto !important;
+  margin-top: 0 !important;
 }
 
-/* 4) (Optional) hide the vertical scrollbar if still visible */
-.select2-container--default .select2-selection--multiple .select2-selection__rendered::-webkit-scrollbar {
-  height: 8px;
+/* each pill only takes its own width */
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  flex: 0 0 auto !important;
+  margin: 2px 4px 2px 0 !important;
 }
 .close-modal {
   position: absolute;
