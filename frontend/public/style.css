@@ -263,6 +263,20 @@ body {
   flex: 0 0 auto !important;
   margin: 2px 4px 2px 0 !important;
 }
+.select2-container--default
+  .select2-selection--multiple
+  .select2-selection__rendered {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  white-space: nowrap !important;
+
+  /* ↓ enforce a fixed, shorter height ↓ */
+  max-height: 1.8em !important;
+  height: 1.8em !important;
+  line-height: 1.8em !important;
+}
 .close-modal {
   position: absolute;
   top: 10px;
