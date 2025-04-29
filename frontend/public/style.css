@@ -244,6 +244,23 @@ body {
   justify-content: center;
   align-items: flex-start;
 }
+.select2-container--default .select2-selection--multiple .select2-selection__rendered {
+  max-height: 2.5em;         /* e.g. allow one line of tags (adjust as needed) */
+  overflow-y: auto;          /* scroll when there are too many tags */
+  white-space: nowrap;       /* prevent wrapping onto a second line */
+}
+
+/* make sure the search input stays vertically centered */
+.select2-container--default .select2-selection--multiple .select2-search--inline {
+  vertical-align: middle;
+}
+
+/* optional: tighten up the choice pills margin so more fit on one line */
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  margin: 2px 4px 2px 0;
+  line-height: 1.2;
+  padding: 0 4px;
+}
 .close-modal {
   position: absolute;
   top: 10px;
