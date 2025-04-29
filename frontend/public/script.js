@@ -167,6 +167,17 @@ async function fetchTags() {
   const tagSelect = document.getElementById('tag-filter');
   if (!tagSelect) return;
 
+  // apply inline styles to the <select> element
+  tagSelect.style.background = 'rgba(255, 255, 255, 0.2)';
+  tagSelect.style.backdropFilter = 'blur(12px)';
+  tagSelect.style.color = '#333';
+  tagSelect.style.border = '1px solid #007bff';
+  tagSelect.style.padding = '0.5em 2em 0.5em 1em';
+  tagSelect.style.fontSize = '1rem';
+  tagSelect.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.1)';
+  tagSelect.style.borderRadius = '30px';
+  tagSelect.style.cursor = 'pointer';
+
   // remember what was selected before we reload the options
   const previouslySelected = [...tagSelect.selectedOptions].map(o => o.value);
 
@@ -181,12 +192,17 @@ async function fetchTags() {
       return;
     }
 
-    // 2) rebuild <select>
-    tagSelect.innerHTML = '<option value="all">All</option>';
+    // 2) rebuild <select> with inline-styled <option>s
+    tagSelect.innerHTML = '<option value="all" style="background:#fff;color:#000;padding:0.25em 0.5em;font-size:0.9rem;">All</option>';
     uniqueTags.forEach(tag => {
       const opt = document.createElement('option');
       opt.value = tag;
       opt.textContent = tag;
+      // apply inline styles to each <option>
+      opt.style.background = '#fff';
+      opt.style.color = '#333';
+      opt.style.padding = '0.25em 0.5em';
+      opt.style.fontSize = '0.9rem';
       tagSelect.appendChild(opt);
     });
 
@@ -204,6 +220,7 @@ async function fetchTags() {
     console.error('Error fetching all tags:', err);
   }
 }
+
 
 // wire it up on page-load
 window.addEventListener('DOMContentLoaded', fetchTags);

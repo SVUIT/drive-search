@@ -22,54 +22,85 @@
   --select-border: #3a3a4d;
 }
 select.sleek-select {
-  appearance: none;                            /* remove native styling */  
-  background: var(--clr-bg);                   /* semi-transparent frosted glass */  
-  backdrop-filter: blur(12px);                 /* blur behind element */  
-  color: var(--clr-text);                     
-  border: 1px solid var(--clr-accent);         
-  border-radius: var(--radius-pill);           
-  padding: 0.5em 2em 0.5em 1em;                 
-  font-size: 1rem;                             
-  box-shadow: var(--shadow-soft);              
-  transition: border-color var(--transition),  
-              box-shadow var(--transition);    
-  cursor: pointer;                             
-  position: relative;                          
+  appearance: base-select; -webkit-appearance: none;
+  background: var(--clr-bg); backdrop-filter: blur(12px);
+  border: 1px solid var(--clr-accent);
+  padding: 0.5em 2.5em 0.5em 1em; color: var(--clr-text);
+  font-size: 1rem; box-shadow: var(--shadow-soft);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  position: relative; cursor: pointer;
 }
 
-/* Arrow icon via clip-path */
+/* Arrow */
+select.sleek-select::part(picker-icon),
 select.sleek-select::after {
-  content: "";
-  position: absolute;
-  top: 50%; right: 0.8em;
-  width: 0.6em; height: 0.4em;
-  transform: translateY(-50%);
-  clip-path: polygon(100% 0%, 0 0%, 50% 100%);  /* triangle */  
-  background: var(--clr-accent);               
-  transition: transform var(--transition);      
-  pointer-events: none;                        
+  content: ""; position: absolute; top: 50%; right: 0.8em;
+  width: 0.6em; height: 0.4em; transform: translateY(-50%);
+  clip-path: polygon(100% 0%,0 0%,50% 100%); background: var(--clr-accent);
+  transition: transform var(--transition); pointer-events: none;
+}
+select.sleek-select:open::part(picker-icon),
+select.sleek-select:open::after {
+  transform: translateY(-50%) rotate(180deg);
 }
 
-/* Hover state */
+/* Picker panel animation */
+select.sleek-select::part(picker) {
+  opacity: 0; transform: scaleY(0.9);
+  transform-origin: top center;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+select.sleek-select:open::part(picker) {
+  opacity: 1; transform: scaleY(1);
+}
+
+/* Options & checkmark */
+select.sleek-select::part(option) {
+  padding: 0.4em 1em; background: var(--clr-bg);
+  color: var(--clr-text); font-size: 0.9em; position: relative;
+}
+select.sleek-select::part(option):hover {
+  background: var(--clr-accent-hover); color: #fff;
+}
+select.sleek-select::part(checkmark) {
+  content: "✔"; position: absolute; left: 0.5em;
+  color: var(--clr-success); font-size: 0.8em;
+}
+
+/* Scrollbar */
+select.sleek-select::part(picker)::-webkit-scrollbar { width: 8px; }
+select.sleek-select::part(picker)::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05); 
+}
+select.sleek-select::part(picker)::-webkit-scrollbar-thumb {
+  background: var(--clr-accent); 
+}
+select.sleek-select::part(picker) {
+  scrollbar-width: thin;
+  scrollbar-color: var(--clr-accent) rgba(255,255,255,0.05);
+}
+
+/* Hover & focus */
 select.sleek-select:hover {
-  border-color: var(--clr-accent-hover);       
+  border-color: var(--clr-accent-hover);
   box-shadow: 0 0 0.2em var(--clr-accent-hover);
 }
-
-/* Focus state */
+select.sleek-select:focus-visible {
+  outline: 3px solid var(--clr-success-hover);
+  outline-offset: 2px;
+}
 select.sleek-select:focus {
   outline: none;
   border-color: var(--clr-success);
-  box-shadow: var(--shadow-inset), 0 0 0.3em var(--clr-success);
+  box-shadow: var(--shadow-inset),0 0 0.3em var(--clr-success);
 }
-select.sleek-select:focus::after {
-  transform: translateY(-50%) rotate(180deg);  /* arrow flips */  
-}
+
 * {
   transition-duration: 500ms;
   font-family: 'Poppins', sans-serif;
 }
 body {
+  font-family: 'Poppins', sans-serif;
   background-color: #f0f2f5;
   margin: 0;
   outline: 0;
