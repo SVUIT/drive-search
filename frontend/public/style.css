@@ -245,37 +245,22 @@ body {
   align-items: flex-start;
 }
 .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  white-space: nowrap !important;
+  max-height: 2.5em;         /* e.g. allow one line of tags (adjust as needed) */
+  overflow-y: auto;          /* scroll when there are too many tags */
+  white-space: nowrap;       /* prevent wrapping onto a second line */
 }
 
-/* ensure the search input stays in that same row */
+/* make sure the search input stays vertically centered */
 .select2-container--default .select2-selection--multiple .select2-search--inline {
-  flex: 0 0 auto !important;
-  margin-top: 0 !important;
+  vertical-align: middle;
 }
 
-/* each pill only takes its own width */
+/* optional: tighten up the choice pills margin so more fit on one line */
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-  flex: 0 0 auto !important;
-  margin: 2px 4px 2px 0 !important;
-}
-.select2-container--default
-  .select2-selection--multiple
-  .select2-selection__rendered {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  white-space: nowrap !important;
-
-  /* ↓ enforce a fixed, shorter height ↓ */
-  max-height: 1em !important;
-  height: 1em !important;
-  line-height: 1em !important;
+  margin: 2px 4px 2px 0;
+  line-height: 1.2;
+  padding: 0 4px;
+  overflow: hidden;
 }
 .close-modal {
   position: absolute;
