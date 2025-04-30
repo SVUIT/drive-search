@@ -230,7 +230,8 @@ window.addEventListener('DOMContentLoaded', fetchTags);
 $(document).ready(function() {
   $('#tag-filter').select2({
     placeholder: "Chọn tag",
-    allowClear: true
+    allowClear: true,
+    overflow: 'hidden'
   });
 });
 
