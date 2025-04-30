@@ -21,25 +21,6 @@
   --select-accent: #ff6b6b;
   --select-border: #3a3a4d;
 }
-.select2-container {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.select2-selection__rendered {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.select2-results__option {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 select.sleek-select {
   appearance: base-select; -webkit-appearance: none;
   background: var(--clr-bg); backdrop-filter: blur(12px);
