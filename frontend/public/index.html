@@ -1,65 +1,46 @@
-<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Hiển thị danh sách môn học">
-  <title>Danh sách môn học</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            accent: '#3b82f6',
-            accentHover: '#2563eb'
-          },
-          boxShadow: {
-            glass: '0 8px 32px rgba(0,0,0,0.1)'
-          },
-          backdropBlur: {
-            md: '12px'
-          }
-        }
-      }
-    }
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="style.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hiển thị danh sách môn học">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>Danh sách môn học</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="min-h-screen flex flex-col items-center p-6">
-    <div class="w-full max-w-4xl bg-white/50 backdrop-blur-md rounded-2xl shadow-glass p-6 mb-8">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <select id="search-type" class="form-select appearance-none w-full p-3 bg-white/30 backdrop-blur-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent">
-          <option value="subjects" selected>Môn học</option>
-          <option value="documents">Tài liệu</option>
-        </select>
-        <select id="tag-filter" multiple class="w-full"></select>
-        <div class="flex">
-          <input id="search-input" type="text" placeholder="Search..." class="flex-grow p-3 bg-white/30 backdrop-blur-sm rounded-l-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent" />
-          <button id="search-button" class="px-4 rounded-r-lg bg-accent text-white hover:bg-accentHover transition-transform transform hover:-translate-y-0.5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 6.65a7.5 7.5 0 010 10.6z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    <div id="cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl"></div>
-    <div id="document-result-container" class="w-full max-w-4xl mt-8 hidden"></div>
+<body>
+<script src="script.js" defer></script>
+<div class="search-container">
+  <select id="search-type" class="types sleek-select" style="margin-right: 10px;">
+    <option value="subjects" selected>Subjects</option>
+    <option value="documents">Documents</option>
+  </select>
+    <!-- This part is the base for tags fetching     -->
+    <select id="tag-filter" multiple="multiple" style="width: 200px;overflow:hidden;">
+    </select>
+    
+    
+  <input type="text" id="search-input" placeholder="Search...">
+  <button type="submit" id="search-button" onclick="fetchTags(event)"><i class="fas fa-magnifying-glass"></i></button>
+</div>
+
+<div class="card-container"></div>
+
+<div id="document-result-container" style="display: none;"></div>
+
+<div id="detail-modal" class="detail-modal">
+  <div class="detail-modal-content">
+    <span class="close-modal">&times;</span>
+    <div id="subject-details"></div>
+    <button id="get-documents-btn">Xem Tài liệu</button>
+    <div id="documents-container"></div>
   </div>
-  <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 pointer-events-none transition-opacity">
-    <div class="bg-white rounded-3xl shadow-xl w-11/12 md:w-2/3 lg:w-1/2 p-8 relative">
-      <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal()">×</button>
-      <div id="subject-details" class="space-y-4"></div>
-      <button id="get-documents-btn" class="mt-6 w-full py-3 bg-accent text-white rounded-xl hover:bg-accentHover transition">Xem Tài liệu</button>
-      <div id="documents-container" class="mt-6 grid grid-cols-1 gap-4"></div>
-    </div>
-  </div>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  <script src="script.js" defer></script>
+</div>
+
+
 </body>
 </html>

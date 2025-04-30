@@ -220,7 +220,7 @@ async function fetchTags() {
     console.error('Error fetching all tags:', err);
   }
 }
-
+console.log("fixed");
 
 // wire it up on page-load
 window.addEventListener('DOMContentLoaded', fetchTags);
