@@ -220,46 +220,17 @@ async function fetchTags() {
     console.error('Error fetching all tags:', err);
   }
 }
-console.log("fixed");
+
 
 // wire it up on page-load
 window.addEventListener('DOMContentLoaded', fetchTags);
 
 $(document).ready(function() {
   $('#tag-filter').select2({
-    placeholder: "Chọn tag",       // your placeholder
-    allowClear: true,              // allow deselect
-    width: '100%',
-    height: '100%',                 // make it full-width :contentReference[oaicite:0]{index=0}
-    containerCssClass: 'tailwind-form-select',    // applies to the outer .select2‐container :contentReference[oaicite:1]{index=1}
-    selectionCssClass: 'focus:ring-2 focus:ring-accent rounded-lg', // styles the selection box :contentReference[oaicite:2]{index=2}
-    dropdownCssClass: 'bg-white rounded-lg shadow-lg border border-gray-200', // styles the pop-up :contentReference[oaicite:3]{index=3}
-    templateResult: function(data) {
-      if (!data.id) return data.text;
-      // wrap each option in a Tailwind-style div
-      return $('<div>').css({
-        padding: '0.5em 1em',
-        cursor: 'pointer'
-      }).text(data.text);
-    },
-    templateSelection: function(data) {
-      return $('<span>').css({
-        color: '#3b82f6',       // accent blue
-        'font-weight': 500
-      }).text(data.text);
-    }
-  })
-  
-  .on('select2:open', function() {
-    const c = $(this).data('select2').$container;
-    c.css({
-      'background': 'rgba(255,255,255,0.3)',
-      'backdrop-filter': 'blur(12px)',
-      'border': '1px solid rgba(255,255,255,0.4)'
-    });                                 
+    placeholder: "Chọn tag",
+    allowClear: true
   });
 });
-
 
 // Khi fetch xong tag:
 function updateTagOptions(uniqueTags) {
