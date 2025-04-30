@@ -177,6 +177,7 @@ async function fetchTags() {
   tagSelect.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.1)';
   tagSelect.style.borderRadius = '30px';
   tagSelect.style.cursor = 'pointer';
+  tagSelect.style.overflow = 'hidden';
 
   // remember what was selected before we reload the options
   const previouslySelected = [...tagSelect.selectedOptions].map(o => o.value);
@@ -203,6 +204,7 @@ async function fetchTags() {
       opt.style.color = '#333';
       opt.style.padding = '0.25em 0.5em';
       opt.style.fontSize = '0.9rem';
+      opt.style.overflow = 'hidden';
       tagSelect.appendChild(opt);
     });
 
