@@ -30,7 +30,9 @@ select.sleek-select {
   transition: border-color var(--transition), box-shadow var(--transition);
   position: relative; cursor: pointer;
 }
-
+.select2-search .select2-search--inline {
+width: 30px;
+}
 /* Arrow */
 select.sleek-select::part(picker-icon),
 select.sleek-select::after {
