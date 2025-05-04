@@ -1,4 +1,6 @@
+// Load environment variables
 require("dotenv").config();
+
 const express = require("express");
 const path = require("path");
 const { Client, Databases, Query } = require("node-appwrite");
@@ -9,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(__dirname)); // Serve static files
 
+// Initialize Appwrite client
 const client = new Client()
   .setEndpoint(process.env.ENDPOINT)
   .setProject(process.env.PROJECT_ID);
@@ -20,11 +23,11 @@ const DOCUMENTS_COLLECTION_ID = process.env.DOCUMENTS_ID;
 
 // Utility: get total count of documents matching a query
 async function getTotalCount(databaseId, collectionId, query = []) {
-  // Query.limit(0) returns no documents but populates `total` metadata
+  // Query.limit(1) returns at most one document but populates `total` metadata
   const [{ total }] = await databases.listDocuments(
     databaseId,
     collectionId,
-    [Query.limit(0), ...query]
+    [Query.limit(1), ...query]
   );
   return total;
 }
