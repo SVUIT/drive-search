@@ -134,7 +134,7 @@ app.get("/documents/search", async (req, res) => {
 app.get("/documents/tags", async (req, res) => {
   try {
     const allTags = new Set();
-    const limit = 1311;
+    const limit = DEFAULT_TAGS_PAGINATION_LIMIT;
     let offset = 0;
 
     while (true) {
