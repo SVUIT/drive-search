@@ -92,7 +92,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
           card.className = 'card';
           card.style.cssText = `
                 font-family:'Poppins',sans-serif;
-                padding:32px;
+                padding:38px;
                 width:100%;max-width:400px;
                 aspect-ratio:4/3;
                 display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
