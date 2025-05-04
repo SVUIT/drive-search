@@ -307,9 +307,9 @@ body {
 }
 .document-card {
   display: flex;
-flex-wrap: wrap;
-justify-content: center;
-align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 .document-card:hover{
   scale: 1.02;

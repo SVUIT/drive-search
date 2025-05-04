@@ -13,8 +13,8 @@ import (
 	awclient "github.com/appwrite/sdk-for-go/client"
 	"github.com/appwrite/sdk-for-go/databases"
 	awmodels "github.com/appwrite/sdk-for-go/models"
-	"github.com/svuit/drive-search/database"
-	"github.com/svuit/drive-search/models"
+	"github.com/svuit/drive-search/backend/database"
+	"github.com/svuit/drive-search/backend/database/models"
 )
 
 var (
@@ -111,13 +111,14 @@ func seedSubjectsData(tableData TableData) {
 			Note:            "",
 			Documents:       []models.Document{},
 		}
-		println((subject.Name))
+		log.Printf("Subject Name: %s", subject.Name)
 		subjects = append(subjects, subject)
 	}
 
 }
 
 func main() {
+
 	var data []byte
 	var err error
 	urlString := flag.String("url", "", "URL to fetch the subjects data into a JSON file")
@@ -126,10 +127,20 @@ func main() {
 	csvPathURLFile := flag.String("csv1", "", "Path to the first CSV file")
 	csvPathURLFolder := flag.String("csv2", "", "Path to the second CSV file")
 	jsonPathSeed := flag.String("jsonseed", "", "Path to the JSON file containing subjects data")
+	addTagAttribute := flag.Bool("attributes", false, "Attribute added to database")
+	seedTag := flag.String("tagdata", "", "Path to the CSV file containing tags")
 	flag.Parse()
 
 	if *urlString != "" {
 		getSubjectsData(*urlString)
+	}
+
+	if *seedTag != "" {
+		database.SeedTagData(*seedTag)
+	}
+
+	if *addTagAttribute {
+		database.AddTagAttributes()
 	}
 
 	if *jsonPath != "" {

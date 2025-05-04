@@ -77,6 +77,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
         subjects.forEach(subject => {
           window.subjectsData[subject.$id] = subject;
           const card = document.createElement('div');
+
           
             card.addEventListener('mouseenter',()=>{
             card.style.transform='translateY(-8px) scale(1.02)';
@@ -88,7 +89,6 @@ document.getElementById('search-button').addEventListener('click', async () => {
           card.style.boxShadow='';
           card.style.filter='';
           });
-
           card.className = 'card';
           card.style.cssText = `
                 font-family:'Poppins',sans-serif;
@@ -110,6 +110,7 @@ document.getElementById('search-button').addEventListener('click', async () => {
                 backface-visibility:hidden;
               `;
           card.innerHTML = `
+
             <h3 style="white-space: nowrap;
     text-overflow: ellipsis;
     display: block;
@@ -158,6 +159,7 @@ document.addEventListener('click', (event) => {
     }
   }
 });
+
 
 
 
@@ -257,6 +259,7 @@ async function renderDocumentSearchResults(documents) {
     gap: 20px;
   `;
 
+
   const tags = $('#tag-filter').select2('data') || [];
   const selectedTags = tags.filter(tag => tag.selected).map(tag => tag.text.toLowerCase());
 
@@ -305,7 +308,6 @@ async function renderDocumentSearchResults(documents) {
       div.style.transform = 'scale(1.05)';
       div.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.18)';
     };
-
     div.onmouseleave = () => {
       div.style.transform = 'scale(1)';
       div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
@@ -336,7 +338,9 @@ async function renderDocumentSearchResults(documents) {
       <p style="font-size: 14px; color: #555; margin: 0;">
         <strong> Tags:</strong> ${doc.tags ? doc.tags.join(', ') : 'Chưa cập nhật'}
       </p>
+
     `;
+
     docContainer.appendChild(div);
   });
 }
