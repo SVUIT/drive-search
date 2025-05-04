@@ -158,7 +158,7 @@ app.get("/documents/tags", async (req, res) => {
 });
 app.get("/subjects", async (req, res) => {
   const allSubjects = [];
-  const limit = 61;   
+  const limit = SUBJECTS_QUERY_LIMIT;   
   let offset = 0;
 
   while (true) {
