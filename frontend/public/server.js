@@ -17,6 +17,18 @@ const databases = new Databases(client);
 const DATABASE_ID = process.env.DATABASE_ID;
 const COLLECTION_ID = process.env.COLLECTION_ID;
 const DOCUMENTS_COLLECTION_ID = process.env.DOCUMENTS_ID;
+
+// Utility: get total count of documents matching a query
+async function getTotalCount(databaseId, collectionId, query = []) {
+  // Query.limit(0) returns no documents but populates `total` metadata
+  const [{ total }] = await databases.listDocuments(
+    databaseId,
+    collectionId,
+    [Query.limit(0), ...query]
+  );
+  return total;
+}
+
 // Serve index.html
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
@@ -25,36 +37,31 @@ app.get("/", (req, res) => {
 // GET /search?query=...
 app.get("/search", async (req, res) => {
   const searchQuery = req.query.query || "";
-  let searchTerms = searchQuery.split(",").map((term) => term.trim()).filter((term) => term !== "");
-  
-  if (searchTerms.length === 0) {
-    searchTerms = [searchQuery];
-  }
+  let terms = searchQuery.split(",").map(t => t.trim()).filter(Boolean);
+  if (!terms.length) terms = [searchQuery];
 
   try {
-    const documentMap = new Map();
-    await Promise.all(searchTerms.map(async (term) => {
+    const map = new Map();
+    await Promise.all(terms.map(async term => {
       const result = await databases.listDocuments(
         DATABASE_ID,
         COLLECTION_ID,
         [Query.search("name", term)]
       );
-      result.documents.forEach((doc) => documentMap.set(doc.$id, doc));
+      result.documents.forEach(doc => map.set(doc.$id, doc));
     }));
 
-    res.json(Array.from(documentMap.values()));
-  } catch (error) {
-    console.error("Error during search:", error);
-    res.status(500).json({ error: error.message });
+    res.json(Array.from(map.values()));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
 });
 
 // GET /documents?subjectId=...
 app.get("/documents", async (req, res) => {
   const subjectId = req.query.subjectId;
-  if (!subjectId) {
-    return res.status(400).json({ error: "subjectId parameter is required" });
-  }
+  if (!subjectId) return res.status(400).json({ error: "subjectId required" });
 
   try {
     const result = await databases.listDocuments(
@@ -63,50 +70,21 @@ app.get("/documents", async (req, res) => {
       [Query.equal("subjectId", subjectId)]
     );
     res.json(result.documents);
-  } catch (error) {
-    console.error("Error fetching documents for subject:", error);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
 });
 
 // GET /documents/search?query=...
 app.get("/documents/search", async (req, res) => {
   const query = req.query.query || "";
-  let searchTerms = query.split(",").map((term) => term.trim()).filter((term) => term !== "");
-
-  if (searchTerms.length === 0) {
-    searchTerms = [query];
-  }
+  let terms = query.split(",").map(t => t.trim()).filter(Boolean);
+  if (!terms.length) terms = [query];
 
   try {
-    const documentMap = new Map();
-    await Promise.all(searchTerms.map(async (term) => {
-      const result = await databases.listDocuments(
-        DATABASE_ID,
-        DOCUMENTS_COLLECTION_ID,
-        [Query.search("name", term)]
-      );
-      result.documents.forEach((doc) => documentMap.set(doc.$id, doc));
-    }));
-
-    res.json(Array.from(documentMap.values()));
-  } catch (error) {
-    console.error("Error during document search:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-app.get("/documents/search", async (req, res) => {
-  const query = req.query.query || "";
-  let searchTerms = query.split(",").map((term) => term.trim()).filter((term) => term !== "");
-
-  if (searchTerms.length === 0) {
-    searchTerms = [query];
-  }
-
-  try {
-    const documentMap = new Map();
-
-    await Promise.all(searchTerms.map(async (term) => {
+    const map = new Map();
+    await Promise.all(terms.map(async term => {
       const [byName, byTags] = await Promise.all([
         databases.listDocuments(
           DATABASE_ID,
@@ -119,64 +97,63 @@ app.get("/documents/search", async (req, res) => {
           [Query.search("tags", term)]
         )
       ]);
-
-      [...byName.documents, ...byTags.documents].forEach((doc) => {
-        documentMap.set(doc.$id, doc);
-      });
+      [...byName.documents, ...byTags.documents].forEach(doc => map.set(doc.$id, doc));
     }));
-
-    res.json(Array.from(documentMap.values()));
-  } catch (error) {
-    console.error("Error during document search:", error);
-    res.status(500).json({ error: error.message });
+    res.json(Array.from(map.values()));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
 });
+
+// GET /documents/tags
 app.get("/documents/tags", async (req, res) => {
   try {
-    const allTags = new Set();
-    const limit = DEFAULT_TAGS_PAGINATION_LIMIT;
+    const total = await getTotalCount(DATABASE_ID, DOCUMENTS_COLLECTION_ID);
+    const limit = Math.min(total, 5000);      // Appwrite max 5000 per request
     let offset = 0;
+    const allTags = new Set();
 
-    while (true) {
+    while (offset < total) {
       const page = await databases.listDocuments(
         DATABASE_ID,
         DOCUMENTS_COLLECTION_ID,
-        [ Query.limit(limit), Query.offset(offset) ]
+        [Query.limit(limit), Query.offset(offset)]
       );
-      page.documents.forEach(doc => {
-        (doc.tags || []).forEach(tag => allTags.add(tag));
-      });
-      if (page.documents.length < limit) break;
+      page.documents.forEach(doc => (doc.tags || []).forEach(tag => allTags.add(tag)));
       offset += limit;
     }
 
     res.json(Array.from(allTags));
-  } catch (error) {
-    console.error("Error fetching all tags:", error);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
 });
+
+// GET /subjects
 app.get("/subjects", async (req, res) => {
-  const allSubjects = [];
-  const limit = SUBJECTS_QUERY_LIMIT;   
-  let offset = 0;
+  try {
+    const total = await getTotalCount(DATABASE_ID, COLLECTION_ID);
+    const limit = Math.min(total, 5000);
+    let offset = 0;
+    const subjects = [];
 
-  while (true) {
-    const page = await databases.listDocuments(
-      DATABASE_ID,
-      COLLECTION_ID,
-      [ Query.limit(limit), Query.offset(offset) ]
-    );
-    allSubjects.push(...page.documents);
-    if (page.documents.length < limit) break;  
-    offset += limit;
+    while (offset < total) {
+      const page = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTION_ID,
+        [Query.limit(limit), Query.offset(offset)]
+      );
+      subjects.push(...page.documents);
+      offset += limit;
+    }
+
+    res.json(subjects);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
-
-  res.json(allSubjects);
 });
 
-app.use(express.static(__dirname));
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Express server listening on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
