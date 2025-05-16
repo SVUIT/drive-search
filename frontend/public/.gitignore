@@ -1,1 +1,6 @@
 .env
+env/
+venv/
+.venv/
+ENV/
+.env/
