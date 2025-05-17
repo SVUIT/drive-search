@@ -20,14 +20,14 @@ const DOCUMENTS_COLLECTION_ID = process.env.DOCUMENTS_ID;
 
 // Utility: get total count of documents matching a query
 async function getTotalCount(databaseId, collectionId, query = []) {
-  // Query.limit(0) returns no documents but populates `total` metadata
-  const [{ total }] = await databases.listDocuments(
+  const res = await databases.listDocuments(
     databaseId,
     collectionId,
-    [Query.limit(0), ...query]
+    [Query.limit(1), ...query]
   );
-  return total;
+  return res.total;
 }
+
 
 // Serve index.html
 app.get("/", (req, res) => {
@@ -106,22 +106,26 @@ app.get("/documents/search", async (req, res) => {
   }
 });
 
-// GET /documents/tags
 app.get("/documents/tags", async (req, res) => {
   try {
     const total = await getTotalCount(DATABASE_ID, DOCUMENTS_COLLECTION_ID);
-    const limit = Math.min(total, 5000);      // Appwrite max 5000 per request
-    let offset = 0;
+    if (!total || total < 1) return res.json([]);
+
     const allTags = new Set();
+    const maxLimit = 5000;
+    let offset = 0;
 
     while (offset < total) {
       const page = await databases.listDocuments(
         DATABASE_ID,
         DOCUMENTS_COLLECTION_ID,
-        [Query.limit(limit), Query.offset(offset)]
+        [
+          Query.limit(Math.min(maxLimit, total - offset)),
+          Query.offset(offset)
+        ]
       );
       page.documents.forEach(doc => (doc.tags || []).forEach(tag => allTags.add(tag)));
-      offset += limit;
+      offset += maxLimit;
     }
 
     res.json(Array.from(allTags));
@@ -131,22 +135,28 @@ app.get("/documents/tags", async (req, res) => {
   }
 });
 
+
 // GET /subjects
 app.get("/subjects", async (req, res) => {
   try {
     const total = await getTotalCount(DATABASE_ID, COLLECTION_ID);
-    const limit = Math.min(total, 5000);
-    let offset = 0;
+    if (!total || total < 1) return res.json([]);
+
     const subjects = [];
+    const maxLimit = 807;
+    let offset = 0;
 
     while (offset < total) {
       const page = await databases.listDocuments(
         DATABASE_ID,
         COLLECTION_ID,
-        [Query.limit(limit), Query.offset(offset)]
+        [
+          Query.limit(Math.min(maxLimit, total - offset)),
+          Query.offset(offset)
+        ]
       );
       subjects.push(...page.documents);
-      offset += limit;
+      offset += maxLimit;
     }
 
     res.json(subjects);
@@ -155,5 +165,6 @@ app.get("/subjects", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
