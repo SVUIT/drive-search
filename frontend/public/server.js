@@ -110,7 +110,7 @@ app.get("/documents/search", async (req, res) => {
 app.get("/documents/tags", async (req, res) => {
   try {
     const total = await getTotalCount(DATABASE_ID, DOCUMENTS_COLLECTION_ID);
-    const limit = Math.min(total, 5000);      // Appwrite max 5000 per request
+    const limit = Math.min(total, 807);      // Appwrite max 5000 per request
     let offset = 0;
     const allTags = new Set();
 
@@ -135,7 +135,7 @@ app.get("/documents/tags", async (req, res) => {
 app.get("/subjects", async (req, res) => {
   try {
     const total = await getTotalCount(DATABASE_ID, COLLECTION_ID);
-    const limit = Math.min(total, 5000);
+    const limit = Math.min(total, 807);
     let offset = 0;
     const subjects = [];
 
