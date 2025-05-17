@@ -20,14 +20,14 @@ const DOCUMENTS_COLLECTION_ID = process.env.DOCUMENTS_ID;
 
 // Utility: get total count of documents matching a query
 async function getTotalCount(databaseId, collectionId, query = []) {
-  // Query.limit(0) returns no documents but populates `total` metadata
-  const [{ total }] = await databases.listDocuments(
+  const res = await databases.listDocuments(
     databaseId,
     collectionId,
     [Query.limit(1), ...query]
   );
-  return total;
+  return res.total;
 }
+
 
 // Serve index.html
 app.get("/", (req, res) => {
