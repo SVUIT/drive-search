@@ -24,7 +24,7 @@ async function getTotalCount(databaseId, collectionId, query = []) {
   const [{ total }] = await databases.listDocuments(
     databaseId,
     collectionId,
-    [Query.limit(0), ...query]
+    [Query.limit(1), ...query]
   );
   return total;
 }
