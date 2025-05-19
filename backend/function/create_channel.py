@@ -1,11 +1,18 @@
 import requests
 import json
 import uuid 
+from fetch_start_page_token import fetch_start_page_token
+import os 
+from dotenv import load_dotenv
 
+load_dotenv()
+
+file_id = os.getenv("FILE_ID")
+# file_id = "1PWf1uAlS1aTmJt7KlxcpOBMfSxmC42KH"
 def create_channel():
-    ACCESS_TOKEN = ""
+    start_page_token, ACCESS_TOKEN = fetch_start_page_token()
     # Start Page Token để bắt đầu theo dõi từ đó
-    start_page_token = "51565"
+    # start_page_token = "51565"
 
     # Header cho yêu cầu API
     headers = {
@@ -17,11 +24,11 @@ def create_channel():
     body = {
         "id": str(uuid.uuid4()),  # Channel ID (phải là unique UUID)
         "type": "web_hook", # Loại channel
-        "address": ""  # Địa chỉ webhook để nhận thông báo                 
+        "address": os.getenv('ADDRESS')  # Địa chỉ webhook để nhận thông báo                 
     }
 
     # Call api 
-    url = f"https://www.googleapis.com/drive/v3/changes/watch?pageToken={start_page_token}" 
+    url = f"https://www.googleapis.com/drive/v3/files/{file_id}/watch?pageToken={start_page_token}" 
     try: 
         response = requests.post(url, headers=headers, json=body) # Gửi yêu cầu POST đến API
         if response.status_code == 200:
