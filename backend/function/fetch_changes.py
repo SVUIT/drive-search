@@ -1,23 +1,37 @@
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-import os.path
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from page_token_utils import read_start_page_token, save_start_page_token
-import json 
-import logging
-from dotenv import load_dotenv
 from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-
+from googleapiclient.errors import HttpError
+from googleapiclient.discovery import build
+from dotenv import load_dotenv
+import logging
+import time 
+import os
 
 load_dotenv()
 
-# If modifying these scopes, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/drive.metadata.readonly"]
+def polling_loop():
+    interval = 2 * 24 * 60 * 60  # 2 ngày = 172800 giây
+    
+    while True:
+        try:
+            start_token = read_start_page_token()
+            new_token = fetch_changes(start_token)
+            
+            if new_token:
+                print("Polling successfully")
+            else:
+                print("Polling failed")
+
+            time.sleep(interval) #Sleep 2 ngày 
+            
+        except Exception as e:
+            print(f"Lỗi: {e}")
+            time.sleep(300)  # Chờ 5 phút rồi thử lại
+
 
 def fetch_changes(saved_start_page_token):
+
+  SCOPES = ["https://www.googleapis.com/auth/drive.metadata.readonly"]
   # Cấu hình logging
   logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s")
   """Retrieve the list of changes for the currently authenticated user.
@@ -44,20 +58,6 @@ def fetch_changes(saved_start_page_token):
     scopes=SCOPES,
 )
 
-  # If there are no (valid) credentials available, let the user log in.
-  # if not creds or not creds.valid:
-  #   if creds and creds.expired and creds.refresh_token:
-  #     creds.refresh(Request())
-  #   else:
-  #     credentials_info = json.loads(os.getenv("GOOGLE_CREDENTIALS_JSON"))
-  #     flow = InstalledAppFlow.from_client_config(
-  #         credentials_info, SCOPES
-  #     )
-  #     creds = flow.run_local_server(port=0)
-  #   # Save the credentials for the next run
-  #   with open("token.json", "w") as token:
-  #     token.write(creds.to_json())
-
   try:
     # create drive api client
     service = build("drive", "v3", credentials=creds)
@@ -66,8 +66,6 @@ def fetch_changes(saved_start_page_token):
     # current token from getStartPageToken()
 
     page_token = saved_start_page_token
-
-
 
     # pylint: disable=maybe-no-member
     while page_token is not None:
@@ -109,12 +107,15 @@ def fetch_changes(saved_start_page_token):
 
   except HttpError as error:
     print(f"An error occurred: {error}")
-    saved_start_page_token = None
+    return None 
 
   save_start_page_token(response["newStartPageToken"])
-  return page_token, creds.token 
+  return saved_start_page_token
 
 
 if __name__ == "__main__":
-  # saved_start_page_token is the token number
-  fetch_changes(saved_start_page_token=52121)
+    try:
+        print("Đã bắt đầu polling Google Drive - 2 ngày 1 lần")
+        polling_loop()  # Chạy trực tiếp, không cần thread
+    except KeyboardInterrupt:
+        print("\nĐã dừng polling")
