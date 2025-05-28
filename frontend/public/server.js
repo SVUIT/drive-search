@@ -83,9 +83,9 @@ app.get("/documents/search", async (req, res) => {
 
   try {
     let documents = [];
-    
-    // Nếu có từ khóa tìm kiếm
+
     if (query) {
+      // Nếu có từ khóa, tìm theo tên hoặc tags
       let terms = query.split(",").map(t => t.trim()).filter(Boolean);
       if (!terms.length) terms = [query];
 
@@ -115,10 +115,10 @@ app.get("/documents/search", async (req, res) => {
       documents = result.documents;
     }
 
-    // Lọc theo tags nếu có
+    // Lọc theo tags nếu có tags được chọn
     if (tags.length > 0) {
-      documents = documents.filter(doc => 
-        doc.tags && tags.some(tag => doc.tags.includes(tag))
+      documents = documents.filter(doc =>
+        Array.isArray(doc.tags) && tags.some(tag => doc.tags.includes(tag))
       );
     }
 
