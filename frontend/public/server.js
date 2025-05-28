@@ -115,10 +115,10 @@ app.get("/documents/search", async (req, res) => {
       documents = result.documents;
     }
 
-    // Lọc theo tags nếu có tags được chọn
+    // Lọc theo tags nếu có tags được chọn (phải chứa TẤT CẢ các tag đã chọn)
     if (tags.length > 0) {
       documents = documents.filter(doc =>
-        Array.isArray(doc.tags) && tags.some(tag => doc.tags.includes(tag))
+        Array.isArray(doc.tags) && tags.every(tag => doc.tags.includes(tag))
       );
     }
 
