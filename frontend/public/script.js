@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
   async function performSearch() {
     const query = searchInput.value.trim();
     const type = getSelectedType();
-    const tags = getSelectedTags();
+    const selectedTags = getSelectedTags();
 
     try {
       if (type === 'subjects') {
@@ -77,17 +77,34 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
       } else if (type === 'documents') {
-        // Ẩn container môn học và hiện container tài liệu
         if (cardContainer) cardContainer.style.display = 'none';
         if (documentContainer) {
           documentContainer.style.display = 'block';
-          documentContainer.innerHTML = ''; // Xóa kết quả cũ
-        }
+          documentContainer.innerHTML = '';
 
-        const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}`);
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        const documents = await response.json();
-        renderDocumentSearchResults(documents);
+          let url = '/documents/search';
+          const params = new URLSearchParams();
+          
+          // Nếu có từ khóa tìm kiếm, thêm vào params
+          if (query) {
+            params.append('query', query);
+          }
+          
+          // Nếu có tags được chọn, thêm vào params
+          if (selectedTags.length > 0) {
+            params.append('tags', selectedTags.join(','));
+          }
+
+          // Thêm params vào URL nếu có
+          if (params.toString()) {
+            url += '?' + params.toString();
+          }
+
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+          const documents = await response.json();
+          renderDocumentSearchResults(documents);
+        }
       }
     } catch (error) {
       console.error('Lỗi khi tìm kiếm:', error);

@@ -79,27 +79,50 @@ app.get("/documents", async (req, res) => {
 // GET /documents/search?query=...
 app.get("/documents/search", async (req, res) => {
   const query = req.query.query || "";
-  let terms = query.split(",").map(t => t.trim()).filter(Boolean);
-  if (!terms.length) terms = [query];
+  const tags = req.query.tags ? req.query.tags.split(',') : [];
 
   try {
-    const map = new Map();
-    await Promise.all(terms.map(async term => {
-      const [byName, byTags] = await Promise.all([
-        databases.listDocuments(
-          DATABASE_ID,
-          DOCUMENTS_COLLECTION_ID,
-          [Query.search("name", term)]
-        ),
-        databases.listDocuments(
-          DATABASE_ID,
-          DOCUMENTS_COLLECTION_ID,
-          [Query.search("tags", term)]
-        )
-      ]);
-      [...byName.documents, ...byTags.documents].forEach(doc => map.set(doc.$id, doc));
-    }));
-    res.json(Array.from(map.values()));
+    let documents = [];
+    
+    // Nếu có từ khóa tìm kiếm
+    if (query) {
+      let terms = query.split(",").map(t => t.trim()).filter(Boolean);
+      if (!terms.length) terms = [query];
+
+      const map = new Map();
+      await Promise.all(terms.map(async term => {
+        const [byName, byTags] = await Promise.all([
+          databases.listDocuments(
+            DATABASE_ID,
+            DOCUMENTS_COLLECTION_ID,
+            [Query.search("name", term)]
+          ),
+          databases.listDocuments(
+            DATABASE_ID,
+            DOCUMENTS_COLLECTION_ID,
+            [Query.search("tags", term)]
+          )
+        ]);
+        [...byName.documents, ...byTags.documents].forEach(doc => map.set(doc.$id, doc));
+      }));
+      documents = Array.from(map.values());
+    } else {
+      // Nếu không có từ khóa, lấy tất cả tài liệu
+      const result = await databases.listDocuments(
+        DATABASE_ID,
+        DOCUMENTS_COLLECTION_ID
+      );
+      documents = result.documents;
+    }
+
+    // Lọc theo tags nếu có
+    if (tags.length > 0) {
+      documents = documents.filter(doc => 
+        doc.tags && tags.some(tag => doc.tags.includes(tag))
+      );
+    }
+
+    res.json(documents);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
