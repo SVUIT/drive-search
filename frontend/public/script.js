@@ -1,153 +1,109 @@
 window.subjectsData = {};
 window.documentsData = {};
 
-document.getElementById('search-button').addEventListener('click', async () => {
-  const query = document.getElementById('search-input').value.trim();
-  const searchType = document.getElementById('search-type').value;
-  const selectedTag = document.getElementById('tag-filter').value;
+document.addEventListener('DOMContentLoaded', function() {
+  const searchButton = document.getElementById('search-button');
+  const searchInput = document.getElementById('search-input');
+  const typeRadios = document.querySelectorAll('input[name="type"]');
+  const tagsCheckboxes = document.querySelectorAll('#tags-container input[type="checkbox"]');
 
-  if (searchType === 'subjects' && !query) {
-    const cardContainer = document.querySelector('.card-container');
-    cardContainer.style.display = 'flex';
-    document.getElementById('document-result-container').style.display = 'none';
-
-    try {
-      const res = await fetch('/subjects');
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      const subjects = await res.json();
-
-      cardContainer.innerHTML = '';
-      window.subjectsData = {};
-
-      subjects.forEach(subject => {
-        window.subjectsData[subject.$id] = subject;
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.style.cssText = `
-                font-family:'Poppins',sans-serif;
-                padding:32px;
-                width:100%;max-width:400px;
-                aspect-ratio:4/3;
-                display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
-                line-height:1;
-                background:rgba(255,255,255,0.2);
-                backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-                border:1px solid transparent;border-radius:20px;
-                border-image:linear-gradient(to right,#6a11cb,#2575fc) 1;
-                box-shadow:0 8px 32px rgba(0,0,0,0.1);
-                filter:drop-shadow(0 4px 8px rgba(0,0,0,0.05));
-                transition:transform 0.4s ease,box-shadow 0.4s ease,filter 0.4s ease;
-                will-change:transform,box-shadow;
-                cursor:pointer;
-                overflow:hidden;
-                backface-visibility:hidden;
-              `;
-        card.innerHTML = `
-          <h3>${subject.name || 'Môn chưa xác định'}</h3>
-          <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
-          <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
-          <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
-          <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
-          <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
-          <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
-        `;
-        cardContainer.appendChild(card);
-      });
-    } catch (err) {
-      console.error('Error fetching all subjects:', err);
-      cardContainer.innerHTML = '<p>Không thể tải danh sách môn.</p>';
-    }
-    return;
+  function getSelectedType() {
+    const selectedType = document.querySelector('input[name="type"]:checked');
+    return selectedType ? selectedType.value : 'subjects';
   }
 
-  if (searchType === 'subjects') {
-    document.getElementById('document-result-container').style.display = 'none';
-    const cardContainer = document.querySelector('.card-container');
-    cardContainer.style.display = 'flex';
+  function getSelectedTags() {
+    return Array.from(tagsCheckboxes)
+      .filter(checkbox => checkbox.checked)
+      .map(checkbox => checkbox.value);
+  }
 
-    try {
-      const response = await fetch(`/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-      const subjects = await response.json();
+  async function performSearch() {
+    const query = searchInput.value.trim();
+    const type = getSelectedType();
+    const tags = getSelectedTags();
 
-      cardContainer.innerHTML = '';
-      window.subjectsData = {};
+    if (type === 'subjects') {
+      document.getElementById('document-result-container').style.display = 'none';
+      const cardContainer = document.querySelector('.card-container');
+      cardContainer.style.display = 'flex';
 
-      if (Array.isArray(subjects) && subjects.length > 0) {
-        subjects.forEach(subject => {
-          window.subjectsData[subject.$id] = subject;
-          const card = document.createElement('div');
+      try {
+        const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const subjects = await response.json();
 
-          
-            card.addEventListener('mouseenter',()=>{
-            card.style.transform='translateY(-8px) scale(1.02)';
-            card.style.boxShadow='0 16px 48px rgba(0,0,0,0.15)';
-            card.style.filter='drop-shadow(0 8px 16px rgba(0,0,0,0.1))';
-            });
-            card.addEventListener('mouseleave',()=>{
-          card.style.transform='';
-          card.style.boxShadow='';
-          card.style.filter='';
+        cardContainer.innerHTML = '';
+        window.subjectsData = {};
+
+        if (Array.isArray(subjects) && subjects.length > 0) {
+          subjects.forEach(subject => {
+            window.subjectsData[subject.$id] = subject;
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.style.cssText = `
+                    font-family:'Poppins',sans-serif;
+                    padding:32px;
+                    width:100%;max-width:400px;
+                    aspect-ratio:4/3;
+                    display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
+                    line-height:1;
+                    background:rgba(255,255,255,0.2);
+                    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+                    border:1px solid transparent;border-radius:20px;
+                    border-image:linear-gradient(to right,#6a11cb,#2575fc) 1;
+                    box-shadow:0 8px 32px rgba(0,0,0,0.1);
+                    filter:drop-shadow(0 4px 8px rgba(0,0,0,0.05));
+                    transition:transform 0.4s ease,box-shadow 0.4s ease,filter 0.4s ease;
+                    will-change:transform,box-shadow;
+                    cursor:pointer;
+                    overflow:hidden;
+                    backface-visibility:hidden;
+                  `;
+            card.innerHTML = `
+              <h3>${subject.name || 'Môn chưa xác định'}</h3>
+              <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
+              <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
+              <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
+              <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
+              <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
+              <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
+            `;
+            cardContainer.appendChild(card);
           });
-          card.className = 'card';
-          card.style.cssText = `
-                font-family:'Poppins',sans-serif;
-                padding:32px;
-                width:100%;max-width:400px;
-                aspect-ratio:4/3;
-                display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
-                line-height:0.6;
-                background:rgba(255,255,255,0.2);
-                backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-                border:1px solid transparent;border-radius:20px;
-                border-image:linear-gradient(to right,#6a11cb,#2575fc) 1;
-                box-shadow:0 8px 32px rgba(0,0,0,0.1);
-                filter:drop-shadow(0 4px 8px rgba(0,0,0,0.05));
-                transition:transform 0.4s ease,box-shadow 0.4s ease,filter 0.4s ease;
-                will-change:transform,box-shadow;
-                cursor:pointer;
-                overflow:hidden;
-                backface-visibility:hidden;
-              `;
-          card.innerHTML = `
-
-            <h3 style="white-space: nowrap;
-    text-overflow: ellipsis;
-    display: block;
-    width: 100%;
-    min-width: 0;
-    font-size: 16px;
-    ">${subject.name || 'Môn chưa xác định'}</h3>
-            <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
-            <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
-            <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
-            <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
-            <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
-            <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
-          `;
-          cardContainer.appendChild(card);
-        });
-      } else {
-        cardContainer.innerHTML = "<p>Không tìm thấy kết quả.</p>";
+        } else {
+          cardContainer.innerHTML = "<p>Không tìm thấy kết quả.</p>";
+        }
+      } catch (error) {
+        console.error('Lỗi khi tìm kiếm:', error);
+        cardContainer.innerHTML = "<p>Có lỗi xảy ra khi tìm kiếm.</p>";
       }
-    } catch (error) {
-      console.error('Lỗi khi tìm kiếm:', error);
-    }
-  } else if (searchType === 'documents') {
-    document.querySelector('.card-container').style.display = 'none';
-    const docContainer = document.getElementById('document-result-container');
-    docContainer.style.display = 'block';
+    } else if (type === 'documents') {
+      document.querySelector('.card-container').style.display = 'none';
+      const docContainer = document.getElementById('document-result-container');
+      docContainer.style.display = 'block';
 
-    try {
-      const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}&tag=${encodeURIComponent(selectedTag)}`);
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-      const documents = await response.json();
-      renderDocumentSearchResults(documents);
-    } catch (error) {
-      console.error('Lỗi khi tìm tài liệu:', error);
-      docContainer.innerHTML = '<p>Có lỗi xảy ra khi tìm kiếm tài liệu.</p>';
+      try {
+        const response = await fetch(`/documents/search?query=${encodeURIComponent(query)}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const documents = await response.json();
+        renderDocumentSearchResults(documents);
+      } catch (error) {
+        console.error('Lỗi khi tìm tài liệu:', error);
+        docContainer.innerHTML = '<p>Có lỗi xảy ra khi tìm kiếm tài liệu.</p>';
+      }
     }
   }
+
+  // Thêm sự kiện click cho nút tìm kiếm
+  searchButton.addEventListener('click', performSearch);
+
+  // Thêm sự kiện Enter cho ô input
+  searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      performSearch();
+    }
+  });
 });
 
 document.addEventListener('click', (event) => {
