@@ -160,94 +160,207 @@ document.addEventListener('click', (event) => {
   }
 });
 
-
-
-
-
-
-async function fetchTags() {
-  const tagSelect = document.getElementById('tag-filter');
-  if (!tagSelect) return;
-
-  // apply inline styles to the <select> element
-  tagSelect.style.background = 'rgba(255, 255, 255, 0.2)';
-  tagSelect.style.backdropFilter = 'blur(12px)';
-  tagSelect.style.color = '#333';
-  tagSelect.style.border = '1px solid #007bff';
-  tagSelect.style.padding = '0.5em 2em 0.5em 1em';
-  tagSelect.style.fontSize = '1rem';
-  tagSelect.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.1)';
-  tagSelect.style.borderRadius = '30px';
-  tagSelect.style.cursor = 'pointer';
-  tagSelect.style.overflow = 'hidden';
-
-  // remember what was selected before we reload the options
-  const previouslySelected = [...tagSelect.selectedOptions].map(o => o.value);
-
-  try {
-    // 1) fetch all tags (no query, no filtering)
-    const res = await fetch('/documents/tags');
-    if (!res.ok) throw new Error(`Status ${res.status}`);
-    const uniqueTags = await res.json();       // e.g. ["tag1","tag2",...]
-
-    if (!Array.isArray(uniqueTags)) {
-      console.warn('Expected array of tags, got:', uniqueTags);
-      return;
-    }
-
-    // 2) rebuild <select> with inline-styled <option>s
-    tagSelect.innerHTML = '<option value="all" style="background:#fff;color:#000;padding:0.25em 0.5em;font-size:0.9rem;">All</option>';
-    uniqueTags.forEach(tag => {
-      const opt = document.createElement('option');
-      opt.value = tag;
-      opt.textContent = tag;
-      // apply inline styles to each <option>
-      opt.style.background = '#fff';
-      opt.style.color = '#333';
-      opt.style.padding = '0.25em 0.5em';
-      opt.style.fontSize = '0.9rem';
-      opt.style.overflow = 'hidden';
-      tagSelect.appendChild(opt);
-    });
-
-    // 3) restore any previous selections
-    [...tagSelect.options].forEach(opt => {
-      if (previouslySelected.includes(opt.value)) {
-        opt.selected = true;
-      }
-    });
-
-    // 4) notify Select2 (or any other plugin) that options changed
-    $('#tag-filter').trigger('change');
-  }
-  catch (err) {
-    console.error('Error fetching all tags:', err);
-  }
-}
-
-
-// wire it up on page-load
-window.addEventListener('DOMContentLoaded', fetchTags);
-
+// Khởi tạo Select2 cho các dropdown
 $(document).ready(function() {
+  // Khởi tạo select2 cho search-type
+  $('#search-type').select2({
+    minimumResultsForSearch: Infinity,
+    width: '200px'
+  });
+
+  // Khởi tạo select2 cho tag-filter
   $('#tag-filter').select2({
-    placeholder: "Chọn tag",
+    placeholder: 'Chọn tags',
     allowClear: true,
-    overflow: 'hidden'
+    width: '200px'
+  });
+
+  // Xử lý sự kiện khi thay đổi loại tìm kiếm
+  $('#search-type').on('change', function() {
+    const selectedType = $(this).val();
+    fetchTags(selectedType);
+  });
+
+  // Xử lý sự kiện tìm kiếm
+  $('#search-button').on('click', function() {
+    performSearch();
+  });
+
+  // Xử lý sự kiện khi nhấn Enter trong ô tìm kiếm
+  $('#search-input').on('keypress', function(e) {
+    if (e.which === 13) {
+      performSearch();
+    }
   });
 });
 
-// Khi fetch xong tag:
-function updateTagOptions(uniqueTags) {
-  const $select = $('#tag-filter');
-  $select.empty();
-  $select.append('<option value="all">All</option>');
-  uniqueTags.forEach(tag => {
-    $select.append(`<option value="${tag}">${tag}</option>`);
-  });
-  $select.trigger('change');
+// Hàm fetch tags từ server
+async function fetchTags(type) {
+  try {
+    const response = await fetch('/documents/tags');
+    const tags = await response.json();
+    
+    // Xóa tags cũ
+    $('#tag-filter').empty();
+    
+    // Thêm tags mới
+    tags.forEach(tag => {
+      const option = new Option(tag, tag);
+      $('#tag-filter').append(option);
+    });
+    
+    // Cập nhật Select2
+    $('#tag-filter').trigger('change');
+  } catch (error) {
+    console.error('Lỗi khi lấy tags:', error);
+  }
 }
 
+// Hàm thực hiện tìm kiếm
+async function performSearch() {
+  const searchType = $('#search-type').val();
+  const searchQuery = $('#search-input').val();
+  const selectedTags = $('#tag-filter').val();
+
+  try {
+    let response;
+    if (searchType === 'subjects') {
+      response = await fetch(`/search?query=${encodeURIComponent(searchQuery)}`);
+    } else {
+      response = await fetch(`/documents/search?query=${encodeURIComponent(searchQuery)}`);
+    }
+
+    const results = await response.json();
+    displayResults(results, searchType);
+  } catch (error) {
+    console.error('Lỗi khi tìm kiếm:', error);
+  }
+}
+
+// Hàm hiển thị kết quả
+function displayResults(results, type) {
+  const container = type === 'subjects' ? $('.card-container') : $('#document-result-container');
+  
+  // Xóa kết quả cũ
+  container.empty();
+  
+  if (type === 'subjects') {
+    // Hiển thị kết quả môn học
+    results.forEach(subject => {
+      const card = createSubjectCard(subject);
+      container.append(card);
+    });
+  } else {
+    // Hiển thị kết quả tài liệu
+    const table = createDocumentTable(results);
+    container.append(table);
+  }
+}
+
+// Hàm tạo card môn học
+function createSubjectCard(subject) {
+  return `
+    <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-book text-blue-600"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800">${subject.name}</h3>
+      </div>
+      <p class="text-gray-600 mb-4">${subject.description}</p>
+      <div class="flex flex-wrap gap-2">
+        ${subject.tags.map(tag => `
+          <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+            ${tag}
+          </span>
+        `).join('')}
+      </div>
+      <button onclick="viewSubjectDetails('${subject.id}')" 
+              class="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        Xem chi tiết
+      </button>
+    </div>
+  `;
+}
+
+// Hàm tạo bảng tài liệu
+function createDocumentTable(documents) {
+  return `
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên tài liệu</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          ${documents.map(doc => `
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${doc.name}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full ${getTypeBadgeClass(doc.type)}">
+                  ${doc.type}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex flex-wrap gap-1">
+                  ${doc.tags.map(tag => `
+                    <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
+                      ${tag}
+                    </span>
+                  `).join('')}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button onclick="viewDocument('${doc.id}')" 
+                        class="text-blue-600 hover:text-blue-900">
+                  Xem
+                </button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// Hàm lấy class cho badge loại tài liệu
+function getTypeBadgeClass(type) {
+  const classes = {
+    'pdf': 'bg-red-100 text-red-800',
+    'doc': 'bg-blue-100 text-blue-800',
+    'ppt': 'bg-orange-100 text-orange-800',
+    'default': 'bg-gray-100 text-gray-800'
+  };
+  return classes[type] || classes.default;
+}
+
+// Hàm xem chi tiết môn học
+async function viewSubjectDetails(subjectId) {
+  try {
+    const response = await fetch(`/documents?subjectId=${subjectId}`);
+    const documents = await response.json();
+    
+    // Hiển thị danh sách tài liệu của môn học
+    const container = $('#document-result-container');
+    container.show();
+    container.html(createDocumentTable(documents));
+  } catch (error) {
+    console.error('Lỗi khi lấy tài liệu:', error);
+  }
+}
+
+// Hàm xem tài liệu
+function viewDocument(documentId) {
+  // Implement logic to view document
+  console.log('Viewing document:', documentId);
+}
 
 async function renderDocumentSearchResults(documents) {
   const docContainer = document.getElementById('document-result-container');
