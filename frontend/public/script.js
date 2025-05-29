@@ -177,6 +177,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+  fetchTags('documents');
 });
 
 document.addEventListener('click', (event) => {
@@ -447,3 +449,5 @@ function viewDocument(documentId) {
   // Implement logic to view document
   console.log('Viewing document:', documentId);
 }
+
+fetchTags('documents');
