@@ -449,5 +449,3 @@ function viewDocument(documentId) {
   // Implement logic to view document
   console.log('Viewing document:', documentId);
 }
-
-fetchTags('documents');
