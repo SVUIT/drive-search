@@ -408,10 +408,11 @@ function createDocumentTable(documents) {
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <button onclick="viewDocument('${doc.URL}')" 
-                        class="text-blue-600 hover:text-blue-900">
-                  Xem
-                </button>
+                ${doc.URL ? `
+                  <a href="${doc.URL}" target="_blank" class="text-blue-600 hover:text-blue-900">
+                    Xem
+                  </a>
+                ` : 'Chưa có link'}
               </td>
             </tr>
           `).join('')}
@@ -444,8 +445,3 @@ async function viewSubjectDetails(subjectId) {
   }
 }
 
-// Hàm xem tài liệu
-function viewDocument(documentId) {
-  // Implement logic to view document
-  console.log('Viewing document:', documentId);
-}
