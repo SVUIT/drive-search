@@ -79,27 +79,53 @@ app.get("/documents", async (req, res) => {
 // GET /documents/search?query=...
 app.get("/documents/search", async (req, res) => {
   const query = req.query.query || "";
-  let terms = query.split(",").map(t => t.trim()).filter(Boolean);
-  if (!terms.length) terms = [query];
+  const tags = req.query.tags ? req.query.tags.split(',') : [];
 
   try {
-    const map = new Map();
-    await Promise.all(terms.map(async term => {
-      const [byName, byTags] = await Promise.all([
-        databases.listDocuments(
-          DATABASE_ID,
-          DOCUMENTS_COLLECTION_ID,
-          [Query.search("name", term)]
-        ),
-        databases.listDocuments(
-          DATABASE_ID,
-          DOCUMENTS_COLLECTION_ID,
-          [Query.search("tags", term)]
+    let documents = [];
+
+    if (query) {
+      // Nếu có từ khóa, tìm theo tên hoặc tags
+      let terms = query.split(",").map(t => t.trim()).filter(Boolean);
+      if (!terms.length) terms = [query];
+
+      const map = new Map();
+      await Promise.all(terms.map(async term => {
+        const [byName, byTags] = await Promise.all([
+          databases.listDocuments(
+            DATABASE_ID,
+            DOCUMENTS_COLLECTION_ID,
+            [Query.search("name", term)]
+          ),
+          databases.listDocuments(
+            DATABASE_ID,
+            DOCUMENTS_COLLECTION_ID,
+            [Query.search("tags", term)]
+          )
+        ]);
+        [...byName.documents, ...byTags.documents].forEach(doc => map.set(doc.$id, doc));
+      }));
+      documents = Array.from(map.values());
+    } else {
+      // Nếu không có từ khóa, lấy tất cả tài liệu
+      const result = await databases.listDocuments(
+        DATABASE_ID,
+        DOCUMENTS_COLLECTION_ID
+      );
+      documents = result.documents;
+    }
+
+    // Lọc theo tags nếu có tags được chọn (phải chứa TẤT CẢ các tag đã chọn, không phân biệt hoa thường)
+    if (tags.length > 0) {
+      documents = documents.filter(doc =>
+        Array.isArray(doc.tags) &&
+        tags.every(tag =>
+          doc.tags.map(t => t.toLowerCase()).includes(tag.toLowerCase())
         )
-      ]);
-      [...byName.documents, ...byTags.documents].forEach(doc => map.set(doc.$id, doc));
-    }));
-    res.json(Array.from(map.values()));
+      );
+    }
+
+    res.json(documents);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
