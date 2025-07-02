@@ -297,27 +297,6 @@ function updateSelectedTags() {
   }
 }
 
-// Hàm thực hiện tìm kiếm
-async function performSearch() {
-  const searchType = $('#search-type').val();
-  const searchQuery = $('#search-input').val();
-  const selectedTags = $('#tag-filter').val();
-
-  try {
-    let response;
-    if (searchType === 'subjects') {
-      response = await fetch(`/search?query=${encodeURIComponent(searchQuery)}`);
-    } else {
-      response = await fetch(`/documents/search?query=${encodeURIComponent(searchQuery)}`);
-    }
-
-    const results = await response.json();
-    displayResults(results, searchType);
-  } catch (error) {
-    console.error('Lỗi khi tìm kiếm:', error);
-  }
-}
-
 // Hàm hiển thị kết quả
 function displayResults(results, type) {
   const container = type === 'subjects' ? $('.card-container') : $('#document-result-container');
