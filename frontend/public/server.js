@@ -77,6 +77,7 @@ app.get("/documents", async (req, res) => {
 });
 
 // GET /documents/search?query=...
+// GET /documents/search?query=...
 app.get("/documents/search", async (req, res) => {
   const query = req.query.query || "";
   const tags = req.query.tags ? req.query.tags.split(',') : [];
@@ -107,19 +108,32 @@ app.get("/documents/search", async (req, res) => {
       }));
       documents = Array.from(map.values());
     } else {
-      // Nếu không có từ khóa, lấy tất cả tài liệu
-      const result = await databases.listDocuments(
-        DATABASE_ID,
-        DOCUMENTS_COLLECTION_ID
-      );
-      documents = result.documents;
+      // Nếu không có từ khóa, lấy tất cả tài liệu bằng phân trang
+      const total = await getTotalCount(DATABASE_ID, DOCUMENTS_COLLECTION_ID);
+      const maxLimit = 5000;
+      let offset = 0;
+      let allDocuments = [];
+
+      while (offset < total) {
+        const page = await databases.listDocuments(
+          DATABASE_ID,
+          DOCUMENTS_COLLECTION_ID,
+          [
+            Query.limit(Math.min(maxLimit, total - offset)),
+            Query.offset(offset)
+          ]
+        );
+        allDocuments.push(...page.documents);
+        offset += maxLimit;
+      }
+      documents = allDocuments;
     }
 
-    // Lọc theo tags nếu có tags được chọn (phải chứa TẤT CẢ các tag đã chọn, không phân biệt hoa thường)
+    // Lọc theo tags nếu có tags được chọn (phải chứa ít nhất 1 tag được chọn, không phân biệt hoa thường)
     if (tags.length > 0) {
       documents = documents.filter(doc =>
         Array.isArray(doc.tags) &&
-        tags.every(tag =>
+        tags.some(tag =>
           doc.tags.map(t => t.toLowerCase()).includes(tag.toLowerCase())
         )
       );
@@ -131,6 +145,7 @@ app.get("/documents/search", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 app.get("/documents/tags", async (req, res) => {
   try {
