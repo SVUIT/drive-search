@@ -1,93 +1,22 @@
 window.subjectsData = {};
 window.documentsData = {};
+async function performSearch() {
+  const query = searchInput.value.trim();
+  const type = getSelectedType();
+  const selectedTags = getSelectedTags();
 
-document.addEventListener('DOMContentLoaded', function() {
-  const searchButton = document.getElementById('search-button');
-  const searchInput = document.getElementById('search-input');
-  const cardContainer = document.querySelector('.card-container');
-  const documentContainer = document.getElementById('document-result-container');
-
-  function getSelectedType() {
-    const selectedType = document.querySelector('input[name="type"]:checked');
-    return selectedType ? selectedType.value : 'subjects';
-  }
-
-  function getSelectedTags() {
-    const tagsCheckboxes = document.querySelectorAll('#tags-container input[type="checkbox"]');
-    return Array.from(tagsCheckboxes)
-      .filter(checkbox => checkbox.checked)
-      .map(checkbox => checkbox.value);
-  }
-
-  async function performSearch() {
-    const query = searchInput.value.trim();
-    const type = getSelectedType();
-    const selectedTags = getSelectedTags();
-
-    try {
-      if (type === 'subjects') {
-        // Nếu không nhập gì, lấy tất cả môn học
-        if (!query) {
-          if (documentContainer) documentContainer.style.display = 'none';
-          if (cardContainer) {
-            cardContainer.style.display = 'flex';
-            cardContainer.innerHTML = '';
-          }
-          const response = await fetch('/subjects');
-          if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-          const subjects = await response.json();
-          if (cardContainer) {
-            if (Array.isArray(subjects) && subjects.length > 0) {
-              subjects.forEach(subject => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.style.cssText = `
-                  font-family:'Poppins',sans-serif;
-                  padding:32px;
-                  width:100%;max-width:400px;
-                  aspect-ratio:4/3;
-                  display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
-                  line-height:1;
-                  background:rgba(255,255,255,0.2);
-                  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-                  border:1px solid transparent;border-radius:20px;
-                  border-image:linear-gradient(to right,#6a11cb,#2575fc) 1;
-                  box-shadow:0 8px 32px rgba(0,0,0,0.1);
-                  filter:drop-shadow(0 4px 8px rgba(0,0,0,0.05));
-                  transition:transform 0.4s ease,box-shadow 0.4s ease,filter 0.4s ease;
-                  will-change:transform,box-shadow;
-                  cursor:pointer;
-                  overflow:hidden;
-                  backface-visibility:hidden;
-                `;
-                card.innerHTML = `
-                  <h3>${subject.name || 'Môn chưa xác định'}</h3>
-                  <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
-                  <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
-                  <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
-                  <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
-                  <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
-                  <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
-                `;
-                cardContainer.appendChild(card);
-              });
-            } else {
-              cardContainer.innerHTML = "<p>Không tìm thấy kết quả.</p>";
-            }
-          }
-          return;
-        }
-        // Ẩn container tài liệu và hiện container môn học
+  try {
+    if (type === 'subjects') {
+      // Nếu không nhập gì, lấy tất cả môn học
+      if (!query) {
         if (documentContainer) documentContainer.style.display = 'none';
         if (cardContainer) {
           cardContainer.style.display = 'flex';
-          cardContainer.innerHTML = ''; // Xóa kết quả cũ
+          cardContainer.innerHTML = '';
         }
-
-        const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+        const response = await fetch('/subjects');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const subjects = await response.json();
-
         if (cardContainer) {
           if (Array.isArray(subjects) && subjects.length > 0) {
             subjects.forEach(subject => {
@@ -127,42 +56,113 @@ document.addEventListener('DOMContentLoaded', function() {
             cardContainer.innerHTML = "<p>Không tìm thấy kết quả.</p>";
           }
         }
-      } else if (type === 'documents') {
-        if (cardContainer) cardContainer.style.display = 'none';
-        if (documentContainer) {
-          documentContainer.style.display = 'block';
-          documentContainer.innerHTML = '';
+        return;
+      }
+      // Ẩn container tài liệu và hiện container môn học
+      if (documentContainer) documentContainer.style.display = 'none';
+      if (cardContainer) {
+        cardContainer.style.display = 'flex';
+        cardContainer.innerHTML = ''; // Xóa kết quả cũ
+      }
 
-          let url = '/documents/search';
-          const params = new URLSearchParams();
-          
-          // Nếu có từ khóa tìm kiếm, thêm vào params
-          if (query) {
-            params.append('query', query);
-          }
-          
-          // Nếu có tags được chọn, thêm vào params
-          if (selectedTags.length > 0) {
-            params.append('tags', selectedTags.join(','));
-          }
+      const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const subjects = await response.json();
 
-          // Thêm params vào URL nếu có
-          if (params.toString()) {
-            url += '?' + params.toString();
-          }
-
-          const response = await fetch(url);
-          if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-          const documents = await response.json();
-          renderDocumentSearchResults(documents);
+      if (cardContainer) {
+        if (Array.isArray(subjects) && subjects.length > 0) {
+          subjects.forEach(subject => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.style.cssText = `
+              font-family:'Poppins',sans-serif;
+              padding:32px;
+              width:100%;max-width:400px;
+              aspect-ratio:4/3;
+              display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
+              line-height:1;
+              background:rgba(255,255,255,0.2);
+              backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+              border:1px solid transparent;border-radius:20px;
+              border-image:linear-gradient(to right,#6a11cb,#2575fc) 1;
+              box-shadow:0 8px 32px rgba(0,0,0,0.1);
+              filter:drop-shadow(0 4px 8px rgba(0,0,0,0.05));
+              transition:transform 0.4s ease,box-shadow 0.4s ease,filter 0.4s ease;
+              will-change:transform,box-shadow;
+              cursor:pointer;
+              overflow:hidden;
+              backface-visibility:hidden;
+            `;
+            card.innerHTML = `
+              <h3>${subject.name || 'Môn chưa xác định'}</h3>
+              <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
+              <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
+              <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
+              <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
+              <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
+              <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
+            `;
+            cardContainer.appendChild(card);
+          });
+        } else {
+          cardContainer.innerHTML = "<p>Không tìm thấy kết quả.</p>";
         }
       }
-    } catch (error) {
-      console.error('Lỗi khi tìm kiếm:', error);
-      if (cardContainer) cardContainer.innerHTML = "<p>Có lỗi xảy ra khi tìm kiếm.</p>";
-      if (documentContainer) documentContainer.innerHTML = "<p>Có lỗi xảy ra khi tìm kiếm tài liệu.</p>";
+    } else if (type === 'documents') {
+      if (cardContainer) cardContainer.style.display = 'none';
+      if (documentContainer) {
+        documentContainer.style.display = 'block';
+        documentContainer.innerHTML = '';
+
+        let url = '/documents/search';
+        const params = new URLSearchParams();
+        
+        // Nếu có từ khóa tìm kiếm, thêm vào params
+        if (query) {
+          params.append('query', query);
+        }
+        
+        // Nếu có tags được chọn, thêm vào params
+        if (selectedTags.length > 0) {
+          params.append('tags', selectedTags.join(','));
+        }
+
+        // Thêm params vào URL nếu có
+        if (params.toString()) {
+          url += '?' + params.toString();
+        }
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const documents = await response.json();
+        renderDocumentSearchResults(documents);
+      }
     }
+  } catch (error) {
+    console.error('Lỗi khi tìm kiếm:', error);
+    if (cardContainer) cardContainer.innerHTML = "<p>Có lỗi xảy ra khi tìm kiếm.</p>";
+    if (documentContainer) documentContainer.innerHTML = "<p>Có lỗi xảy ra khi tìm kiếm tài liệu.</p>";
   }
+}
+document.addEventListener('DOMContentLoaded', function() {
+  const searchButton = document.getElementById('search-button');
+  const searchInput = document.getElementById('search-input');
+  const cardContainer = document.querySelector('.card-container');
+  const documentContainer = document.getElementById('document-result-container');
+
+  function getSelectedType() {
+    const selectedType = document.querySelector('input[name="type"]:checked');
+    return selectedType ? selectedType.value : 'subjects';
+  }
+
+  function getSelectedTags() {
+    const tagsCheckboxes = document.querySelectorAll('#tags-container input[type="checkbox"]');
+    return Array.from(tagsCheckboxes)
+      .filter(checkbox => checkbox.checked)
+      .map(checkbox => checkbox.value);
+  }
+
+  
 
   // Thêm sự kiện click cho nút tìm kiếm
   if (searchButton) {
