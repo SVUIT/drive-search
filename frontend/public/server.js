@@ -119,7 +119,7 @@ app.get("/documents/search", async (req, res) => {
     if (tags.length > 0) {
       documents = documents.filter(doc =>
         Array.isArray(doc.tags) &&
-        tags.some(tag =>
+        tags.every(tag =>
           doc.tags.map(t => t.toLowerCase()).includes(tag.toLowerCase())
         )
       );
