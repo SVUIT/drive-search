@@ -51,12 +51,21 @@ app.get("/search", async (req, res) => {
       result.documents.forEach(doc => map.set(doc.$id, doc));
     }));
 
-    res.json(Array.from(map.values()));
+    const uniqueByCode = new Map();
+    for (const doc of map.values()) {
+      const key = doc.code?.toLowerCase() || doc.name?.toLowerCase();
+      if (key && !uniqueByCode.has(key)) {
+        uniqueByCode.set(key, doc);
+      }
+    }
+
+    res.json(Array.from(uniqueByCode.values()));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // GET /documents?subjectId=...
 app.get("/documents", async (req, res) => {
