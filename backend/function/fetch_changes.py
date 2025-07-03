@@ -105,3 +105,4 @@ def fetch_changes(saved_start_page_token):
         return None, None 
 
     return saved_start_page_token, file_details
+       
