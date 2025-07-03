@@ -1,8 +1,8 @@
 # main.py
 import time
 from dotenv import load_dotenv
-from fetch_changes import fetch_changes
-from page_token_utils import read_start_page_token
+from function.fetch_changes import fetch_changes
+from function.page_token_utils import read_start_page_token
 
 load_dotenv()
 
@@ -38,5 +38,5 @@ def background_change_checker():
 
         time.sleep(interval)
 
-if __name__ == "__main__":
-    background_change_checker()
+# if __name__ == "__main__":
+#     background_change_checker()
