@@ -6,7 +6,7 @@ from function.page_token_utils import read_start_page_token
 
 load_dotenv()
 
-def background_change_checker():
+def main():
     interval = 30  # Kiểm tra mỗi 3 giây
     saved_token = read_start_page_token()
     print("[Background] Bắt đầu kiểm tra thay đổi...")
