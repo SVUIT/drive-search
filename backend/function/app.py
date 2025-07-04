@@ -1,42 +1,33 @@
-# main.py
-import time
+from flask import Flask, jsonify
 from dotenv import load_dotenv
 from function.fetch_changes import fetch_changes
-from function.page_token_utils import read_start_page_token
+from function.page_token_utils import read_start_page_token, save_start_page_token
 
 load_dotenv()
 
+app = Flask(__name__)
+
+@app.route("/check-changes", methods=["GET"])
 def main():
-    interval = 30  # Kiểm tra mỗi 3 giây
-    saved_token = read_start_page_token()
-    print("[Background] Bắt đầu kiểm tra thay đổi...")
+    try:
+        saved_token = read_start_page_token()
+        saved_token, file_details = fetch_changes(saved_start_page_token=saved_token)
 
-    while True:
-        try:
-            saved_token, file_details = fetch_changes(saved_start_page_token=saved_token)
+        save_start_page_token(saved_token)
+        if not file_details:
+            return jsonify({"message": "No changes detected", 
+                            "page_token": saved_token
+            })
 
-            if file_details:
-                print("✅ Có thay đổi mới!")
-                for file in file_details:
-                    if file.get("removed"):
-                        print(f"🗑️  Đã xóa: {file['name']} (ID: {file['fileId']})")
-                    else:
-                        print(f"📄 File: {file['name']}")
-                        print(f"   ├─ ID: {file['fileId']}")
-                        print(f"   ├─ Created: {file.get('createdTime')}")
-                        print(f"   ├─ Modified: {file.get('modifiedTime')}")
-                        print(f"   ├─ Link: {file.get('webViewLink')}")
-                        print(f"   └─ MIME: {file.get('mimeType')}")
-                # TODO: xử lý thay đổi ở đây
-                # saved_token = page_token  # nếu cần cập nhật token
+        return jsonify({
+            "message": "Changes detected",
+            "page_token": saved_token,
+            "changes": file_details
+        })
 
-            else:
-                print("Không có thay đổi.")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-        except Exception as e:
-            print("Lỗi:", e)
-
-        time.sleep(interval)
 
 # if __name__ == "__main__":
-#     background_change_checker()
+#     app.run(debug=True, port=5000)
