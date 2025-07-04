@@ -2,7 +2,7 @@
 from dotenv import load_dotenv
 from function.fetch_changes import fetch_changes
 from function.page_token_utils import read_start_page_token, save_start_page_token
-import json
+import json 
 load_dotenv()
 
 # app = Flask(__name__)
@@ -26,7 +26,7 @@ def main(context):
         })
 
     except Exception as e:
-        return context.res.json({"error": str(e)})
+        return context.res.json({"error": str(e)}), 500
 
 
 # if __name__ == "__main__":

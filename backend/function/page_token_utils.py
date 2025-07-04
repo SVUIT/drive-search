@@ -1,7 +1,7 @@
 import json
 import os.path 
 
-TOKEN_FILE = 'page_token.json'
+TOKEN_FILE = 'function/page_token.json'
 
 def read_start_page_token():
     if os.path.exists(TOKEN_FILE):
