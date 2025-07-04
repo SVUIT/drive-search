@@ -8,7 +8,7 @@ load_dotenv()
 app = Flask(__name__)
 
 @app.route("/check-changes", methods=["GET"])
-def main():
+def check_changes():
     try:
         saved_token = read_start_page_token()
         saved_token, file_details = fetch_changes(saved_start_page_token=saved_token)
@@ -29,5 +29,5 @@ def main():
         return jsonify({"error": str(e)}), 500
 
 
-# if __name__ == "__main__":
-#     app.run(debug=True, port=5000)
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
