@@ -14,11 +14,26 @@ def main(context):
         saved_token, file_details = fetch_changes(saved_start_page_token=saved_token)
 
         save_start_page_token(saved_token)
+        context.log("page token: ", saved_token)
         if not file_details:
+            message = "No changes detected"
+            context.log("Message: ", message)
             return context.res.json({"message": "No changes detected", 
                             "page_token": saved_token
             })
-
+        
+        message = "Changes detected"
+        context.log("Message: ", message)
+        for file in file_details:
+            if file.get("removed"):
+                context.log(f"Đã xóa: {file['name']} (ID: {file['fileId']})")
+            else:
+                context.log(f" File: {file['name']}")
+                context.log(f"   ├─ ID: {file['fileId']}")
+                context.log(f"   ├─ Created: {file.get('createdTime')}")
+                context.log(f"   ├─ Modified: {file.get('modifiedTime')}")
+                context.log(f"   ├─ Link: {file.get('webViewLink')}")
+                context.log(f"   └─ MIME: {file.get('mimeType')}")
         return context.res.json({
             "message": "Changes detected",
             "page_token": saved_token,
