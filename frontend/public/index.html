@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -6,36 +7,259 @@
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <title>Danh sách môn học</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Removed Bootstrap CSS to consolidate styling with Tailwind CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
   <link rel="stylesheet" href="style.css">
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="script.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: "#4f46e5", secondary: "#6366f1" },
+          borderRadius: {
+            none: "0px",
+            sm: "4px",
+            DEFAULT: "8px",
+            md: "12px",
+            lg: "16px",
+            xl: "20px",
+            "2xl": "24px",
+            "3xl": "32px",
+            full: "9999px",
+            button: "8px"
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :where([class^="ri-"])::before { content: "\f3c2"; }
+    input[type="search"]::-webkit-search-decoration,
+    input[type="search"]::-webkit-search-cancel-button,
+    input[type="search"]::-webkit-search-results-button,
+    input[type="search"]::-webkit-search-results-decoration {
+      display: none;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 220px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      z-index: 50;
+      border-radius: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .dropdown-content.show {
+      display: block;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800 font-[Poppins]">
-  <script src="script.js" defer></script>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+      <h1 class="text-2xl font-semibold text-gray-800 mb-6">
+        Tìm kiếm tài liệu
+      </h1>
 
-  <div class="search-container flex flex-wrap items-center justify-center gap-4 p-4 bg-white shadow-md rounded-xl max-w-4xl mx-auto mt-6">
-    
-    <select id="search-type" class="types sleek-select w-48 p-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <option value="subjects" selected>Subjects</option>
-      <option value="documents">Documents</option>
-    </select>
+      <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+        <!-- Search Bar -->
+        <div class="relative flex-grow">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <div class="w-5 h-5 flex items-center justify-center text-gray-500">
+              <i class="ri-search-line"></i>
+            </div>
+          </div>
+          <input
+            type="search"
+            id="search-input"
+            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-gray-700"
+            placeholder="Tìm kiếm tài liệu, môn học, từ khóa..."
+          />
+        </div>
+        <!-- Type Dropdown -->
+        <div class="relative min-w-[220px]">
+          <button
+            id="type-dropdown-button"
+            class="flex items-center justify-between w-full px-4 py-3 bg-white border border-gray-300 rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary !rounded-button whitespace-nowrap"
+          >
+            <span id="type-selected">Chọn loại</span>
+            <div class="w-5 h-5 flex items-center justify-center ml-2">
+              <i class="ri-arrow-down-s-line"></i>
+            </div>
+          </button>
+          <div id="type-dropdown" class="dropdown-content mt-1">
+            <div class="p-3">
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <div class="relative w-4 h-4 flex items-center justify-center">
+                    <input
+                      type="radio"
+                      name="type"
+                      class="peer absolute opacity-0 w-full h-full cursor-pointer z-10"
+                      value="subjects"
+                    />
+                    <div class="w-4 h-4 border border-gray-300 rounded-full peer-checked:bg-primary peer-checked:border-primary"></div>
+                    <div class="absolute text-white w-3 h-3 flex items-center justify-center opacity-0 peer-checked:opacity-100">
+                      <i class="ri-check-line ri-xs"></i>
+                    </div>
+                  </div>
+                  <span class="text-sm">Môn học</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <div class="relative w-4 h-4 flex items-center justify-center">
+                    <input
+                      type="radio"
+                      name="type"
+                      class="peer absolute opacity-0 w-full h-full cursor-pointer z-10"
+                      value="documents"
+                    />
+                    <div class="w-4 h-4 border border-gray-300 rounded-full peer-checked:bg-primary peer-checked:border-primary"></div>
+                    <div class="absolute text-white w-3 h-3 flex items-center justify-center opacity-0 peer-checked:opacity-100">
+                      <i class="ri-check-line ri-xs"></i>
+                    </div>
+                  </div>
+                  <span class="text-sm">Tài liệu</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <select id="tag-filter" multiple="multiple" class="flex-grow-1 min-w-25 sleek-select p-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" style="width: 200px; overflow: hidden;">
-    </select>
+        <!-- Tags Dropdown -->
+        <div class="relative min-w-[220px]">
+          <button
+            id="tags-dropdown-button"
+            class="flex items-center justify-between w-full px-4 py-3 bg-white border border-gray-300 rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary !rounded-button whitespace-nowrap"
+          >
+            <span id="tags-selected">Chọn tags</span>
+            <div class="w-5 h-5 flex items-center justify-center ml-2">
+              <i class="ri-arrow-down-s-line"></i>
+            </div>
+          </button>
+          <div id="tags-dropdown" class="dropdown-content mt-1">
+            <div class="p-3">
+              <div class="space-y-2" id="tags-container">
+                <!-- Tags will be dynamically added here -->
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <input type="text" id="search-input" style="margin-right: 220px;" placeholder="Search..." class="sleek-select p-2 flex-grow border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <!-- Search Button -->
+        <button id="search-button" class="px-6 py-3 bg-primary text-white rounded hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors !rounded-button whitespace-nowrap">
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 flex items-center justify-center">
+              <i class="ri-search-line"></i>
+            </div>
+            <span>Tìm kiếm</span>
+          </div>
+        </button>
+      </div>
 
-    <button type="submit" id="search-button" style="position: absolute;left:72%; width: 40px;height: 50px;" onclick="fetchTags(event)" class="sleek-select p-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-      <i class="fas fa-magnifying-glass"></i>
-    </button>
+      <!-- Thêm các container cho kết quả tìm kiếm -->
+      <div class="mt-8">
+        <!-- Container cho kết quả môn học -->
+        <div class="card-container" style="display: none; flex-wrap: wrap; gap: 20px; justify-content: center;">
+        </div>
+
+        <!-- Container cho kết quả tài liệu -->
+        <div id="document-result-container" style="display: none;">
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="card-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mt-8 px-4"></div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Type dropdown functionality
+      const typeButton = document.getElementById("type-dropdown-button");
+      const typeDropdown = document.getElementById("type-dropdown");
+      const typeSelected = document.getElementById("type-selected");
+      const typeCheckboxes = typeDropdown.querySelectorAll('input[type="radio"]');
 
-  <div id="document-result-container" style="display: none;" class="max-w-6xl mx-auto mt-8"></div>
+      // Tags dropdown functionality
+      const tagsButton = document.getElementById("tags-dropdown-button");
+      const tagsDropdown = document.getElementById("tags-dropdown");
+      const tagsSelected = document.getElementById("tags-selected");
+      const tagsContainer = document.getElementById("tags-container");
+
+      // Toggle type dropdown
+      typeButton.addEventListener("click", function () {
+        typeDropdown.classList.toggle("show");
+        tagsDropdown.classList.remove("show");
+      });
+
+      // Toggle tags dropdown
+      tagsButton.addEventListener("click", function () {
+        tagsDropdown.classList.toggle("show");
+        typeDropdown.classList.remove("show");
+      });
+
+      // Handle type radio buttons
+      typeCheckboxes.forEach(function (radio) {
+        radio.addEventListener("change", function () {
+          const selectedType = document.querySelector('input[name="type"]:checked');
+          if (selectedType) {
+            typeSelected.textContent = selectedType.value === 'subjects' ? 'Môn học' : 'Tài liệu';
+          } else {
+            typeSelected.textContent = "Chọn loại";
+          }
+        });
+      });
+
+      // Function to add tags dynamically
+      function addTag(tag) {
+        const label = document.createElement("label");
+        label.className = "flex items-center gap-2 cursor-pointer";
+        label.innerHTML = `
+          <div class="relative w-4 h-4 flex items-center justify-center">
+            <input type="checkbox" class="peer absolute opacity-0 w-full h-full cursor-pointer z-10" value="${tag}">
+            <div class="w-4 h-4 border border-gray-300 rounded peer-checked:bg-primary peer-checked:border-primary"></div>
+            <div class="absolute text-white w-3 h-3 flex items-center justify-center opacity-0 peer-checked:opacity-100">
+              <i class="ri-check-line ri-xs"></i>
+            </div>
+          </div>
+          <span class="text-sm">${tag}</span>
+        `;
+        
+        const checkbox = label.querySelector('input[type="checkbox"]');
+        checkbox.addEventListener("change", function() {
+          updateSelectedText(tagsContainer.querySelectorAll('input[type="checkbox"]'), tagsSelected, "Chọn tags");
+        });
+        
+        tagsContainer.appendChild(label);
+      }
+
+      // Update selected text based on checked items
+      function updateSelectedText(checkboxes, selectedElement, defaultText) {
+        const checkedItems = Array.from(checkboxes)
+          .filter((checkbox) => checkbox.checked)
+          .map((checkbox) => checkbox.value);
+
+        if (checkedItems.length === 0) {
+          selectedElement.textContent = defaultText;
+        } else if (checkedItems.length === 1) {
+          selectedElement.textContent = checkedItems[0];
+        } else {
+          selectedElement.textContent = `${checkedItems.length} đã chọn`;
+        }
+      }
+
+      // Close dropdowns when clicking outside
+      document.addEventListener("click", function (event) {
+        if (!typeButton.contains(event.target) && !typeDropdown.contains(event.target)) {
+          typeDropdown.classList.remove("show");
+        }
+
+        if (!tagsButton.contains(event.target) && !tagsDropdown.contains(event.target)) {
+          tagsDropdown.classList.remove("show");
+        }
+      });
+    });
+  </script>
 </body>
 </html>
