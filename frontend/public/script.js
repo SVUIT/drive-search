@@ -1,3 +1,27 @@
+function getSelectedType() {
+  const selectedType = document.querySelector('input[name="type"]:checked');
+  return selectedType ? selectedType.value : 'subjects';
+}
+
+function getSelectedTags() {
+  const checkboxes = document.querySelectorAll('#tags-container input[type="checkbox"]:checked');
+  return Array.from(checkboxes).map(cb => cb.value);
+}
+
+function updateSelectedTags() {
+  const tagsSelected = document.getElementById('tags-selected');
+  const selectedTags = getSelectedTags();
+  if (tagsSelected) {
+    if (selectedTags.length === 0) {
+      tagsSelected.textContent = 'Chọn tags';
+    } else if (selectedTags.length === 1) {
+      tagsSelected.textContent = selectedTags[0];
+    } else {
+      tagsSelected.textContent = `${selectedTags.length} đã chọn`;
+    }
+  }
+}
+
 let searchInput;
 let cardContainer;
 let documentContainer;
@@ -152,6 +176,57 @@ async function fetchTags(subjectId) {
   const response = await fetch(`/documents/tags?subjectId=${subjectId}`);
   const tags = await response.json();
   populateTags(tags);
+}
+
+function createSubjectCard(subject) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <h3>${subject.name || 'Môn chưa xác định'}</h3>
+    <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
+    <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
+    <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
+    <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
+    <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
+    <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
+  `;
+  return card;
+}
+
+async function viewSubjectDetails(subjectId) {
+  const response = await fetch(`/documents?subjectId=${subjectId}`);
+  const documents = await response.json();
+  renderDocumentSearchResults(documents);
+  await fetchTags(subjectId);
+}
+
+function renderDocumentSearchResults(documents) {
+  const container = document.getElementById('document-result-container');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên tài liệu</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          ${documents.map(doc => `
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${doc.name}</div></td>
+              <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">${doc.type}</span></td>
+              <td class="px-6 py-4"><div class="flex flex-wrap gap-1">${doc.tags.map(tag => `<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">${tag}</span>`).join('')}</div></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">${doc.URL ? `<a href="${doc.URL}" target="_blank" class="text-blue-600 hover:text-blue-900">Xem</a>` : 'Chưa có link'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
