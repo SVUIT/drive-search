@@ -86,22 +86,22 @@ async function performSearch() {
     if (documentContainer) documentContainer.innerHTML = "<p>Có lỗi xảy ra khi tìm kiếm tài liệu.</p>";
   }
 }
-function updateTagFilterFromDocuments(documents) {
+
+function populateTags(tagArray) {
   const tagsContainer = document.getElementById('tags-container');
   const tagsSelected = document.getElementById('tags-selected');
+  const searchBox = document.getElementById('tag-search-box');
   if (!tagsContainer) return;
 
-  const tagSet = new Set();
-  documents.forEach(doc => {
-    (doc.tags || []).forEach(tag => tagSet.add(tag));
-  });
-
   tagsContainer.innerHTML = '';
-  const sortedTags = Array.from(tagSet).sort();
+  const sortedTags = [...tagArray].sort();
+  const showLimit = 10;
+  let hiddenCount = sortedTags.length - showLimit;
 
-  sortedTags.forEach(tag => {
+  sortedTags.forEach((tag, i) => {
     const label = document.createElement('label');
     label.className = 'flex items-center gap-2 cursor-pointer';
+    label.style.display = i < showLimit ? 'flex' : 'none';
     label.innerHTML = `
       <div class="relative w-4 h-4 flex items-center justify-center">
         <input type="checkbox" class="peer absolute opacity-0 w-full h-full cursor-pointer z-10" value="${tag}">
@@ -112,132 +112,46 @@ function updateTagFilterFromDocuments(documents) {
       </div>
       <span class="text-sm">${tag}</span>
     `;
-    const checkbox = label.querySelector('input[type="checkbox"]');
-    checkbox.addEventListener('change', updateSelectedTags);
+    label.querySelector('input').addEventListener('change', updateSelectedTags);
     tagsContainer.appendChild(label);
   });
+
+  if (hiddenCount > 0) {
+    const btn = document.createElement('button');
+    btn.textContent = `Hiển thị thêm ${hiddenCount} tag`;
+    btn.className = 'text-blue-600 hover:underline mt-2 text-sm';
+    btn.addEventListener('click', () => {
+      tagsContainer.querySelectorAll('label').forEach(l => l.style.display = 'flex');
+      btn.remove();
+    });
+    tagsContainer.appendChild(btn);
+  }
+
+  if (searchBox) {
+    searchBox.addEventListener('input', () => {
+      const val = searchBox.value.trim().toLowerCase();
+      tagsContainer.querySelectorAll('label').forEach(label => {
+        const tagText = label.innerText.toLowerCase();
+        label.style.display = tagText.includes(val) ? 'flex' : 'none';
+      });
+    });
+  }
 
   tagsSelected.textContent = 'Chọn tags';
 }
 
-function createSubjectCard(subject) {
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.style.cssText = `
-    font-family:'Poppins',sans-serif;
-    padding:32px;
-    width:100%;max-width:400px;
-    aspect-ratio:4/3;
-    display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:8px;
-    line-height:1;
-    background:rgba(255,255,255,0.2);
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-    border:1px solid transparent;border-radius:20px;
-    border-image:linear-gradient(to right,#6a11cb,#2575fc) 1;
-    box-shadow:0 8px 32px rgba(0,0,0,0.1);
-    filter:drop-shadow(0 4px 8px rgba(0,0,0,0.05));
-    transition:transform 0.4s ease,box-shadow 0.4s ease,filter 0.4s ease;
-    will-change:transform,box-shadow;
-    cursor:pointer;
-    overflow:hidden;
-    backface-visibility:hidden;
-  `;
-  card.innerHTML = `
-    <h3>${subject.name || 'Môn chưa xác định'}</h3>
-    <p><strong>Mã môn:</strong> ${subject.code || 'Chưa cập nhật'}</p>
-    <p><strong>Tín chỉ lý thuyết:</strong> ${subject['theory-credits'] || '0'}</p>
-    <p><strong>Tín chỉ thực hành:</strong> ${subject['practice-credits'] || '0'}</p>
-    <p><strong>Loại:</strong> ${subject.type || 'Chưa cập nhật'}</p>
-    <p><strong>Khoa:</strong> ${subject.management || 'Chưa cập nhật'}</p>
-    <p><strong>Tài liệu:</strong> ${subject.URL ? `<a href="${subject.URL}" target="_blank">Link</a>` : 'Chưa cập nhật'}</p>
-  `;
-  return card;
-}
-
-async function viewSubjectDetails(subjectId) {
-  const response = await fetch(`/documents?subjectId=${subjectId}`);
-  const documents = await response.json();
-  renderDocumentSearchResults(documents);
-  await fetchTags(subjectId);
+function updateTagFilterFromDocuments(documents) {
+  const tagSet = new Set();
+  documents.forEach(doc => {
+    (doc.tags || []).forEach(tag => tagSet.add(tag));
+  });
+  populateTags(tagSet);
 }
 
 async function fetchTags(subjectId) {
   const response = await fetch(`/documents/tags?subjectId=${subjectId}`);
   const tags = await response.json();
-  const tagsContainer = document.getElementById('tags-container');
-  if (tagsContainer) {
-    tagsContainer.innerHTML = '';
-    tags.forEach(tag => {
-      const label = document.createElement('label');
-      label.className = 'flex items-center gap-2 cursor-pointer';
-      label.innerHTML = `
-        <div class="relative w-4 h-4 flex items-center justify-center">
-          <input type="checkbox" class="peer absolute opacity-0 w-full h-full cursor-pointer z-10" value="${tag}">
-          <div class="w-4 h-4 border border-gray-300 rounded peer-checked:bg-primary peer-checked:border-primary"></div>
-          <div class="absolute text-white w-3 h-3 flex items-center justify-center opacity-0 peer-checked:opacity-100">
-            <i class="ri-check-line ri-xs"></i>
-          </div>
-        </div>
-        <span class="text-sm">${tag}</span>
-      `;
-      const checkbox = label.querySelector('input[type="checkbox"]');
-      checkbox.addEventListener('change', updateSelectedTags);
-      tagsContainer.appendChild(label);
-    });
-  }
-}
-
-function updateSelectedTags() {
-  const tagsSelected = document.getElementById('tags-selected');
-  const selectedTags = Array.from(document.querySelectorAll('#tags-container input[type="checkbox"]:checked')).map(cb => cb.value);
-  if (tagsSelected) {
-    if (selectedTags.length === 0) {
-      tagsSelected.textContent = 'Chọn tags';
-    } else if (selectedTags.length === 1) {
-      tagsSelected.textContent = selectedTags[0];
-    } else {
-      tagsSelected.textContent = `${selectedTags.length} đã chọn`;
-    }
-  }
-}
-
-function getSelectedType() {
-  const selectedType = document.querySelector('input[name="type"]:checked');
-  return selectedType ? selectedType.value : 'subjects';
-}
-
-function getSelectedTags() {
-  const checkboxes = document.querySelectorAll('#tags-container input[type="checkbox"]:checked');
-  return Array.from(checkboxes).map(cb => cb.value);
-}
-
-function renderDocumentSearchResults(documents) {
-  const container = document.getElementById('document-result-container');
-  if (!container) return;
-  container.innerHTML = `
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên tài liệu</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          ${documents.map(doc => `
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${doc.name}</div></td>
-              <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">${doc.type}</span></td>
-              <td class="px-6 py-4"><div class="flex flex-wrap gap-1">${doc.tags.map(tag => `<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">${tag}</span>`).join('')}</div></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">${doc.URL ? `<a href="${doc.URL}" target="_blank" class="text-blue-600 hover:text-blue-900">Xem</a>` : 'Chưa có link'}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
+  populateTags(tags);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -245,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
   cardContainer = document.querySelector('.card-container');
   documentContainer = document.getElementById('document-result-container');
   const searchButton = document.getElementById('search-button');
+  const clearBtn = document.getElementById('clear-tags-btn');
 
   if (searchButton) {
     searchButton.addEventListener('click', performSearch);
@@ -255,6 +170,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter') {
         performSearch();
       }
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      const checkboxes = document.querySelectorAll('#tags-container input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = false);
+      updateSelectedTags();
     });
   }
 });
