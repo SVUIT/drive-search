@@ -78,12 +78,46 @@ async function performSearch() {
         const response = await fetch(url);
         const documents = await response.json();
         renderDocumentSearchResults(documents);
+        updateTagFilterFromDocuments(documents);
       }
     }
   } catch (error) {
     if (cardContainer) cardContainer.innerHTML = "<p>Có lỗi xảy ra khi tìm kiếm.</p>";
     if (documentContainer) documentContainer.innerHTML = "<p>Có lỗi xảy ra khi tìm kiếm tài liệu.</p>";
   }
+}
+function updateTagFilterFromDocuments(documents) {
+  const tagsContainer = document.getElementById('tags-container');
+  const tagsSelected = document.getElementById('tags-selected');
+  if (!tagsContainer) return;
+
+  const tagSet = new Set();
+  documents.forEach(doc => {
+    (doc.tags || []).forEach(tag => tagSet.add(tag));
+  });
+
+  tagsContainer.innerHTML = '';
+  const sortedTags = Array.from(tagSet).sort();
+
+  sortedTags.forEach(tag => {
+    const label = document.createElement('label');
+    label.className = 'flex items-center gap-2 cursor-pointer';
+    label.innerHTML = `
+      <div class="relative w-4 h-4 flex items-center justify-center">
+        <input type="checkbox" class="peer absolute opacity-0 w-full h-full cursor-pointer z-10" value="${tag}">
+        <div class="w-4 h-4 border border-gray-300 rounded peer-checked:bg-primary peer-checked:border-primary"></div>
+        <div class="absolute text-white w-3 h-3 flex items-center justify-center opacity-0 peer-checked:opacity-100">
+          <i class="ri-check-line ri-xs"></i>
+        </div>
+      </div>
+      <span class="text-sm">${tag}</span>
+    `;
+    const checkbox = label.querySelector('input[type="checkbox"]');
+    checkbox.addEventListener('change', updateSelectedTags);
+    tagsContainer.appendChild(label);
+  });
+
+  tagsSelected.textContent = 'Chọn tags';
 }
 
 function createSubjectCard(subject) {
