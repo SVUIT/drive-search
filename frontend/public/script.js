@@ -229,12 +229,55 @@ function renderDocumentSearchResults(documents) {
   `;
 }
 
+// Hàm load danh sách môn học từ backend
+async function loadSubjects() {
+  try {
+    const res = await fetch('/subjects');
+    const subjects = await res.json();
+    const subjectSelect = document.getElementById("subject-select");
+    subjectSelect.innerHTML = '<option value="">-- Chọn môn học --</option>';
+    subjects.forEach(subject => {
+      const option = document.createElement("option");
+      option.value = subject.$id;
+      option.textContent = subject.name || subject.title || subject['Tên môn']; // Tùy tên trường trong DB
+      subjectSelect.appendChild(option);
+    });
+  } catch (err) {
+    alert("Không thể tải danh sách môn học!");
+    console.error(err);
+  }
+}
+
+// Hàm load tag khi chọn môn học
+async function loadTagsBySubject(subjectId) {
+  try {
+    const res = await fetch(`/documents/tags?subjectId=${subjectId}`);
+    const tags = await res.json();
+    const tagSelect = document.getElementById("tag-select");
+    tagSelect.innerHTML = '<option value="">-- Chọn tag --</option>';
+    tags.forEach(tag => {
+      const option = document.createElement("option");
+      option.value = tag;
+      option.textContent = tag;
+      tagSelect.appendChild(option);
+    });
+    // Hiện box tag nếu có tag
+    document.getElementById("tag-container").style.display = tags.length > 0 ? "block" : "none";
+  } catch (err) {
+    alert("Không thể tải danh sách tag!");
+    console.error(err);
+  }
+}
+
+// Gọi khi trang load xong
 document.addEventListener('DOMContentLoaded', () => {
+  loadSubjects();
   searchInput = document.getElementById('search-input');
   cardContainer = document.querySelector('.card-container');
   documentContainer = document.getElementById('document-result-container');
   const searchButton = document.getElementById('search-button');
   const clearBtn = document.getElementById('clear-tags-btn');
+  const subjectSelect = document.getElementById("subject-select");
 
   if (searchButton) {
     searchButton.addEventListener('click', performSearch);
@@ -255,4 +298,14 @@ document.addEventListener('DOMContentLoaded', () => {
       updateSelectedTags();
     });
   }
+
+  subjectSelect.addEventListener("change", function () {
+    const subjectId = this.value;
+    if (subjectId) {
+      loadTagsBySubject(subjectId);
+    } else {
+      document.getElementById("tag-container").style.display = "none";
+      document.getElementById("tag-select").innerHTML = '<option value="">-- Chọn tag --</option>';
+    }
+  });
 });
