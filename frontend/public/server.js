@@ -131,11 +131,11 @@ app.get("/documents/search", async (req, res) => {
 });
 
 app.get("/documents/tags", async (req, res) => {
-  const subjectId = req.query.subjectId;
-  if (!subjectId) return res.json([]);
+  const documents = req.query.documents;
+  if (!documents) return res.json([]);
 
   try {
-    const result = await databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [Query.equal("subject", subjectId)]);
+    const result = await databases.listDocuments(DATABASE_ID,COLLECTION_ID, [Query.equal("documents", documents)]);
     const allTags = new Set();
 
     result.documents.forEach(doc => {
