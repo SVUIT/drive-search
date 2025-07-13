@@ -75,11 +75,11 @@ app.get("/subjects", async (req, res) => {
 });
 
 app.get("/documents", async (req, res) => {
-  const documentId = req.query.documentId;
-  if (!documentId) return res.status(400).json({ error: "documentId required" });
+  const documents = req.query.documents;
+  if (!documents) return res.status(400).json({ error: "documents required" });
 
   try {
-    const result = await databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [Query.equal("documentId", documentId)]);
+    const result = await databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [Query.equal("documents", documents)]);
     res.json(result.documents);
   } catch (err) {
     res.status(500).json({ error: err.message });
