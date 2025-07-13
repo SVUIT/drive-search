@@ -75,11 +75,11 @@ app.get("/subjects", async (req, res) => {
 });
 
 app.get("/documents", async (req, res) => {
-  const subjectId = req.query.subjectId;
-  if (!subjectId) return res.status(400).json({ error: "subjectId required" });
+  const documentId = req.query.documentId;
+  if (!documentId) return res.status(400).json({ error: "documentId required" });
 
   try {
-    const result = await databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [Query.equal("subjectId", subjectId)]);
+    const result = await databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [Query.equal("documentId", documentId)]);
     res.json(result.documents);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -135,7 +135,7 @@ app.get("/documents/tags", async (req, res) => {
   if (!subjectId) return res.json([]);
 
   try {
-    const result = await databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [Query.equal("subjectId", subjectId)]);
+    const result = await databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [Query.equal("subject", subjectId)]);
     const allTags = new Set();
 
     result.documents.forEach(doc => {
