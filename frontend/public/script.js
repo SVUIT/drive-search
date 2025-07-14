@@ -101,11 +101,10 @@ function getSelectedTags() {
 async function fetchTagsBySubject(subjectId) {
   const tagsSelected = document.getElementById('tags-selected');
   const tagsContainer = document.getElementById('tags-container');
+  if (!tagsSelected || !tagsContainer) return;
   tagsSelected.textContent = 'Chọn tags';
   tagsContainer.innerHTML = '';
-
   if (!subjectId) return;
-
   try {
     const response = await fetch(`/documents?subjectId=${subjectId}`);
     const documents = await response.json();
@@ -128,14 +127,13 @@ async function fetchTagsBySubject(subjectId) {
       checkbox.addEventListener('change', updateSelectedTags);
       tagsContainer.appendChild(label);
     });
-  } catch (error) {
-    console.error(error);
-  }
+  } catch (error) {}
 }
 
 function updateSelectedTags() {
   const tagsSelected = document.getElementById('tags-selected');
   const selectedTags = getSelectedTags();
+  if (!tagsSelected) return;
   tagsSelected.textContent = selectedTags.length === 0 ? 'Chọn tags' :
     selectedTags.length === 1 ? selectedTags[0] : `${selectedTags.length} đã chọn`;
 }
@@ -209,10 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const subjectContainer = document.getElementById('subjects-container');
       const tagsContainer = document.getElementById('tags-container');
       if (type === 'subjects') {
-        subjectContainer.style.display = 'none';
-        tagsContainer.innerHTML = '';
+        if (subjectContainer) subjectContainer.style.display = 'none';
+        if (tagsContainer) tagsContainer.innerHTML = '';
       } else {
-        subjectContainer.style.display = 'block';
+        if (subjectContainer) subjectContainer.style.display = 'block';
         fetchSubjectOptions();
       }
     });
@@ -223,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function fetchSubjectOptions() {
   const container = document.getElementById('subjects-container');
+  if (!container) return;
   container.innerHTML = '';
   try {
     const res = await fetch('/subjects');
@@ -244,7 +243,5 @@ async function fetchSubjectOptions() {
       input.addEventListener('change', () => fetchTagsBySubject(input.value));
       container.appendChild(label);
     });
-  } catch (err) {
-    console.error(err);
-  }
+  } catch (err) {}
 }
