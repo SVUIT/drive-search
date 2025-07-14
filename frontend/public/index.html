@@ -159,7 +159,8 @@
       async function loadTags(subjectId) {
         tagsContainer.innerHTML = '';
         const res = await fetch(`/documents?subjectId=${subjectId}`);
-        const docs = await res.json();
+        const json = await res.json();
+        const docs = json.documents;
         const tagSet = new Set();
         docs.forEach(doc => (doc.tags || []).forEach(tag => tagSet.add(tag)));
         Array.from(tagSet).forEach(tag => {
