@@ -81,7 +81,7 @@ app.get("/documents", async (req, res) => {
     while (offset < total) {
       const page = await databases.listDocuments(
         DATABASE_ID,
-        COLLECTION_ID,
+        SUBJECTS_COLLECTION_ID,
         [Query.limit(limit), Query.offset(offset)]
       );
       docs.push(...page.documents);
