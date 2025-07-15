@@ -74,7 +74,7 @@ app.get("/documents", async (req, res) => {
   if (!subjectId) return res.status(400).json({ error: "subject id is required" });
 
   try {
-    const total = await getTotalCount(DATABASE_ID, COLLECTION_ID);
+    const total = await getTotalCount(DATABASE_ID, SUBJECTS_COLLECTION_ID);
     const docs = [];
     const limit = 100;
     let offset = 0;
