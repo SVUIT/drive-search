@@ -124,7 +124,7 @@ app.get("/documents/search", async (req, res) => {
     } else if (docField) {
       const result = await databases.listDocuments(
         DATABASE_ID,
-        DOCUMENTS_COLLECTION_ID,
+        SUBJECTS_COLLECTION_ID,
         [Query.equal("documents", docField)]
       )
       documents = result.documents
