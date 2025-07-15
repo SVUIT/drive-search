@@ -119,7 +119,7 @@ async function fetchTagsBySubject(subjectId) {
   if (!subject || !subject.code) return;
 
   try {
-    const response = await fetch(`/documents?documents=${subject.code}`);
+    const response = await fetch(`/documents?documents=${subject.name}`);
     const documents = await response.json();
     const tagSet = new Set();
     documents.forEach(doc => (doc.tags || []).forEach(tag => tagSet.add(tag)));
