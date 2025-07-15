@@ -75,7 +75,7 @@ app.get("/documents", async (req, res) => {
   try {
     const result = await databases.listDocuments(
       DATABASE_ID,
-      DOCUMENTS_COLLECTION_ID,
+      SUBJECTS_COLLECTION_ID,
       [Query.equal("documents", docField)]
     )
     res.json(result.documents)
@@ -83,6 +83,7 @@ app.get("/documents", async (req, res) => {
     res.status(500).json({ error: err.message })
   }
 })
+
 
 app.get("/documents/search", async (req, res) => {
   const query = req.query.query || ""
