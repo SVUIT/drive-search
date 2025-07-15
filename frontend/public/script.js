@@ -61,20 +61,27 @@ async function performSearch() {
           cardContainer.innerHTML = "<p>Không tìm thấy kết quả.</p>";
         }
       }
+
     } else if (type === 'documents') {
       if (cardContainer) cardContainer.style.display = 'none';
       if (documentContainer) {
         documentContainer.style.display = 'block';
         documentContainer.innerHTML = '';
+
         let url = '/documents/search';
         const params = new URLSearchParams();
+
+        const selected = window.subjectsData[selectedSubject];
+        const hasSubjectCode = selected && selected.code;
+
         if (query) params.append('query', query);
         if (selectedTags.length > 0) params.append('tags', selectedTags.join(','));
-        const selected = window.subjectsData[selectedSubject];
-        if (selected && selected.code) params.append('documents', selected.code);
+        if (!query && hasSubjectCode) params.append('subjectId', selected.code);
+
         if (params.toString()) url += '?' + params.toString();
         const response = await fetch(url);
         const documents = await response.json();
+
         renderDocumentSearchResults(documents);
       }
     }

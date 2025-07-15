@@ -84,14 +84,19 @@ app.get("/documents", async (req, res) => {
   }
 })
 
+// ✅ Updated: supports query + tags + subjectId filtering
 app.get("/documents/search", async (req, res) => {
   const query = req.query.query || ""
   const tags = req.query.tags ? req.query.tags.split(",") : []
+  const subjectId = req.query.subjectId || ""
+
   try {
     let documents = []
+
     if (query) {
       const terms = query.split(",").map(t => t.trim()).filter(Boolean)
       const resultsMap = new Map()
+
       await Promise.all(terms.map(async term => {
         const [byName, byTags] = await Promise.all([
           databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [Query.search("name", term)]),
@@ -100,6 +105,13 @@ app.get("/documents/search", async (req, res) => {
         ;[...byName.documents, ...byTags.documents].forEach(doc => resultsMap.set(doc.$id, doc))
       }))
       documents = Array.from(resultsMap.values())
+    } else if (subjectId) {
+      const result = await databases.listDocuments(
+        DATABASE_ID,
+        DOCUMENTS_COLLECTION_ID,
+        [Query.equal("subjectId", subjectId)]
+      )
+      documents = result.documents
     } else {
       const total = await getTotalCount(DATABASE_ID, DOCUMENTS_COLLECTION_ID)
       let offset = 0
@@ -114,12 +126,14 @@ app.get("/documents/search", async (req, res) => {
         offset += limit
       }
     }
+
     if (tags.length > 0) {
       documents = documents.filter(doc =>
         Array.isArray(doc.tags) &&
         tags.some(tag => doc.tags.map(t => t.toLowerCase()).includes(tag.toLowerCase()))
       )
     }
+
     res.json(documents)
   } catch (err) {
     res.status(500).json({ error: err.message })
