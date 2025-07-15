@@ -74,23 +74,31 @@ app.get("/documents", async (req, res) => {
   if (!subjectId) return res.status(400).json({ error: "subjectId is required" });
 
   try {
-    const result = await databases.listDocuments(
+    const subject = await databases.getDocument(
       DATABASE_ID,
-      DOCUMENTS_COLLECTION_ID,
-      [Query.equal("subject", subjectId)] // 🔁 Truy vấn documents theo reference
+      SUBJECTS_COLLECTION_ID,
+      subjectId
     );
 
-    const docs = result.documents.map(doc => ({
-      name: doc.name,
-      value: doc.$id
-    }));
+    const docIds = subject.documents || [];
+    if (!Array.isArray(docIds) || docIds.length === 0) return res.json([]);
 
-    res.json(docs);
+    const docs = await Promise.all(
+      docIds.map(async (id) => {
+        try {
+          const doc = await databases.getDocument(DATABASE_ID, DOCUMENTS_COLLECTION_ID, id);
+          return { name: doc.name, value: id };
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    res.json(docs.filter(Boolean));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 
 
@@ -116,7 +124,7 @@ app.get("/documents/search", async (req, res) => {
     } else if (docField) {
       const result = await databases.listDocuments(
         DATABASE_ID,
-        SUBJECTS_COLLECTION_ID,
+        DOCUMENTS_COLLECTION_ID,
         [Query.equal("documents", docField)]
       )
       documents = result.documents
