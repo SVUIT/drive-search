@@ -70,36 +70,36 @@ app.get("/subjects", async (req, res) => {
 })
 
 app.get("/documents", async (req, res) => {
-  const subjectId = req.query.documents
-  if (!subjectId) return res.status(400).json({ error: "subject id is required" })
+  const subjectId = req.query.subjectId;
+  if (!subjectId) return res.status(400).json({ error: "subjectId is required" });
 
   try {
-    const subjectDoc = await databases.getDocument(
+    const subject = await databases.getDocument(
       DATABASE_ID,
       SUBJECTS_COLLECTION_ID,
       subjectId
-    )
+    );
 
-    const documentIds = subjectDoc.documents || []
+    const docIds = subject.documents || [];
+    if (!Array.isArray(docIds) || docIds.length === 0) return res.json([]);
 
-    if (!Array.isArray(documentIds) || documentIds.length === 0) {
-      return res.json([])
-    }
+    const docs = await Promise.all(
+      docIds.map(async (id) => {
+        try {
+          const doc = await databases.getDocument(DATABASE_ID, DOCUMENTS_COLLECTION_ID, id);
+          return { name: doc.name, value: id };
+        } catch {
+          return null;
+        }
+      })
+    );
 
-    const docs = await Promise.all(documentIds.map(async (docId) => {
-      try {
-        const doc = await databases.getDocument(DATABASE_ID, DOCUMENTS_COLLECTION_ID, docId)
-        return { name: doc.name, value: doc.$id }
-      } catch {
-        return null
-      }
-    }))
-
-    res.json(docs.filter(Boolean))
+    res.json(docs.filter(Boolean));
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: err.message });
   }
-})
+});
+
 
 
 
