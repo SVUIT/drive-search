@@ -74,7 +74,7 @@ async function performSearch() {
         const selected = window.subjectsData[selectedSubject];
         if (query) params.append('query', query);
         if (selectedTags.length > 0) params.append('tags', selectedTags.join(','));
-        if (!query && selected && selected.code) params.append('documents', selected.code);
+        if (!query && selected && selected.$id) params.append('documents', selected.$id);
 
         if (params.toString()) url += '?' + params.toString();
         const response = await fetch(url);
