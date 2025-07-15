@@ -1,18 +1,18 @@
 let searchInput;
 let cardContainer;
 let documentContainer;
+let currentType = 'subjects';
 
 window.subjectsData = {};
 window.documentsData = {};
 
 async function performSearch() {
   const query = searchInput.value.trim();
-  const type = getSelectedType();
   const selectedSubject = getSelectedSubject();
   const selectedTags = getSelectedTags();
 
   try {
-    if (type === 'subjects') {
+    if (currentType === 'subjects') {
       if (documentContainer) documentContainer.style.display = 'none';
       if (cardContainer) {
         cardContainer.style.display = 'flex';
@@ -62,7 +62,7 @@ async function performSearch() {
         }
       }
 
-    } else if (type === 'documents') {
+    } else if (currentType === 'documents') {
       if (cardContainer) cardContainer.style.display = 'none';
       if (documentContainer) {
         documentContainer.style.display = 'block';
@@ -72,13 +72,9 @@ async function performSearch() {
         const params = new URLSearchParams();
 
         const selected = window.subjectsData[selectedSubject];
-        const hasSubjectCode = selected && selected.code;
-
         if (query) params.append('query', query);
         if (selectedTags.length > 0) params.append('tags', selectedTags.join(','));
-        if (!query && selected && selected.code) {
-            params.append('documents', selected.code);
-        }
+        if (!query && selected && selected.code) params.append('documents', selected.code);
 
         if (params.toString()) url += '?' + params.toString();
         const response = await fetch(url);
@@ -91,11 +87,6 @@ async function performSearch() {
     if (cardContainer) cardContainer.innerHTML = "<p>Có lỗi xảy ra khi tìm kiếm.</p>";
     if (documentContainer) documentContainer.innerHTML = "<p>Có lỗi xảy ra khi tìm kiếm tài liệu.</p>";
   }
-}
-
-function getSelectedType() {
-  const selectedType = document.querySelector('input[name="type"]:checked');
-  return selectedType ? selectedType.value : 'subjects';
 }
 
 function getSelectedSubject() {
@@ -141,6 +132,8 @@ async function fetchTagsBySubject(subjectId) {
       checkbox.addEventListener('change', updateSelectedTags);
       tagsContainer.appendChild(label);
     });
+
+    document.getElementById('tags-section').style.display = 'block';
   } catch (error) {}
 }
 
@@ -212,25 +205,26 @@ document.addEventListener('DOMContentLoaded', () => {
   cardContainer = document.querySelector('.card-container');
   documentContainer = document.getElementById('document-result-container');
 
-  if (searchButton) searchButton.addEventListener('click', performSearch);
-  if (searchInput) searchInput.addEventListener('keypress', e => e.key === 'Enter' && performSearch());
-
-  document.querySelectorAll('input[name="type"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      const type = getSelectedType();
-      const subjectContainer = document.getElementById('subjects-container');
-      const tagsContainer = document.getElementById('tags-container');
-      if (type === 'subjects') {
-        if (subjectContainer) subjectContainer.style.display = 'none';
-        if (tagsContainer) tagsContainer.innerHTML = '';
-      } else {
-        if (subjectContainer) subjectContainer.style.display = 'block';
-        fetchSubjectOptions();
-      }
-    });
+  document.getElementById('btn-subjects').addEventListener('click', () => {
+    currentType = 'subjects';
+    document.getElementById('subjects-section').style.display = 'none';
+    document.getElementById('tags-section').style.display = 'none';
+    document.getElementById('document-result-container').style.display = 'none';
+    document.querySelector('.card-container').style.display = 'flex';
+    performSearch();
   });
 
-  fetchSubjectOptions();
+  document.getElementById('btn-documents').addEventListener('click', () => {
+    currentType = 'documents';
+    document.getElementById('subjects-section').style.display = 'block';
+    document.querySelector('.card-container').style.display = 'none';
+    document.getElementById('document-result-container').style.display = 'block';
+    document.getElementById('tags-section').style.display = 'none';
+    fetchSubjectOptions();
+  });
+
+  if (searchButton) searchButton.addEventListener('click', performSearch);
+  if (searchInput) searchInput.addEventListener('keypress', e => e.key === 'Enter' && performSearch());
 });
 
 async function fetchSubjectOptions() {
@@ -240,11 +234,9 @@ async function fetchSubjectOptions() {
   try {
     const res = await fetch('/subjects');
     const subjects = await res.json();
-
     window.subjectsData = {};
     subjects.forEach(s => {
       window.subjectsData[s.$id] = s;
-
       const label = document.createElement('label');
       label.className = 'flex items-center gap-2 cursor-pointer';
       label.innerHTML = `
@@ -257,7 +249,6 @@ async function fetchSubjectOptions() {
         </div>
         <span class="text-sm">${s.name}</span>
       `;
-
       const input = label.querySelector('input');
       input.addEventListener('change', () => fetchTagsBySubject(input.value));
       container.appendChild(label);
