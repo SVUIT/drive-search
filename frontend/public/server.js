@@ -7,7 +7,7 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 app.use(express.json())
-app.use(express.static(__dirname))
+app.use(express.static(path.join(__dirname)))
 
 const client = new Client()
   .setEndpoint(process.env.ENDPOINT)
