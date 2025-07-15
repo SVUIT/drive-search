@@ -70,19 +70,31 @@ app.get("/subjects", async (req, res) => {
 })
 
 app.get("/documents", async (req, res) => {
-  const docField = req.query.documents
-  if (!docField) return res.status(400).json({ error: "documents field is required" })
+  const subjectId = req.query.documents;
+  if (!subjectId) return res.status(400).json({ error: "subject id is required" });
+
   try {
-    const result = await databases.listDocuments(
-      DATABASE_ID,
-      SUBJECTS_COLLECTION_ID,
-      [Query.equal("documents", docField)]
-    )
-    res.json(result.documents)
+    const total = await getTotalCount(DATABASE_ID, COLLECTION_ID);
+    const docs = [];
+    const limit = 100;
+    let offset = 0;
+    while (offset < total) {
+      const page = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTION_ID,
+        [Query.limit(limit), Query.offset(offset)]
+      );
+      docs.push(...page.documents);
+      offset += limit;
+    }
+
+    const filtered = docs.filter(d => d.subject?.$id === subjectId);
+    res.json({ documents: filtered });
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: err.message });
   }
-})
+});
+
 
 
 app.get("/documents/search", async (req, res) => {
