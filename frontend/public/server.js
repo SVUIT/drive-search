@@ -84,11 +84,11 @@ app.get("/documents", async (req, res) => {
   }
 })
 
-// ✅ Updated: supports query + tags + subjectId filtering
+// ✅ Updated: supports query + tags + documents filtering
 app.get("/documents/search", async (req, res) => {
   const query = req.query.query || ""
   const tags = req.query.tags ? req.query.tags.split(",") : []
-  const subjectId = req.query.subjectId || ""
+  const documents = req.query.documents || ""
 
   try {
     let documents = []
@@ -105,11 +105,11 @@ app.get("/documents/search", async (req, res) => {
         ;[...byName.documents, ...byTags.documents].forEach(doc => resultsMap.set(doc.$id, doc))
       }))
       documents = Array.from(resultsMap.values())
-    } else if (subjectId) {
+    } else if (documents) {
       const result = await databases.listDocuments(
         DATABASE_ID,
         DOCUMENTS_COLLECTION_ID,
-        [Query.equal("subjectId", subjectId)]
+        [Query.equal("documents", documents)]
       )
       documents = result.documents
     } else {
