@@ -70,7 +70,8 @@ async function performSearch() {
         const params = new URLSearchParams();
         if (query) params.append('query', query);
         if (selectedTags.length > 0) params.append('tags', selectedTags.join(','));
-        if (selectedSubject) params.append('subjectId', selectedSubject);
+        const selected = window.subjectsData[selectedSubject];
+        if (selected && selected.code) params.append('documents', selected.code);
         if (params.toString()) url += '?' + params.toString();
         const response = await fetch(url);
         const documents = await response.json();
@@ -104,12 +105,16 @@ async function fetchTagsBySubject(subjectId) {
   if (!tagsSelected || !tagsContainer) return;
   tagsSelected.textContent = 'Chọn tags';
   tagsContainer.innerHTML = '';
-  if (!subjectId) return;
+
+  const subject = window.subjectsData[subjectId];
+  if (!subject || !subject.code) return;
+
   try {
-    const response = await fetch(`/documents?subjectId=${subjectId}`);
+    const response = await fetch(`/documents?documents=${subject.code}`);
     const documents = await response.json();
     const tagSet = new Set();
     documents.forEach(doc => (doc.tags || []).forEach(tag => tagSet.add(tag)));
+
     Array.from(tagSet).forEach(tag => {
       const label = document.createElement('label');
       label.className = 'flex items-center gap-2 cursor-pointer';
@@ -226,7 +231,11 @@ async function fetchSubjectOptions() {
   try {
     const res = await fetch('/subjects');
     const subjects = await res.json();
+
+    window.subjectsData = {};
     subjects.forEach(s => {
+      window.subjectsData[s.$id] = s;
+
       const label = document.createElement('label');
       label.className = 'flex items-center gap-2 cursor-pointer';
       label.innerHTML = `
@@ -239,6 +248,7 @@ async function fetchSubjectOptions() {
         </div>
         <span class="text-sm">${s.name}</span>
       `;
+
       const input = label.querySelector('input');
       input.addEventListener('change', () => fetchTagsBySubject(input.value));
       container.appendChild(label);

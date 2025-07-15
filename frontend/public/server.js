@@ -70,13 +70,13 @@ app.get("/subjects", async (req, res) => {
 })
 
 app.get("/documents", async (req, res) => {
-  const subjectId = req.query.subjectId
-  if (!subjectId) return res.status(400).json({ error: "subjectId required" })
+  const docField = req.query.documents
+  if (!docField) return res.status(400).json({ error: "documents field is required" })
   try {
     const result = await databases.listDocuments(
       DATABASE_ID,
       DOCUMENTS_COLLECTION_ID,
-      [Query.equal("subjectId", subjectId)]
+      [Query.equal("documents", docField)]
     )
     res.json(result.documents)
   } catch (err) {
