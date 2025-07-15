@@ -179,6 +179,66 @@
         const selected = Array.from(tagsContainer.querySelectorAll('input:checked')).map(cb => cb.value);
         tagsSelected.textContent = selected.length === 0 ? "Chọn tags" : selected.length === 1 ? selected[0] : `${selected.length} đã chọn`;
       }
+
+      async function performSearch() {
+        const query = document.getElementById("search-input").value.trim();
+        const subjectId = document.getElementById("subject-selected").dataset.id;
+        const selectedTags = Array.from(document.querySelectorAll('#tags-container input:checked')).map(cb => cb.value);
+
+        let url = '/documents/search';
+        const params = new URLSearchParams();
+        if (query) params.append('query', query);
+        if (subjectId) params.append('documents', subjectId);
+        if (selectedTags.length > 0) params.append('tags', selectedTags.join(','));
+        if (params.toString()) url += '?' + params.toString();
+
+        const res = await fetch(url);
+        const docs = await res.json();
+
+        const container = document.getElementById('document-result-container');
+        container.style.display = 'block';
+        container.innerHTML = docs.length === 0
+          ? '<p class="text-gray-500 text-center py-8">Không tìm thấy tài liệu.</p>'
+          : `
+          <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên tài liệu</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                ${docs.map(doc => `
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm font-medium text-gray-900">${doc.name || ''}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">${doc.type || ''}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex flex-wrap gap-1">
+                        ${(doc.tags || []).map(tag => `<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">${tag}</span>`).join('')}
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                      ${doc.URL ? `<a href="${doc.URL}" target="_blank" class="text-blue-600 hover:text-blue-900">Xem</a>` : 'Chưa có link'}
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          `;
+      }
+
+      document.getElementById('search-button').addEventListener('click', performSearch);
+      document.getElementById('search-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') performSearch();
+      });
     });
   </script>
 </body>
