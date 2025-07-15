@@ -70,40 +70,42 @@ app.get("/subjects", async (req, res) => {
 })
 
 app.get("/documents", async (req, res) => {
-  const subjectId = req.query.documents
-  if (!subjectId) return res.status(400).json({ error: "subject id is required" })
+  const subjectId = req.query.documents;
+  if (!subjectId) {
+    return res.status(400).json({ error: "Subject ID is required" });
+  }
 
   try {
+    // Get the subject document (which holds the related document IDs)
     const subjectDoc = await databases.getDocument(
       DATABASE_ID,
       SUBJECTS_COLLECTION_ID,
       subjectId
-    )
+    );
 
-    const documentIds = subjectDoc.documents || []
+    const documentIds = subjectDoc.documents || [];
 
     if (!Array.isArray(documentIds) || documentIds.length === 0) {
-      return res.json({ documents: [] })
+      return res.json({ documents: [] }); // Return empty list if no related documents
     }
 
-    const docs = await Promise.all(documentIds.map(async (docId) => {
-      try {
-        const doc = await databases.getDocument(DATABASE_ID, DOCUMENTS_COLLECTION_ID, docId)
-        return doc
-      } catch {
-        return null
-      }
-    }))
+    // Fetch all related documents in parallel
+    const docs = await Promise.all(
+      documentIds.map(async (docId) => {
+        try {
+          return await databases.getDocument(DATABASE_ID, DOCUMENTS_COLLECTION_ID, docId);
+        } catch {
+          return null; // Skip any that fail to load
+        }
+      })
+    );
 
-    res.json({ documents: docs.filter(Boolean) })
+    // Filter out failed ones and return
+    res.json({ documents: docs.filter(Boolean) });
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: err.message });
   }
-})
-
-
-
-
+});
 
 app.get("/documents/search", async (req, res) => {
   const query = req.query.query || ""
