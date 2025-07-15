@@ -83,25 +83,24 @@ app.get("/documents", async (req, res) => {
     const documentIds = subjectDoc.documents || []
 
     if (!Array.isArray(documentIds) || documentIds.length === 0) {
-      // Always return { documents: [] }
       return res.json({ documents: [] })
     }
 
     const docs = await Promise.all(documentIds.map(async (docId) => {
       try {
         const doc = await databases.getDocument(DATABASE_ID, DOCUMENTS_COLLECTION_ID, docId)
-        return doc // Return the full document object
+        return doc
       } catch {
         return null
       }
     }))
 
-    // Always return { documents: [...] }
     res.json({ documents: docs.filter(Boolean) })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
 })
+
 
 
 
