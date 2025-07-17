@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Danh sách môn học</title>
   <meta name="description" content="Hiển thị danh sách môn học" />
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <title>Danh sách môn học</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" />
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="script.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -20,7 +22,7 @@
           }
         }
       }
-    };
+    }
   </script>
   <style>
     .dropdown-content {
@@ -37,6 +39,12 @@
     .dropdown-content.show {
       display: block;
     }
+    input[type="search"]::-webkit-search-decoration,
+    input[type="search"]::-webkit-search-cancel-button,
+    input[type="search"]::-webkit-search-results-button,
+    input[type="search"]::-webkit-search-results-decoration {
+      display: none;
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -46,7 +54,9 @@
       <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
         <div class="relative flex-grow">
           <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <i class="ri-search-line text-gray-500 text-lg"></i>
+            <div class="w-5 h-5 flex items-center justify-center text-gray-500">
+              <i class="ri-search-line"></i>
+            </div>
           </div>
           <input
             type="search"
@@ -57,17 +67,21 @@
         </div>
 
         <div class="relative min-w-[220px]">
-          <button id="subject-dropdown-button" class="flex items-center justify-between w-full px-4 py-3 bg-white border border-gray-300 rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+          <button id="subject-dropdown-button" class="flex items-center justify-between w-full px-4 py-3 bg-white border border-gray-300 rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary !rounded-button whitespace-nowrap">
             <span id="subject-selected">Chọn môn học</span>
-            <i class="ri-arrow-down-s-line ml-2"></i>
+            <div class="w-5 h-5 flex items-center justify-center ml-2">
+              <i class="ri-arrow-down-s-line"></i>
+            </div>
           </button>
           <div id="subject-dropdown" class="dropdown-content mt-1"></div>
         </div>
 
         <div class="relative min-w-[220px]">
-          <button id="tags-dropdown-button" class="flex items-center justify-between w-full px-4 py-3 bg-white border border-gray-300 rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+          <button id="tags-dropdown-button" class="flex items-center justify-between w-full px-4 py-3 bg-white border border-gray-300 rounded text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary !rounded-button whitespace-nowrap">
             <span id="tags-selected">Chọn tags</span>
-            <i class="ri-arrow-down-s-line ml-2"></i>
+            <div class="w-5 h-5 flex items-center justify-center ml-2">
+              <i class="ri-arrow-down-s-line"></i>
+            </div>
           </button>
           <div id="tags-dropdown" class="dropdown-content mt-1">
             <div class="p-3">
@@ -76,32 +90,32 @@
           </div>
         </div>
 
-        <button id="search-button" class="px-6 py-3 bg-primary text-white rounded hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-          <i class="ri-search-line mr-2"></i> Tìm kiếm
+        <button id="search-button" class="px-6 py-3 bg-primary text-white rounded hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors !rounded-button whitespace-nowrap">
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 flex items-center justify-center">
+              <i class="ri-search-line"></i>
+            </div>
+            <span>Tìm kiếm</span>
+          </div>
         </button>
       </div>
 
       <div class="mt-8">
-        <div class="card-container hidden flex-wrap gap-4 justify-center"></div>
-        <div id="document-result-container" class="mt-4 hidden"></div>
+        <div class="card-container" style="display: none; flex-wrap: wrap; gap: 20px; justify-content: center;"></div>
+        <div id="document-result-container" style="display: none;"></div>
       </div>
     </div>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", async () => {
+    document.addEventListener("DOMContentLoaded", async function () {
       const subjectBtn = document.getElementById("subject-dropdown-button");
       const subjectDropdown = document.getElementById("subject-dropdown");
       const subjectSelected = document.getElementById("subject-selected");
-
       const tagsBtn = document.getElementById("tags-dropdown-button");
       const tagsDropdown = document.getElementById("tags-dropdown");
       const tagsSelected = document.getElementById("tags-selected");
       const tagsContainer = document.getElementById("tags-container");
-
-      const searchInput = document.getElementById("search-input");
-      const searchButton = document.getElementById("search-button");
-      const resultContainer = document.getElementById("document-result-container");
 
       subjectBtn.addEventListener("click", () => {
         subjectDropdown.classList.toggle("show");
@@ -118,86 +132,62 @@
         if (!tagsBtn.contains(e.target) && !tagsDropdown.contains(e.target)) tagsDropdown.classList.remove("show");
       });
 
-      const subjects = await (await fetch('/subjects')).json();
-      subjects.forEach(subject => {
+      const res = await fetch('/subjects');
+      const subjects = await res.json();
+      subjectDropdown.innerHTML = '';
+      subjects.forEach(s => {
         const item = document.createElement('div');
         item.className = "px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm";
-        item.textContent = subject.name;
-        item.dataset.id = subject.$id;
-        item.addEventListener("click", () => {
-          subjectSelected.textContent = subject.name;
-          subjectSelected.dataset.id = subject.$id;
+        item.textContent = s.name;
+        item.dataset.id = s.$id;
+        item.addEventListener('click', () => {
+          subjectSelected.textContent = s.name;
           subjectDropdown.classList.remove("show");
-          loadTags(subject.$id);
+          subjectSelected.dataset.id = s.$id;
+          loadTags(s.$id);
         });
         subjectDropdown.appendChild(item);
       });
 
-      async function loadTags(subjectId) {
-        try {
-          const res = await fetch(`/documents/tags?subject=${subjectId}`);
-          const tags = await res.json();
-          tagsContainer.innerHTML = "";
-          tags.forEach(tag => {
-            const label = document.createElement("label");
-            label.className = "flex items-center gap-2 cursor-pointer";
-            label.innerHTML = `
-              <div class="relative w-4 h-4 flex items-center justify-center">
-                <input type="checkbox" class="peer absolute opacity-0 w-full h-full cursor-pointer z-10" value="${tag}">
-                <div class="w-4 h-4 border border-gray-300 rounded peer-checked:bg-primary peer-checked:border-primary"></div>
-                <div class="absolute text-white w-3 h-3 flex items-center justify-center opacity-0 peer-checked:opacity-100">
-                  <i class="ri-check-line ri-xs"></i>
-                </div>
-              </div>
-              <span class="text-sm">${tag}</span>
-            `;
-            label.querySelector('input').addEventListener("change", updateTagsSelected);
-            tagsContainer.appendChild(label);
-          });
-        } catch (err) {
-          tagsContainer.innerHTML = '<p class="text-red-500">Không thể tải tags.</p>';
-        }
-      }
+      async function loadAllTags() {
+  const tagsContainer = document.getElementById('tags-container');
+  if (!tagsContainer) return;
+
+  try {
+    const res = await fetch('/documents/tags');
+    const tags = await res.json();
+
+    tagsContainer.innerHTML = '';
+
+    tags.forEach(tag => {
+      const label = document.createElement('label');
+      label.className = "flex items-center gap-2 cursor-pointer";
+      label.innerHTML = `
+        <div class="relative w-4 h-4 flex items-center justify-center">
+          <input type="checkbox" class="peer absolute opacity-0 w-full h-full cursor-pointer z-10" value="${tag}">
+          <div class="w-4 h-4 border border-gray-300 rounded peer-checked:bg-primary peer-checked:border-primary"></div>
+          <div class="absolute text-white w-3 h-3 flex items-center justify-center opacity-0 peer-checked:opacity-100">
+            <i class="ri-check-line ri-xs"></i>
+          </div>
+        </div>
+        <span class="text-sm">${tag}</span>
+      `;
+      label.querySelector('input').addEventListener("change", updateTagsSelected);
+      tagsContainer.appendChild(label);
+    });
+  } catch (error) {
+    console.error("Error loading tags:", error);
+    tagsContainer.innerHTML = '<p class="text-red-500">Không thể tải tags.</p>';
+  }
+}
+
+
+
 
       function updateTagsSelected() {
-        const selected = [...tagsContainer.querySelectorAll('input:checked')].map(cb => cb.value);
+        const selected = Array.from(tagsContainer.querySelectorAll('input:checked')).map(cb => cb.value);
         tagsSelected.textContent = selected.length === 0 ? "Chọn tags" : selected.length === 1 ? selected[0] : `${selected.length} đã chọn`;
       }
-
-      searchButton.addEventListener("click", async () => {
-        const query = searchInput.value.trim();
-        const subjectId = subjectSelected.dataset.id || "";
-        const tags = [...tagsContainer.querySelectorAll("input:checked")].map(cb => cb.value).join(",");
-
-        const url = new URL("/documents/search", window.location.origin);
-        if (query) url.searchParams.append("query", query);
-        if (subjectId) url.searchParams.append("subject", subjectId);
-        if (tags) url.searchParams.append("tags", tags);
-
-        try {
-          const res = await fetch(url);
-          const documents = await res.json();
-
-          resultContainer.innerHTML = "";
-          resultContainer.classList.remove("hidden");
-          if (documents.length === 0) {
-            resultContainer.innerHTML = '<p class="text-center text-gray-500">Không tìm thấy tài liệu nào.</p>';
-            return;
-          }
-
-          documents.forEach(doc => {
-            const card = document.createElement("div");
-            card.className = "p-4 border rounded-lg shadow-sm bg-white w-full md:w-1/2 lg:w-1/3";
-            card.innerHTML = `
-              <h3 class="text-lg font-medium text-gray-800 mb-2">${doc.title}</h3>
-              <p class="text-sm text-gray-600">${doc.description || "Không có mô tả."}</p>
-            `;
-            resultContainer.appendChild(card);
-          });
-        } catch (error) {
-          resultContainer.innerHTML = '<p class="text-red-500 text-center">Đã xảy ra lỗi khi tìm kiếm.</p>';
-        }
-      });
     });
   </script>
 </body>
