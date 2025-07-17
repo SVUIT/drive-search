@@ -149,10 +149,10 @@
         subjectDropdown.appendChild(item);
       });
 
-      async function loadTags(subjectId) {
+      async function loadTags(documents){
   tagsContainer.innerHTML = '';
 
-  const res = await fetch(`/documents?subjectId=${subjectId}`); // pass subjectId as query param
+  const res = await fetch(`/documents?docmuents=${documents}`); // pass subjectId as query param
   const json = await res.json();
   const docs = Array.isArray(json.documents) ? json.documents : [];
 
