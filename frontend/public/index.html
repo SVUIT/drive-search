@@ -151,11 +151,14 @@
 
       async function loadTags(subjectId) {
   tagsContainer.innerHTML = '';
-  const res = await fetch(`/documents?documents=${subjectId}`);
+
+  const res = await fetch(`/documents?subjectId=${subjectId}`); // pass subjectId as query param
   const json = await res.json();
   const docs = Array.isArray(json.documents) ? json.documents : [];
+
   const tagSet = new Set();
   docs.forEach(doc => (doc.tags || []).forEach(tag => tagSet.add(tag)));
+
   Array.from(tagSet).forEach(tag => {
     const label = document.createElement('label');
     label.className = "flex items-center gap-2 cursor-pointer";
@@ -173,6 +176,7 @@
     tagsContainer.appendChild(label);
   });
 }
+
 
 
       function updateTagsSelected() {
