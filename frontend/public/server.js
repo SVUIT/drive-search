@@ -111,30 +111,57 @@ app.get("/documents/search", async (req, res) => {
   const query = req.query.query || ""
   const tags = req.query.tags ? req.query.tags.split(",") : []
   const docField = req.query.documents || ""
+
   try {
     let documents = []
+
     if (query) {
       const terms = query.split(",").map(t => t.trim()).filter(Boolean)
       const resultsMap = new Map()
+
       await Promise.all(terms.map(async term => {
         const [byName, byTags] = await Promise.all([
-          databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [Query.search("name", term)]),
-          databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [Query.search("tags", term)])
+          databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [
+            Query.search("name", term)
+          ]),
+          databases.listDocuments(DATABASE_ID, DOCUMENTS_COLLECTION_ID, [
+            Query.search("tags", term)
+          ])
         ])
         ;[...byName.documents, ...byTags.documents].forEach(doc => resultsMap.set(doc.$id, doc))
       }))
+
       documents = Array.from(resultsMap.values())
+
     } else if (docField) {
-      const result = await databases.listDocuments(
+      //  Load subject by ID (docField)
+      const subject = await databases.getDocument(
         DATABASE_ID,
         SUBJECTS_COLLECTION_ID,
-        [Query.equal("documents", docField)]
+        docField
       )
-      documents = result.documents
+
+      //  Get related document IDs
+      const documentIds = Array.isArray(subject.documents)
+        ? subject.documents.map(d => d.$id || d)
+        : []
+
+      //  Fetch each batch of up to 100 docs
+      for (let i = 0; i < documentIds.length; i += 100) {
+        const batch = documentIds.slice(i, i + 100)
+        const result = await databases.listDocuments(
+          DATABASE_ID,
+          DOCUMENTS_COLLECTION_ID,
+          [Query.equal("$id", batch)]
+        )
+        documents.push(...result.documents)
+      }
+
     } else {
       const total = await getTotalCount(DATABASE_ID, DOCUMENTS_COLLECTION_ID)
       let offset = 0
       const limit = 5000
+
       while (offset < total) {
         const page = await databases.listDocuments(
           DATABASE_ID,
@@ -145,17 +172,25 @@ app.get("/documents/search", async (req, res) => {
         offset += limit
       }
     }
+
+    // ✅ Filter by tags (if provided)
     if (tags.length > 0) {
       documents = documents.filter(doc =>
         Array.isArray(doc.tags) &&
-        tags.some(tag => doc.tags.map(t => t.toLowerCase()).includes(tag.toLowerCase()))
+        tags.some(tag =>
+          doc.tags.map(t => t.toLowerCase()).includes(tag.toLowerCase())
+        )
       )
     }
+
     res.json(documents)
+
   } catch (err) {
+    console.error(err)
     res.status(500).json({ error: err.message })
   }
 })
+
 
 app.get("/documents/tags", async (req, res) => {
   try {
