@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" />
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="script.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -91,10 +92,16 @@
 
         <button id="search-button" class="px-6 py-3 bg-primary text-white rounded hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors !rounded-button whitespace-nowrap">
           <div class="flex items-center gap-2">
-            <div class="w-5 h-5 flex items-center justify-center">
+            <div class="w-5 h-5 flex items-center justify-center" id="search-icon">
               <i class="ri-search-line"></i>
             </div>
-            <span>Tìm kiếm</span>
+            <div class="w-5 h-5 flex items-center justify-center hidden" id="search-spinner">
+              <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+            </div>
+            <span id="search-text">Tìm kiếm</span>
           </div>
         </button>
       </div>
@@ -131,69 +138,85 @@
         if (!tagsBtn.contains(e.target) && !tagsDropdown.contains(e.target)) tagsDropdown.classList.remove("show");
       });
 
-      // Fixed subject fetch with fallback
-      try {
-        const res = await fetch('/subjects');
-        const data = await res.json();
-        const subjectList = Array.isArray(data) ? data : data.subjects;
+      const res = await fetch('/subjects');
+      const subjects = await res.json();
+      subjectDropdown.innerHTML = '';
+      subjects.forEach(s => {
+        const item = document.createElement('div');
+        item.className = "px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm";
+        item.textContent = s.name;
+        item.dataset.id = s.$id;
+        item.addEventListener('click', () => {
+          subjectSelected.textContent = s.name;
+          subjectDropdown.classList.remove("show");
+          subjectSelected.dataset.id = s.$id;
+          loadTags(s.$id);
+        });
+        subjectDropdown.appendChild(item);
+      });
 
-        if (Array.isArray(subjectList)) {
-          subjectDropdown.innerHTML = '';
-          subjectList.forEach(s => {
-            const item = document.createElement('div');
-            item.className = "px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm";
-            item.textContent = s.name;
-            item.dataset.id = s.$id;
-            item.addEventListener('click', () => {
-              subjectSelected.textContent = s.name;
-              subjectDropdown.classList.remove("show");
-              subjectSelected.dataset.id = s.$id;
-              loadTags(s.$id);
-            });
-            subjectDropdown.appendChild(item);
-          });
-        } else {
-          subjectDropdown.innerHTML = '<div class="px-4 py-2 text-sm text-red-500">Không thể tải danh sách môn học.</div>';
-        }
-      } catch (error) {
-        subjectDropdown.innerHTML = '<div class="px-4 py-2 text-sm text-red-500">Lỗi khi tải môn học.</div>';
-      }
+      async function loadAllTags() {
+  const tagsContainer = document.getElementById('tags-container');
+  if (!tagsContainer) return;
 
-      async function loadTags(subjectId) {
-        const tagsContainer = document.getElementById('tags-container');
-        if (!tagsContainer) return;
+  try {
+    const res = await fetch('/documents/tags');
+    const tags = await res.json();
 
-        try {
-          const res = await fetch('/documents/tags');
-          const tags = await res.json();
+    tagsContainer.innerHTML = '';
 
-          tagsContainer.innerHTML = '';
+    tags.forEach(tag => {
+      const label = document.createElement('label');
+      label.className = "flex items-center gap-2 cursor-pointer";
+      label.innerHTML = `
+        <div class="relative w-4 h-4 flex items-center justify-center">
+          <input type="checkbox" class="peer absolute opacity-0 w-full h-full cursor-pointer z-10" value="${tag}">
+          <div class="w-4 h-4 border border-gray-300 rounded peer-checked:bg-primary peer-checked:border-primary"></div>
+          <div class="absolute text-white w-3 h-3 flex items-center justify-center opacity-0 peer-checked:opacity-100">
+            <i class="ri-check-line ri-xs"></i>
+          </div>
+        </div>
+        <span class="text-sm">${tag}</span>
+      `;
+      label.querySelector('input').addEventListener("change", updateTagsSelected);
+      tagsContainer.appendChild(label);
+    });
+  } catch (error) {
+    console.error("Error loading tags:", error);
+    tagsContainer.innerHTML = '<p class="text-red-500">Không thể tải tags.</p>';
+  }
+}
 
-          tags.forEach(tag => {
-            const label = document.createElement('label');
-            label.className = "flex items-center gap-2 cursor-pointer";
-            label.innerHTML = `
-              <div class="relative w-4 h-4 flex items-center justify-center">
-                <input type="checkbox" class="peer absolute opacity-0 w-full h-full cursor-pointer z-10" value="${tag}">
-                <div class="w-4 h-4 border border-gray-300 rounded peer-checked:bg-primary peer-checked:border-primary"></div>
-                <div class="absolute text-white w-3 h-3 flex items-center justify-center opacity-0 peer-checked:opacity-100">
-                  <i class="ri-check-line ri-xs"></i>
-                </div>
-              </div>
-              <span class="text-sm">${tag}</span>
-            `;
-            label.querySelector('input').addEventListener("change", updateTagsSelected);
-            tagsContainer.appendChild(label);
-          });
-        } catch (error) {
-          tagsContainer.innerHTML = '<p class="text-red-500">Không thể tải tags.</p>';
-        }
-      }
+
+
 
       function updateTagsSelected() {
         const selected = Array.from(tagsContainer.querySelectorAll('input:checked')).map(cb => cb.value);
         tagsSelected.textContent = selected.length === 0 ? "Chọn tags" : selected.length === 1 ? selected[0] : `${selected.length} đã chọn`;
       }
+
+      const searchButton = document.getElementById("search-button");
+      const searchIcon = document.getElementById("search-icon");
+      const searchSpinner = document.getElementById("search-spinner");
+      const searchText = document.getElementById("search-text");
+
+      searchButton.addEventListener("click", async function () {
+        // Show spinner, hide icon, disable button
+        searchIcon.classList.add("hidden");
+        searchSpinner.classList.remove("hidden");
+        searchButton.disabled = true;
+        searchText.textContent = "Đang tìm...";
+
+        // Simulate search delay (replace with your actual search logic)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Hide spinner, show icon, enable button
+        searchIcon.classList.remove("hidden");
+        searchSpinner.classList.add("hidden");
+        searchButton.disabled = false;
+        searchText.textContent = "Tìm kiếm";
+      });
+
     });
   </script>
 </body>
